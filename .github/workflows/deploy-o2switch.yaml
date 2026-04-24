@@ -191,16 +191,16 @@ jobs:
               tar -czf backup-frontend-$(date +%Y%m%d_%H%M%S).tar.gz "$GROUPE_PATH/agora-frontend/" 2>/dev/null || true
             fi
 
-      - name: Upload artifacts via SFTP
-        uses: Burnett01/rsync-deployments@6.0.0
+      - name: Upload artifacts via SCP
+        uses: appleboy/scp-action@master
         with:
-          switches: -avzr --delete --exclude='.git'
-          path: artifacts/
-          remote_path: ${{ secrets.O2SWITCH_DEPLOY_PATH }}/
-          remote_host: ${{ secrets.O2SWITCH_HOST }}
-          remote_user: ${{ secrets.O2SWITCH_USER }}
-          remote_key: ${{ secrets.O2SWITCH_SSH_KEY }}
-          remote_key_pass: ${{ secrets.O2SWITCH_SSH_KEY_PASS }}
+          host: ${{ secrets.O2SWITCH_HOST }}
+          username: ${{ secrets.O2SWITCH_USER }}
+          password: ${{ secrets.O2SWITCH_PASSWORD }}
+          port: ${{ secrets.O2SWITCH_PORT }}
+          source: "artifacts/*"
+          target: ${{ secrets.O2SWITCH_DEPLOY_PATH }}/
+          strip_components: 1
 
       - name: Extract and configure on O2Switch
         uses: appleboy/ssh-action@master
