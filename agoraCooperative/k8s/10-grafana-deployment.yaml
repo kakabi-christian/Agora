@@ -13,16 +13,34 @@ spec:
       labels:
         app: grafana
     spec:
+      # Sécurité au niveau du Pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 472 # ID utilisateur standard pour Grafana
+        fsGroup: 472
       containers:
       - name: grafana
         image: grafana/grafana:10.0.3
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
         ports:
         - containerPort: 3000
         env:
+        # On utilise des Secrets plutôt que des valeurs en dur
         - name: GF_SECURITY_ADMIN_USER
-          value: "admin"
+          valueFrom:
+            secretKeyRef:
+              name: agora-app-secrets
+              key: GRAFANA_ADMIN_USER
         - name: GF_SECURITY_ADMIN_PASSWORD
-          value: "admin"
+          valueFrom:
+            secretKeyRef:
+              name: agora-app-secrets
+              key: GRAFANA_ADMIN_PASSWORD
         volumeMounts:
         - name: grafana-storage
           mountPath: /var/lib/grafana

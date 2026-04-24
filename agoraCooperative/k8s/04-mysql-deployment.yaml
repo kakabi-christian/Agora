@@ -17,9 +17,19 @@ spec:
       labels:
         app: mysql
     spec:
+      # Ajout d'un contexte de sécurité au niveau du Pod
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
       containers:
       - name: mysql
-        image: mysql:8.0
+        image: mysql:8.0.36 # Utiliser une version plus précise est mieux pour la sécurité
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
         ports:
         - containerPort: 3306
           name: mysql
