@@ -1,12 +1,12 @@
 RewriteEngine On
 
-# Handle Angular Router (History API fallback)
+# Handle Angular Router (History API fallback) - for /public_html/groupe4/
 # Redirect all requests to index.html for client-side routing
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !^/api
+RewriteCond %{REQUEST_URI} !^/groupe4/api
 RewriteCond %{REQUEST_URI} !\.(?:css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ [NC]
-RewriteRule . /index.html [L]
+RewriteRule . /groupe4/index.html [L]
 
 # Security headers
 <IfModule mod_headers.c>

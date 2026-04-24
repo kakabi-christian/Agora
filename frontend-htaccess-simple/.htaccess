@@ -1,10 +1,10 @@
 RewriteEngine On
 
-# Simple Angular Router fallback
+# Simple Angular Router fallback - for /public_html/groupe4/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !^/api
-RewriteRule ^(.*)$ /index.html [L]
+RewriteCond %{REQUEST_URI} !^/groupe4/api
+RewriteRule ^(.*)$ /groupe4/index.html [L]
 
 # Basic security
 <Files ".*">

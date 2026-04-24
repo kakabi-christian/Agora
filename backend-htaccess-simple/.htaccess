@@ -1,6 +1,6 @@
 RewriteEngine On
 
-# Simple Laravel routing
+# Simple Laravel routing for /api/ subdirectory
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ public/index.php/$1 [QSA,L]
@@ -12,6 +12,11 @@ Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
 
 # Block sensitive files
 <Files ".env*">
+    Order Deny,Allow
+    Deny From All
+</Files>
+
+<Files "composer.*">
     Order Deny,Allow
     Deny From All
 </Files>
