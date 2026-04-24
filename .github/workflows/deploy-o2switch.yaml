@@ -183,8 +183,17 @@ jobs:
           tar -xzf ../../artifacts/frontend/agora-frontend.tar.gz
           
           cd ../..
-          echo "Extracted files:"
+          
+          # Copy .htaccess files
+          cp frontend-htaccess/.htaccess deploy/frontend/.htaccess
+          cp backend-htaccess/.htaccess deploy/backend/.htaccess
+          
+          echo "Extracted files and added .htaccess:"
           ls -la deploy/
+          echo "Frontend .htaccess:"
+          ls -la deploy/frontend/.htaccess
+          echo "Backend .htaccess:"
+          ls -la deploy/backend/.htaccess
 
       - name: Test FTP connectivity
         run: |
