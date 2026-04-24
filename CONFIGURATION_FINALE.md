@@ -1,18 +1,19 @@
-# Configuration finale pour O2Switch
+# Configuration finale pour O2Switch (FTP)
 
 ## ✅ Adresse serveur trouvée : `cdiu8226.odns.fr`
+## 🔧 Protocole : FTP classique (port 21)
 
 ## 🔐 Secrets GitHub à configurer
 
 Va sur : https://github.com/kakabi-christian/Agora/settings/secrets/actions
 
-### Secrets de connexion O2Switch
+### Secrets de connexion O2Switch (FTP)
 
 | Nom du secret | Valeur à utiliser | Description |
 |---------------|-------------------|-------------|
-| `O2SWITCH_FTP_HOST` | `cdiu8226.odns.fr` | Adresse du serveur (SANS sftp://) |
-| `O2SWITCH_FTP_USER` | `ton-username` | Nom d'utilisateur O2Switch |
-| `O2SWITCH_FTP_PASSWORD` | `ton-mot-de-passe` | Mot de passe O2Switch |
+| `O2SWITCH_FTP_HOST` | `cdiu8226.odns.fr` | Adresse du serveur (SANS ftp://) |
+| `O2SWITCH_FTP_USER` | `ton-username` | Nom d'utilisateur FTP O2Switch |
+| `O2SWITCH_FTP_PASSWORD` | `ton-mot-de-passe` | Mot de passe FTP O2Switch |
 
 ### Secrets de chemins de déploiement
 
@@ -40,7 +41,7 @@ Va sur : https://github.com/kakabi-christian/Agora/settings/secrets/actions
 | `BACKEND_URL` | `https://cdiu8226.odns.fr/api` | URL finale du backend |
 | `FRONTEND_URL` | `https://cdiu8226.odns.fr` | URL finale du frontend |
 
-## 🧪 Test de connectivité local
+## 🧪 Test de connectivité local (FTP)
 
 Pour vérifier que l'adresse fonctionne depuis ta machine :
 
@@ -48,12 +49,20 @@ Pour vérifier que l'adresse fonctionne depuis ta machine :
 # Test de ping
 ping cdiu8226.odns.fr
 
-# Test du port SSH/SFTP
-telnet cdiu8226.odns.fr 22
+# Test du port FTP
+telnet cdiu8226.odns.fr 21
 
-# Test SFTP complet
-sftp ton-username@cdiu8226.odns.fr
+# Test FTP complet
+ftp cdiu8226.odns.fr
+# Puis entre ton username et password
 ```
+
+## 🔧 Protocole utilisé
+
+- **Protocole** : FTP classique (non sécurisé)
+- **Port** : 21
+- **Serveur** : `cdiu8226.odns.fr`
+- **Authentification** : Username/Password
 
 ## 📁 Structure de déploiement sur O2Switch
 
@@ -83,10 +92,10 @@ git push
 ```
 
 Le workflow va :
-1. ✅ Tester la connectivité à `cdiu8226.odns.fr:22`
+1. ✅ Tester la connectivité à `cdiu8226.odns.fr:21` (FTP)
 2. ✅ Construire le backend Laravel
 3. ✅ Construire le frontend Angular
-4. ✅ Déployer via SFTP sur ton serveur O2Switch
+4. ✅ Déployer via FTP classique sur ton serveur O2Switch
 
 ## 🎯 URLs finales après déploiement
 
