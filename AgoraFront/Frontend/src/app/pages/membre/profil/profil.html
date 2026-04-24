@@ -1,0 +1,232 @@
+<div class="profil-container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Chargement de votre profil...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!loading" class="profil-content">
+        <!-- Header Section -->
+        <div class="profil-header">
+            <div class="header-left">
+                <h1 class="page-title">Mon Profil</h1>
+                <p class="page-subtitle">Gérez vos informations personnelles</p>
+            </div>
+            <div class="header-badge">
+                <span class="member-badge">
+                    <i class="badge-icon"><i class="bi bi-person-fill"></i></i>
+                    Membre Actif
+                </span>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div *ngIf="errorMessage" class="alert alert-error">
+            <i class="alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></i>
+            <div>
+                <strong>Erreur</strong>
+                <p>{{ errorMessage }}</p>
+            </div>
+        </div>
+
+        <div *ngIf="successMessage" class="alert alert-success">
+            <i class="alert-icon"><i class="bi bi-check-circle-fill"></i></i>
+            <div>
+                <strong>Succès</strong>
+                <p>{{ successMessage }}</p>
+            </div>
+        </div>
+
+        <div *ngIf="membre">
+            <!-- Alerte mot de passe temporaire -->
+            <div *ngIf="membre.mot_de_passe_temporaire" class="alert alert-warning-special">
+                <div class="warning-icon-wrapper">
+                    <i class="warning-icon"><i class="bi bi-lock-fill"></i></i>
+                </div>
+                <div class="warning-content">
+                    <h4>Action requise : Mot de passe temporaire</h4>
+                    <p>Vous utilisez actuellement un mot de passe temporaire. Pour votre sécurité, veuillez le changer
+                        immédiatement.</p>
+                </div>
+            </div>
+
+            <!-- Carte Profil Principal -->
+            <div class="profile-card">
+                <div class="profile-avatar-section">
+                    <div class="profile-avatar">
+                        <span>{{ getInitials() }}</span>
+                    </div>
+                    <div class="profile-info-header">
+                        <h2>{{ formatNom(membre.prenom) }} {{ formatNom(membre.nom) }}</h2>
+                        <p class="profile-email">{{ membre.email }}</p>
+                        <span class="profile-code">
+                            <i class="code-icon"><i class="bi bi-tag-fill"></i></i>
+                            {{ membre.code_membre }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon"><i class="bi bi-envelope-fill"></i></div>
+                        <div class="stat-details">
+                            <span class="stat-label">Email</span>
+                            <span class="stat-value">{{ membre.email }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">🆔</div>
+                        <div class="stat-details">
+                            <span class="stat-label">Code Membre</span>
+                            <span class="stat-value">{{ membre.code_membre }}</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">✓</div>
+                        <div class="stat-details">
+                            <span class="stat-label">Statut</span>
+                            <span class="stat-value status-active">Actif</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="forms-grid">
+                <!-- Section Changement de mot de passe -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                        <div>
+                            <h3>Sécurité</h3>
+                            <p>Changez votre mot de passe</p>
+                        </div>
+                    </div>
+
+                    <div *ngIf="passwordError" class="alert alert-error-inline">
+                        <i class="alert-icon-small"><i class="bi bi-exclamation-triangle-fill"></i></i>
+                        {{ passwordError }}
+                    </div>
+                    <div *ngIf="passwordSuccess" class="alert alert-success-inline">
+                        <i class="alert-icon-small"><i class="bi bi-check-circle-fill"></i></i>
+                        {{ passwordSuccess }}
+                    </div>
+
+                    <form (ngSubmit)="changePassword()" class="modern-form">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="input-icon"><i class="bi bi-key-fill"></i></i>
+                                Ancien mot de passe
+                            </label>
+                            <input type="password" name="ancien_mot_de_passe"
+                                [(ngModel)]="passwordForm.ancien_mot_de_passe" class="form-input"
+                                placeholder="Entrez votre ancien mot de passe" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="input-icon">🆕</i>
+                                Nouveau mot de passe
+                            </label>
+                            <input type="password" name="nouveau_mot_de_passe"
+                                [(ngModel)]="passwordForm.nouveau_mot_de_passe" class="form-input"
+                                placeholder="Minimum 8 caractères" required minlength="8" />
+                            <small class="form-hint">
+                                <i class="hint-icon">ℹ️</i>
+                                Utilisez au moins 8 caractères avec lettres et chiffres
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="input-icon">✓</i>
+                                Confirmer le mot de passe
+                            </label>
+                            <input type="password" name="nouveau_mot_de_passe_confirmation"
+                                [(ngModel)]="passwordForm.nouveau_mot_de_passe_confirmation" class="form-input"
+                                placeholder="Confirmez votre nouveau mot de passe" required />
+                        </div>
+
+                        <button type="submit" class="btn btn-warning" [disabled]="changingPassword">
+                            <i class="btn-icon" *ngIf="!changingPassword"><i class="bi bi-lock-fill"></i></i>
+                            <div class="btn-spinner" *ngIf="changingPassword"></div>
+                            {{ changingPassword ? 'Changement en cours...' : 'Changer le mot de passe' }}
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Section Informations personnelles -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon"><i class="bi bi-person-lines-fill"></i></div>
+                        <div>
+                            <h3>Informations personnelles</h3>
+                            <p>Mettez à jour vos coordonnées</p>
+                        </div>
+                    </div>
+
+                    <form (ngSubmit)="save()" class="modern-form">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="input-icon"><i class="bi bi-telephone-fill"></i></i>
+                                Téléphone
+                            </label>
+                            <input type="text" name="telephone" [(ngModel)]="form.telephone" class="form-input"
+                                placeholder="Ex: +237 6XX XX XX XX" />
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="input-icon"><i class="bi bi-house-fill"></i></i>
+                                Adresse
+                            </label>
+                            <input type="text" name="adresse" [(ngModel)]="form.adresse" class="form-input"
+                                placeholder="Votre adresse complète" />
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="input-icon"><i class="bi bi-building-fill"></i></i>
+                                    Ville
+                                </label>
+                                <input type="text" name="ville" [(ngModel)]="form.ville" class="form-input"
+                                    placeholder="Votre ville" />
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="input-icon"><i class="bi bi-mailbox-fill"></i></i>
+                                    Code postal
+                                </label>
+                                <input type="text" name="code_postal" [(ngModel)]="form.code_postal" class="form-input"
+                                    placeholder="Code postal" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="input-icon">✍️</i>
+                                Biographie
+                            </label>
+                            <textarea name="biographie" [(ngModel)]="form.biographie" class="form-textarea" rows="5"
+                                placeholder="Parlez-nous de vous, vos compétences, vos intérêts..."></textarea>
+                            <small class="form-hint">
+                                <i class="hint-icon"><i class="bi bi-lightbulb-fill"></i></i>
+                                Présentez-vous aux autres membres de la coopérative
+                            </small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" [disabled]="saving">
+                            <i class="btn-icon" *ngIf="!saving"><i class="bi bi-save-fill"></i></i>
+                            <div class="btn-spinner" *ngIf="saving"></div>
+                            {{ saving ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

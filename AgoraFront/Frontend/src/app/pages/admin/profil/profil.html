@@ -1,0 +1,63 @@
+<div class="profil-page">
+  <div class="profil-header">
+    <h1>Mon Profil Administrateur</h1>
+    <p>Informations d'identification de la coopérative Agora.</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-box">
+    <p>Récupération de vos données en cours...</p>
+  </div>
+
+  <div class="profil-card" *ngIf="!loading && user">
+    <div class="user-identity">
+      <div class="user-avatar" *ngIf="!user.photo_url">
+        {{ user.prenom.charAt(0) }}{{ user.nom.charAt(0) }}
+      </div>
+      <img *ngIf="user.photo_url" [src]="user.photo_url" class="user-avatar-img" alt="Photo de profil">
+      
+      <div class="user-name">
+        <h2>{{ user.prenom }} {{ user.nom }}</h2>
+        <span class="role-badge">{{ user.role }}</span>
+      </div>
+    </div>
+
+    <div class="info-list">
+      <div class="info-row">
+        <span class="label">Code Membre</span>
+        <span class="value">{{ user.code_membre }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">Adresse Email</span>
+        <span class="value">{{ user.email }}</span>
+      </div>
+      
+      <div class="info-row">
+        <span class="label">Téléphone</span>
+        <span class="value">{{ user.telephone || 'Non renseigné' }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">Localisation</span>
+        <span class="value">{{ user.ville }}{{ user.code_postal ? ', ' + user.code_postal : '' }}</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">État du compte</span>
+        <span class="value" [ngClass]="user.est_actif ? 'status-active' : 'status-inactive'">
+          {{ user.est_actif ? 'Compte Actif' : 'Compte Inactif' }}
+        </span>
+      </div>
+
+      <div class="info-row" *ngIf="user.date_inscription">
+        <span class="label">Membre depuis le</span>
+        <span class="value">{{ user.date_inscription | date:'dd MMMM yyyy' }}</span>
+      </div>
+    </div>
+
+    <div class="bio-section" *ngIf="user.biographie">
+      <span class="label">Biographie</span>
+      <p>{{ user.biographie }}</p>
+    </div>
+  </div>
+</div>

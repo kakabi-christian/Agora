@@ -1,0 +1,105 @@
+<div class="retrait-container">
+  <div class="retrait-wrapper">
+    <div class="retrait-card">
+      <!-- Header -->
+      <div class="retrait-header">
+        <div class="header-icon">
+          <i class="bi bi-cash-coin"></i>
+        </div>
+        <h2 class="header-title">Retrait de Fonds</h2>
+        <p class="header-subtitle">Espace Administration Sécurisé</p>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-wrapper">
+        <div class="progress-bar-custom" [class.complete]="step === 2">
+          <div class="progress-step" [class.active]="step >= 1">
+            <div class="step-circle">1</div>
+            <span class="step-label">Montant</span>
+          </div>
+          <div class="progress-line" [class.active]="step === 2"></div>
+          <div class="progress-step" [class.active]="step === 2">
+            <div class="step-circle">2</div>
+            <span class="step-label">Validation</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="retrait-content">
+
+        <!-- Alert Messages -->
+        <div *ngIf="message" [class]="isError ? 'alert-error' : 'alert-success'" class="alert-message">
+          <i [class]="isError ? 'bi bi-exclamation-triangle-fill' : 'bi bi-check-circle-fill'"></i>
+          <span>{{ message }}</span>
+        </div>
+
+        <!-- Step 1: Amount -->
+        <div *ngIf="step === 1" class="step-content">
+          <div class="step-header">
+            <h3 class="step-title">Montant du retrait</h3>
+            <p class="step-description">Indiquez le montant que vous souhaitez retirer</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Montant (FCFA)</label>
+            <div class="amount-input-wrapper">
+              <input type="number" [(ngModel)]="amount" class="amount-input" placeholder="0" min="5">
+              <span class="currency-badge">FCFA</span>
+            </div>
+            <p class="form-hint" *ngIf="amount && amount < 5">
+              <i class="bi bi-info-circle"></i>
+              Le montant minimum est de 5 FCFA
+            </p>
+          </div>
+
+          <button (click)="nextStep()" [disabled]="!amount || amount < 5" class="btn btn-primary btn-lg btn-block">
+            Continuer
+            <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- Step 2: Validation -->
+        <div *ngIf="step === 2" class="step-content">
+          <div class="step-header">
+            <h3 class="step-title">Validation de sécurité</h3>
+            <p class="step-description">Confirmez votre retrait avec votre mot de passe</p>
+          </div>
+
+          <div class="amount-summary">
+            <div class="summary-label">Montant à retirer</div>
+            <div class="summary-amount">{{ amount | number }} FCFA</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mot de passe administrateur</label>
+            <div class="password-input-wrapper">
+              <input type="password" [(ngModel)]="password" class="password-input"
+                placeholder="Entrez votre mot de passe">
+              <i class="bi bi-lock-fill"></i>
+            </div>
+          </div>
+
+          <div class="button-group">
+            <button (click)="prevStep()" [disabled]="isLoading" class="btn btn-secondary">
+              <i class="bi bi-arrow-left"></i>
+              Retour
+            </button>
+            <button (click)="confirmWithdraw()" [disabled]="!password || isLoading" class="btn btn-success btn-lg">
+              <span *ngIf="isLoading" class="spinner"></span>
+              <span *ngIf="!isLoading"><i class="bi bi-check-circle"></i></span>
+              {{ isLoading ? 'Traitement...' : 'Confirmer le retrait' }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="retrait-footer">
+        <i class="bi bi-shield-check"></i>
+        <span>Transaction sécurisée par Campay</span>
+      </div>
+    </div>
+  </div>
+</div>

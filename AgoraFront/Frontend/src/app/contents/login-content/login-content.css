@@ -1,0 +1,64 @@
+/* Centrage et Fond */
+.login-wrapper {
+  min-height: 100vh;
+  background-color: var(--color-light-gray);
+  padding: 15px;
+}
+
+/* Carte de Login */
+.login-card {
+  width: 100%;
+  max-width: 480px;
+  border-radius: var(--radius-md) !important;
+}
+
+.login-title {
+  color: var(--color-primary);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.login-subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+/* Inputs */
+.form-control {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+}
+
+.form-control:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(27, 94, 32, 0.15);
+}
+
+/* Bouton */
+.btn-primary {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--bs-link-hover-color) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(27, 94, 32, 0.2);
+}
+
+/* Liens spécifiques */
+.forgot-link, .signup-link {
+  color: var(--color-primary);
+  transition: color 0.2s;
+}
+
+.forgot-link:hover, .signup-link:hover {
+  color: var(--bs-link-hover-color);
+  text-decoration: underline !important;
+}
+
+.form-control.is-invalid {
+  border-color: var(--color-danger);
+}

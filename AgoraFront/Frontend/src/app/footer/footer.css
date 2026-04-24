@@ -1,0 +1,56 @@
+/* src/app/footer/footer.css */
+/* Fond du footer avec ton noir personnalisé */
+.footer-custom {
+    background-color: var(--color-black) !important;
+    border-top: 4px solid var(--color-success); /* Rappel du vert de la coopérative */
+    font-size: 0.95rem;
+}
+
+/* Couleurs spécifiques basées sur tes codes Bootstrap */
+.text-success-custom { 
+    color: var(--color-success) !important; 
+}
+
+.text-primary-custom { 
+    color: var(--color-primary) !important; 
+}
+
+.text-danger-custom { 
+    color: var(--color-danger) !important; 
+}
+
+/* Style des liens du footer */
+.footer-link {
+    color: var(--color-white);
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
+    display: inline-block; /* Pour permettre le décalage au survol */
+}
+
+/* Effet au survol des liens */
+.footer-link:hover {
+    color: var(--color-success) !important;
+    transform: translateX(5px); /* Petit décalage vers la droite */
+}
+
+/* Icônes de contact */
+.footer-custom i {
+    color: var(--color-primary);
+    font-size: 1.1rem;
+}
+
+/* Barre de copyright en bas */
+.border-top.border-dark {
+    border-color: rgba(255, 255, 255, 0.1) !important; /* Une ligne très discrète */
+}
+
+/* Adaptation pour les petits écrans */
+@media (max-width: 768px) {
+    .footer-custom {
+        text-align: center;
+    }
+    
+    .footer-link:hover {
+        transform: none; /* On retire le décalage sur mobile pour éviter les bugs visuels */
+    }
+}

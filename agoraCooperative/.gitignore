@@ -1,0 +1,33 @@
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+
+# Laravel specific
+.idea/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db
+
+# Testing
+/coverage/
+.phpunit.cache/
+
+# Docker
+docker-compose.override.yml
+DEPLOYMENT.md
+GUIDE_MONITORING.md
+GUIDE_ELK.md
+k8s/blue-green-switch.sh
+k8s/deploy.sh
+k8s/rollback.sh

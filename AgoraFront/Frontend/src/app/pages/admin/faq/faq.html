@@ -1,0 +1,96 @@
+<div class="container-fluid py-4">
+  <div class="d-md-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Foire Aux Questions</h2>
+      <p class="text-muted small mb-0">Gérez les questions fréquemment posées par les membres</p>
+    </div>
+    <button *ngIf="isAdmin()" class="btn btn-success px-4 shadow-sm" (click)="ouvrirModal()">
+      <i class="bi bi-plus-circle me-2"></i>Nouvelle FAQ
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+
+  <div class="row g-3" *ngIf="!loading">
+    <div class="col-12" *ngFor="let f of faqs">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between">
+            <span class="badge bg-light text-primary mb-2">{{ f.categorie | uppercase }}</span>
+            <div *ngIf="isAdmin()" class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-primary" (click)="ouvrirModal(f)">
+                    <i class="bi bi-pencil me-2"></i> Modifier        
+                      </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="supprimer(f.id!)">
+                <i class="bi bi-trash me-2"></i> Supprimer            
+              </button>
+            </div>
+          </div>
+          <h5 class="fw-bold">{{ f.question }}</h5>
+          <p class="text-muted mb-0">{{ f.reponse }}</p>
+          <div class="mt-3 d-flex gap-3 text-muted small">
+            <span><i class="bi bi-eye me-1"></i> {{ f.nombre_vues || 0 }} vues</span>
+            <span><i class="bi bi-hand-thumbs-up me-1"></i> {{ f.nombre_utile || 0 }} utiles</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade show" tabindex="-1" *ngIf="showModal" style="display: block; background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-dark text-white">
+          <h5 class="modal-title">{{ isEditMode ? 'Modifier la FAQ' : 'Nouvelle FAQ' }}</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="showModal = false"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form (ngSubmit)="enregistrer()">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Question</label>
+              <input type="text" class="form-control" [(ngModel)]="currentFaq.question" name="question" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Réponse</label>
+              <textarea class="form-control" rows="4" [(ngModel)]="currentFaq.reponse" name="reponse" required></textarea>
+            </div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Catégorie</label>
+                <select class="form-select" [(ngModel)]="currentFaq.categorie" name="categorie">
+                  <option *ngFor="let cat of categories" [value]="cat">{{ cat | titlecase }}</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Ordre d'affichage</label>
+                <input type="number" class="form-control" [(ngModel)]="currentFaq.ordre_affichage" name="ordre">
+              </div>
+            </div>
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" [(ngModel)]="currentFaq.est_actif" name="actif" id="faqActif">
+              <label class="form-check-label" for="faqActif">FAQ Active</label>
+            </div>
+            <div class="text-end">
+              <button type="button" class="btn btn-light me-2" (click)="showModal = false">Annuler</button>
+              <button type="submit" class="btn btn-success px-4">Enregistrer</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="mt-4" *ngIf="paginationMeta && paginationMeta.last_page > 1">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="paginationMeta.current_page === 1">
+        <button class="page-link" (click)="allerAPage(paginationMeta.current_page - 1)">Précédent</button>
+      </li>
+      <li class="page-item active"><span class="page-link">{{ paginationMeta.current_page }}</span></li>
+      <li class="page-item" [class.disabled]="paginationMeta.current_page === paginationMeta.last_page">
+        <button class="page-link" (click)="allerAPage(paginationMeta.current_page + 1)">Suivant</button>
+      </li>
+    </ul>
+  </nav>
+</div>

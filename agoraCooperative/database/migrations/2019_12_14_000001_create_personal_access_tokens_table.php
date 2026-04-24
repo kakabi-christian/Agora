@@ -1,0 +1,46 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreatePersonalAccessTokensTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('personal_access_tokens', function (Blueprint $table) {
+            $table->id();
+
+            // ❌ on ne met PLUS morphs()
+            // $table->morphs('tokenable');
+
+            // ✅ version STRING compatible avec ADMIN001
+            $table->string('tokenable_type',150);
+            $table->string('tokenable_id',100);
+
+            $table->string('name');
+            $table->string('token', 64)->unique();
+            $table->text('abilities')->nullable();
+            $table->timestamp('last_used_at')->nullable();
+            $table->timestamps();
+
+            // Index recommandé
+            $table->index(['tokenable_type', 'tokenable_id']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('personal_access_tokens');
+    }
+}

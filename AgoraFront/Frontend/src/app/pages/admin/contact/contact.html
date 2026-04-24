@@ -1,0 +1,125 @@
+<div class="admin-contact-container">
+  <div class="success-overlay" *ngIf="showSuccessToast">
+    <div class="success-toast animate__animated animate__fadeInDown">
+      <div class="success-icon">✓</div>
+      <div class="success-content">
+        <h3>Opération réussie</h3>
+        <p>{{ successMessage }}</p>
+      </div>
+      <div class="progress-bar"></div>
+    </div>
+  </div>
+
+  <div class="dashboard-header">
+    <div>
+      <h1>Gestion des Contacts</h1>
+      <p class="subtitle">Consultez et gérez les demandes de vos partenaires agricoles</p>
+    </div>
+    <button class="btn-refresh" (click)="loadMessages()" [disabled]="isLoading">
+      <i class="bi bi-arrow-clockwise"></i>
+      <span *ngIf="!isLoading"> Actualiser</span>
+      <span *ngIf="isLoading"> Chargement...</span>
+    </button>
+  </div>
+
+  <div class="table-card">
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Récupération des messages en cours...</p>
+    </div>
+
+    <table *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>Statut</th>
+          <th>Date</th>
+          <th>Expéditeur</th>
+          <th>Objet / Type</th>
+          <th>Message</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of messages" [class.unread-row]="!m.lu">
+          <td>
+            <div class="status-container">
+              <span [class]="m.lu ? 'status-pill read' : 'status-pill unread'">
+                {{ m.lu ? 'Lu' : 'Nouveau' }}
+              </span>
+              <span *ngIf="m.statut === 'traité'" class="status-pill treated">Répondu</span>
+            </div>
+          </td>
+          <td class="date-cell">{{ m.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>
+            <div class="user-info">
+              <span class="user-name">{{ m.nom_expediteur }}</span>
+              <span class="user-email">{{ m.email_expediteur }}</span>
+              <span class="user-phone" *ngIf="m.telephone">{{ m.telephone }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="badge-type">{{ m.type_demande }}</span>
+            <div class="subject-text">{{ m.sujet }}</div>
+          </td>
+          <td class="message-preview">
+            {{ m.message | slice:0:60 }}{{ m.message.length > 60 ? '...' : '' }}
+          </td>
+          <td class="actions-cell">
+            <button class="btn-icon btn-reply" (click)="openReplyModal(m)" title="Répondre par email">
+              <i class="bi bi-reply-fill"></i>
+            </button>
+            <button class="btn-icon" (click)="toggleStatus(m)"
+              [title]="m.lu ? 'Marquer comme non lu' : 'Marquer comme lu'">
+              <i [class]="m.lu ? 'bi bi-envelope-fill' : 'bi bi-eye-fill'"></i>
+            </button>
+            <button class="btn-icon btn-delete" (click)="onDeleteMessage(m.id)" title="Supprimer">
+              <i class="bi bi-trash-fill"></i>
+            </button>
+          </td>
+        </tr>
+
+        <tr *ngIf="messages && messages.length === 0">
+          <td colspan="6" class="empty-state">
+            <div class="empty-content">
+              <i class="bi bi-mailbox2"></i>
+              <p>Aucun message reçu pour le moment.</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showReplyModal" (click)="closeReplyModal()">
+  <div class="reply-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Répondre à {{ selectedMessage?.nom_expediteur }}</h2>
+      <button class="close-x" (click)="closeReplyModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="recall-box">
+        <strong>Message original :</strong>
+        <p>" {{ selectedMessage?.message }} "</p>
+      </div>
+
+      <div class="reply-form">
+        <label for="replyText">Votre réponse (envoyée par email à {{ selectedMessage?.email_expediteur }})</label>
+        <textarea id="replyText" [(ngModel)]="replyText" rows="6"
+          placeholder="Bonjour {{ selectedMessage?.nom_expediteur }}, suite à votre demande...">
+        </textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeReplyModal()" [disabled]="isSendingReply">
+        Annuler
+      </button>
+      <button class="btn-send" (click)="sendReply()" [disabled]="isSendingReply || !replyText.trim()">
+        <span *ngIf="!isSendingReply">Envoyer la réponse</span>
+        <span *ngIf="isSendingReply" class="spinner-small">Chargement...</span>
+      </button>
+    </div>
+  </div>
+</div>

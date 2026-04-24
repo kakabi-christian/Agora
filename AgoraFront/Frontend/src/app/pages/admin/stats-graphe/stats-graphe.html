@@ -1,0 +1,68 @@
+<div class="row g-4" *ngIf="statsData">
+  <div class="col-lg-8">
+    <div class="ag-card p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold text-primary mb-0">Analyse des Flux Financiers</h5>
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Tendance Temporelle</span>
+      </div>
+      <div style="height: 300px; position: relative;">
+        <canvas baseChart
+          *ngIf="lineChartData.labels && lineChartData.labels.length > 0"
+          [data]="lineChartData"
+          [options]="lineChartOptions"
+          [type]="'line'">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="ag-card p-4 h-100">
+      <h5 class="fw-bold text-primary mb-4">Sources de Revenus</h5>
+      <div style="height: 220px;" class="position-relative">
+        <canvas baseChart
+          [data]="doughnutChartData"
+          [options]="doughnutChartOptions"
+          [type]="'doughnut'">
+        </canvas>
+        <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events: none;">
+          <small class="text-muted d-block text-uppercase" style="font-size: 0.65rem;">Total</small>
+          <strong class="text-dark d-block" style="font-size: 0.9rem;">
+            {{ statsData.finance.total_revenus | number:'1.0-0':'fr-FR' }}
+          </strong>
+          <small class="text-muted" style="font-size: 0.6rem;">FCFA</small>
+        </div>
+      </div>
+      
+      <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+          <span><i class="fas fa-circle text-primary me-2"></i>Dons</span>
+          <span class="fw-bold text-primary">{{ statsData.finance.part_dons }}%</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+          <span><i class="fas fa-circle text-success me-2"></i>Événements</span>
+          <span class="fw-bold text-success">{{ statsData.finance.part_inscriptions }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 mt-4">
+    <div class="ag-card p-4">
+      <h5 class="fw-bold text-primary mb-4">Activité par Localisation (Top Villes)</h5>
+      <div style="height: 250px; position: relative;">
+        <canvas baseChart
+          *ngIf="barChartData.labels && barChartData.labels.length > 0"
+          [data]="barChartData"
+          [options]="barChartOptions"
+          [type]="'bar'">
+        </canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!statsData" class="text-center py-5">
+  <div class="spinner-border text-primary-emphasis" role="status"></div>
+  <p class="text-muted mt-2">Préparation des graphiques...</p>
+</div>

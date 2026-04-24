@@ -1,0 +1,23 @@
+.card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important;
+}
+
+.badge {
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #27ae60;
+  box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.15);
+}
+
+.modal-content {
+  border-radius: 15px;
+}

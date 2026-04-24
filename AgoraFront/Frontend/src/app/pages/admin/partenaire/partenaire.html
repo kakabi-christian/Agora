@@ -1,0 +1,192 @@
+<div class="container-fluid py-4">
+  <div class="d-md-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Gestion des Partenaires</h2>
+      <p class="text-muted small mb-0">Pilotez les alliances stratégiques et les soutiens de la coopérative</p>
+    </div>
+    <div class="d-flex gap-3 align-items-center">
+      <div class="badge bg-primary fs-6 py-2 px-3 shadow-sm">
+        Total : {{ paginationMeta?.total || 0 }} partenaire(s)
+      </div>
+      <button *ngIf="isAdmin()" class="btn btn-success px-4 py-2 rounded shadow-sm" (click)="ouvrirModal()">
+        <i class="bi bi-plus-circle me-2"></i>Nouveau Partenaire
+      </button>
+    </div>
+  </div>
+
+  <div class="btn-group mb-4 shadow-sm bg-white p-1 rounded border">
+    <button type="button" class="btn btn-sm px-3" [ngClass]="currentStatut === '' ? 'btn-primary text-white' : 'btn-white'" (click)="chargerPartenaires(1)">Tous</button>
+    <button type="button" class="btn btn-sm px-3" [ngClass]="currentStatut === 'principal' ? 'btn-primary text-white' : 'btn-white'" (click)="currentStatut = 'principal'; chargerPartenaires(1)">Principaux</button>
+    <button type="button" class="btn btn-sm px-3" [ngClass]="currentStatut === 'secondaire' ? 'btn-primary text-white' : 'btn-white'" (click)="currentStatut = 'secondaire'; chargerPartenaires(1)">Secondaires</button>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2 text-muted small">Chargement des partenaires...</p>
+  </div>
+
+  <div class="row g-4" *ngIf="!loading && partenaires.length > 0">
+    <div class="col-12 col-md-6 col-lg-4" *ngFor="let p of partenaires">
+      <div class="card h-100 shadow-sm border-0 position-relative overflow-hidden">
+        
+        <div class="position-absolute top-0 end-0 p-2">
+          <span class="badge shadow-sm" [ngClass]="p.est_actif ? 'bg-success' : 'bg-secondary'">
+            {{ p.est_actif ? 'Actif' : 'Inactif' }}
+          </span>
+        </div>
+
+        <div class="card-body pt-4">
+          <div class="text-center mb-4">
+            <div class="p-2 border rounded-4 bg-light d-inline-flex align-items-center justify-content-center shadow-sm" 
+                 style="width: 100%; max-width: 220px; height: 140px; overflow: hidden; background-color: #fff;">
+                <img *ngIf="p.logo_url" [src]="storageUrl + p.logo_url" 
+                     class="img-fluid" 
+                     style="max-height: 100%; width: auto; object-fit: contain;">
+                <div *ngIf="!p.logo_url" class="h-100 d-flex flex-column align-items-center justify-content-center text-muted">
+                  <i class="bi bi-image fs-1 opacity-25"></i>
+                  <span class="small fw-bold">LOGO</span>
+                </div>
+            </div>
+          </div>
+
+          <h5 class="card-title fw-bold text-dark text-center mb-1">{{ p.nom }}</h5>
+          <div class="text-center mb-3">
+            <span class="badge bg-light text-primary border-primary border px-3">{{ p.type | uppercase }}</span>
+          </div>
+
+          <div class="small text-muted mb-3">
+            <div class="mb-1"><i class="bi bi-person-badge me-2 text-success"></i><strong>Contact:</strong> {{ p.contact_nom || 'N/A' }}</div>
+            <div class="mb-1"><i class="bi bi-telephone me-2 text-success"></i>{{ p.contact_telephone || 'Non renseigné' }}</div>
+            <div class="mb-1"><i class="bi bi-globe me-2 text-success"></i><a [href]="p.site_web" target="_blank" class="text-decoration-none text-muted">{{ p.site_web || 'Pas de site' }}</a></div>
+          </div>
+          
+          <div class="p-3 bg-light rounded mb-3 border-start border-3 border-primary">
+            <label class="fw-bold small text-uppercase text-secondary d-block mb-1">Description :</label>
+            <p class="card-text small mb-0">{{ p.description | slice:0:100 }}{{ (p.description?.length ?? 0) > 100 ? '...' : '' }}</p>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center border-top pt-2">
+            <span class="small fw-bold text-uppercase text-muted" style="font-size: 0.7rem;">Niveau: {{ p.niveau_partenariat }}</span>
+            <span class="small text-muted">Ordre: <strong>#{{ p.ordre_affichage }}</strong></span>
+          </div>
+        </div>
+
+        <div class="card-footer bg-white border-top-0 p-3" *ngIf="isAdmin()">
+          <div class="row g-2">
+            <div class="col-6">
+              <button class="btn btn-outline-primary btn-sm w-100 py-2" (click)="ouvrirModal(p)">
+                <i class="bi bi-pencil me-1"></i> Modifier
+              </button>
+            </div>
+            <div class="col-6">
+              <button class="btn btn-outline-danger btn-sm w-100 py-2" (click)="supprimer(p.code_partenaire!)">
+                <i class="bi bi-trash me-1"></i> Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade show" tabindex="-1" *ngIf="showModal" style="display: block; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content shadow border-0 rounded-4">
+        <div class="modal-header bg-dark text-white rounded-top-4">
+          <h5 class="modal-title fw-bold">
+            {{ isEditMode ? 'Modifier le Partenaire' : 'Nouveau Partenaire' }}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="showModal = false"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <form (ngSubmit)="enregistrer()">
+            <div class="row g-3">
+              <div class="col-md-7">
+                <label class="form-label fw-bold small">Nom de l'organisation *</label>
+                <input type="text" class="form-control" [(ngModel)]="currentPartenaire.nom" name="nom" required>
+              </div>
+              <div class="col-md-5">
+                <label class="form-label fw-bold small">Type</label>
+                <select class="form-select" [(ngModel)]="currentPartenaire.type" name="type">
+                  <option value="sponsor">Sponsor</option>
+                  <option value="donateur">Donateur</option>
+                  <option value="institutionnel">Institutionnel</option>
+                  <option value="technique">Technique</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-bold small">Description courte</label>
+                <textarea class="form-control" rows="2" [(ngModel)]="currentPartenaire.description" name="description"></textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold small">Site Web (URL)</label>
+                <input type="url" class="form-control" [(ngModel)]="currentPartenaire.site_web" name="site_web" placeholder="https://...">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold small">Nom du Contact</label>
+                <input type="text" class="form-control" [(ngModel)]="currentPartenaire.contact_nom" name="contact_nom">
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold small">Email Contact</label>
+                <input type="email" class="form-control" [(ngModel)]="currentPartenaire.contact_email" name="contact_email">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold small">Téléphone</label>
+                <input type="text" class="form-control" [(ngModel)]="currentPartenaire.contact_telephone" name="contact_telephone">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fw-bold small">Niveau d'importance</label>
+                <select class="form-select" [(ngModel)]="currentPartenaire.niveau_partenariat" name="niveau">
+                  <option value="principal">Principal</option>
+                  <option value="secondaire">Secondaire</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold small">Ordre d'affichage</label>
+                <input type="number" class="form-control" [(ngModel)]="currentPartenaire.ordre_affichage" name="ordre">
+              </div>
+              <div class="col-md-4 d-flex align-items-end pb-2">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" [(ngModel)]="currentPartenaire.est_actif" name="actif" id="pActif">
+                  <label class="form-check-label fw-bold small" for="pActif">Partenaire Actif</label>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-bold small">Logo de l'entreprise</label>
+                <input type="file" class="form-control" (change)="onFileSelected($event)">
+                <small class="text-muted" *ngIf="isEditMode">Laissez vide pour conserver le logo actuel</small>
+              </div>
+            </div>
+
+            <div class="modal-footer px-0 pb-0 pt-4 border-top-0">
+              <button type="button" class="btn btn-light px-4" (click)="showModal = false">Annuler</button>
+              <button type="submit" class="btn btn-success px-5 shadow-sm">
+                {{ isEditMode ? 'Mettre à jour' : 'Créer le Partenaire' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="mt-5 d-flex justify-content-center" *ngIf="paginationMeta && paginationMeta.last_page > 1">
+    <ul class="pagination shadow-sm">
+      <li class="page-item" [class.disabled]="paginationMeta.current_page === 1">
+        <button class="page-link" (click)="allerAPage(paginationMeta.current_page - 1)">Précédent</button>
+      </li>
+      <li class="page-item active">
+        <span class="page-link px-4">Page {{ paginationMeta.current_page }} / {{ paginationMeta.last_page }}</span>
+      </li>
+      <li class="page-item" [class.disabled]="paginationMeta.current_page === paginationMeta.last_page">
+        <button class="page-link" (click)="allerAPage(paginationMeta.current_page + 1)">Suivant</button>
+      </li>
+    </ul>
+  </nav>
+</div>

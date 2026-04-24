@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agora-app-config
+  namespace: agora-cooperative
+data:
+  APP_NAME: "Agora Cooperative"
+  APP_ENV: "production"
+  APP_DEBUG: "false"
+  LOG_CHANNEL: "stack"
+  DB_CONNECTION: "mysql"
+  DB_HOST: "mysql-service"
+  DB_PORT: "3306"
+  DB_DATABASE: "agora"
+  CACHE_DRIVER: "file"
+  QUEUE_CONNECTION: "sync"
+  SESSION_DRIVER: "file"

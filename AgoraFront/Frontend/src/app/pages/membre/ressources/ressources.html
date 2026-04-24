@@ -1,0 +1,212 @@
+<div class="ressources-container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Chargement des ressources...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!loading" class="ressources-content">
+        <!-- Header Section -->
+        <div class="ressources-header">
+            <div class="header-left">
+                <h1 class="page-title">Ressources</h1>
+                <p class="page-subtitle">Accédez aux documents et fichiers de la coopérative</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="stat-icon"><i class="bi bi-folder-fill"></i></i>
+                    <div>
+                        <span class="stat-number">{{ items.length || 0 }}</span>
+                        <span class="stat-label">Ressources</span>
+                    </div>
+                </div>
+                <div class="stat-badge categories" *ngIf="getUniqueCategories().length > 0">
+                    <i class="stat-icon"><i class="bi bi-tags-fill"></i></i>
+                    <div>
+                        <span class="stat-number">{{ getUniqueCategories().length }}</span>
+                        <span class="stat-label">Catégories</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="alert alert-error">
+            <i class="alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></i>
+            <div>
+                <strong>Erreur</strong>
+                <p>{{ errorMessage }}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!errorMessage">
+            <!-- Filters Section -->
+            <div class="filters-card" *ngIf="items.length">
+                <div class="filters-header">
+                    <h3>
+                        <i class="filter-icon"><i class="bi bi-funnel-fill"></i></i>
+                        Filtrer les ressources
+                    </h3>
+                    <button class="btn-reset" (click)="resetFilters()" *ngIf="hasActiveFilters()">
+                        <i class="reset-icon"><i class="bi bi-arrow-clockwise"></i></i>
+                        Réinitialiser
+                    </button>
+                </div>
+                <div class="filters-grid">
+                    <div class="filter-item">
+                        <label class="filter-label">Catégorie</label>
+                        <select class="filter-select" [(ngModel)]="selectedCategory" (change)="applyFilters()">
+                            <option value="all">Toutes les catégories</option>
+                            <option *ngFor="let cat of getUniqueCategories()" [value]="cat">{{ cat }}</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Type de fichier</label>
+                        <select class="filter-select" [(ngModel)]="selectedType" (change)="applyFilters()">
+                            <option value="all">Tous les types</option>
+                            <option *ngFor="let type of getUniqueTypes()" [value]="type">{{ type }}</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Rechercher</label>
+                        <input type="text" class="filter-input" [(ngModel)]="searchQuery" (input)="applyFilters()"
+                            placeholder="Titre, description...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resources Grid -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="header-title-wrapper">
+                        <div class="section-icon"><i class="bi bi-book-fill"></i></div>
+                        <div>
+                            <h2>Documents disponibles</h2>
+                            <p class="section-subtitle">Téléchargez les ressources dont vous avez besoin</p>
+                        </div>
+                    </div>
+                    <span class="count-badge">{{ filteredItems.length || 0 }}</span>
+                </div>
+
+                <div *ngIf="filteredItems.length; else empty" class="resources-grid">
+                    <div *ngFor="let r of filteredItems" class="resource-card">
+                        <div class="card-header">
+                            <div class="resource-icon" [class]="getFileTypeClass(r.type)">
+                                <i class="bi" [ngClass]="getFileTypeIcon(r.type)"></i>
+                            </div>
+                            <div class="card-badges">
+                                <span class="category-badge" *ngIf="r.categorie">
+                                    {{ r.categorie }}
+                                </span>
+                                <span class="type-badge" [class]="getFileTypeClass(r.type)">
+                                    {{ r.type || 'Fichier' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-content">
+                            <h3 class="resource-title">
+                                {{ r.titre || r.nom || ('Ressource ' + r.id) }}
+                            </h3>
+                            <p class="resource-description" *ngIf="r.description">
+                                {{ truncateDescription(r.description) }}
+                            </p>
+
+                            <div class="resource-meta">
+                                <div class="meta-item" *ngIf="r.taille">
+                                    <i class="meta-icon"><i class="bi bi-hdd-fill"></i></i>
+                                    <span>{{ formatFileSize(r.taille) }}</span>
+                                </div>
+                                <div class="meta-item" *ngIf="r.date_creation">
+                                    <i class="meta-icon"><i class="bi bi-calendar-event-fill"></i></i>
+                                    <span>{{ formatDate(r.date_creation) }}</span>
+                                </div>
+                                <div class="meta-item" *ngIf="r.auteur">
+                                    <i class="meta-icon"><i class="bi bi-person-fill"></i></i>
+                                    <span>{{ r.auteur }}</span>
+                                </div>
+                                <div class="meta-item" *ngIf="r.telechargements">
+                                    <i class="meta-icon"><i class="bi bi-download"></i></i>
+                                    <span>{{ r.telechargements }} téléchargement(s)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <button type="button" class="btn-download" (click)="download(r.id)"
+                                [disabled]="downloadingId === r.id">
+                                <i class="btn-icon" *ngIf="downloadingId !== r.id"><i class="bi bi-download"></i></i>
+                                <div class="btn-spinner" *ngIf="downloadingId === r.id"></div>
+                                {{ downloadingId === r.id ? 'Téléchargement...' : 'Télécharger' }}
+                            </button>
+                            <button type="button" class="btn-preview" *ngIf="canPreview(r.type)" (click)="preview(r)">
+                                <i class="btn-icon"><i class="bi bi-eye-fill"></i></i>
+                                Aperçu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <ng-template #empty>
+                    <div class="empty-state">
+                        <i class="empty-icon"><i class="bi bi-box-seam"></i></i>
+                        <h4>Aucune ressource disponible</h4>
+                        <p *ngIf="!hasActiveFilters()">Il n'y a pas de ressources disponibles pour le moment.</p>
+                        <p *ngIf="hasActiveFilters()">Aucune ressource ne correspond à vos critères de recherche.</p>
+                        <button class="btn btn-primary" (click)="resetFilters()" *ngIf="hasActiveFilters()">
+                            <i class="btn-icon"><i class="bi bi-arrow-clockwise"></i></i>
+                            Réinitialiser les filtres
+                        </button>
+                    </div>
+                </ng-template>
+            </div>
+
+            <!-- Categories Overview -->
+            <div class="categories-card" *ngIf="items.length && getUniqueCategories().length > 0">
+                <h3 class="categories-title">
+                    <i class="categories-icon"><i class="bi bi-grid-3x3-gap-fill"></i></i>
+                    Parcourir par catégorie
+                </h3>
+                <div class="categories-grid">
+                    <button *ngFor="let cat of getUniqueCategories()" class="category-item"
+                        [class.active]="selectedCategory === cat" (click)="filterByCategory(cat)">
+                        <i class="category-icon bi" [ngClass]="getCategoryIcon(cat)"></i>
+                        <div class="category-info">
+                            <span class="category-name">{{ cat }}</span>
+                            <span class="category-count">{{ countByCategory(cat) }} ressource(s)</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-card" *ngIf="items.length">
+                <h3 class="stats-title">
+                    <i class="stats-icon"><i class="bi bi-bar-chart-fill"></i></i>
+                    Statistiques
+                </h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ items.length }}</div>
+                        <div class="stat-label">Total ressources</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ getUniqueCategories().length }}</div>
+                        <div class="stat-label">Catégories</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ getTotalSize() }}</div>
+                        <div class="stat-label">Taille totale</div>
+                    </div>
+                    <div class="stat-item" *ngIf="getTotalDownloads() > 0">
+                        <div class="stat-value">{{ getTotalDownloads() }}</div>
+                        <div class="stat-label">Téléchargements</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

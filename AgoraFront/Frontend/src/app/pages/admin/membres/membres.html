@@ -1,0 +1,239 @@
+<div class="container-fluid py-4">
+  <!-- En-tête -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">
+      <i class="bi bi-people-fill me-2"></i>
+      Gestion des Membres
+    </h2>
+    
+    <!-- Boutons d'export -->
+    <div class="btn-group">
+      <button 
+        class="btn btn-success"
+        (click)="exporterExcel()"
+        [disabled]="exportingExcel || loading">
+        <span *ngIf="!exportingExcel">
+          <i class="bi bi-file-earmark-excel me-2"></i>
+          Exporter Excel
+        </span>
+        <span *ngIf="exportingExcel">
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Export en cours...
+        </span>
+      </button>
+      
+      <button 
+        class="btn btn-danger ms-2"
+        (click)="exporterPdf()"
+        [disabled]="exportingPdf || loading">
+        <span *ngIf="!exportingPdf">
+          <i class="bi bi-file-earmark-pdf me-2"></i>
+          Exporter PDF
+        </span>
+        <span *ngIf="exportingPdf">
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Export en cours...
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages de succès/erreur -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle me-2"></i>
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+
+  <!-- Filtres -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">
+            <i class="bi bi-search me-1"></i>
+            Recherche
+          </label>
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="Nom, prénom, email, code membre..."
+            [(ngModel)]="filters.search"
+            (keyup.enter)="applyFilters()">
+        </div>
+        
+        <div class="col-md-2">
+          <label class="form-label">
+            <i class="bi bi-toggle-on me-1"></i>
+            Statut
+          </label>
+          <select class="form-select" [(ngModel)]="filters.statut">
+            <option value="">Tous</option>
+            <option value="actif">Actif</option>
+            <option value="inactif">Inactif</option>
+          </select>
+        </div>
+        
+        <div class="col-md-2">
+          <label class="form-label">
+            <i class="bi bi-person-badge me-1"></i>
+            Rôle
+          </label>
+          <select class="form-select" [(ngModel)]="filters.role">
+            <option value="">Tous</option>
+            <option value="membre">Membre</option>
+            <option value="administrateur">Administrateur</option>
+          </select>
+        </div>
+        
+        <div class="col-md-4 d-flex align-items-end">
+          <button 
+            class="btn btn-primary me-2" 
+            (click)="applyFilters()"
+            [disabled]="loading">
+            <i class="bi bi-search me-2"></i>
+            Rechercher
+          </button>
+          <button 
+            class="btn btn-secondary" 
+            (click)="resetFilters()"
+            [disabled]="loading">
+            <i class="bi bi-x-circle me-2"></i>
+            Réinitialiser
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau des membres -->
+  <div class="card">
+    <div class="card-body">
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-3 text-muted">Chargement des membres...</p>
+      </div>
+
+      <!-- Aucun membre -->
+      <div *ngIf="!loading && membres.length === 0" class="text-center py-5">
+        <i class="bi bi-inbox display-1 text-muted"></i>
+        <p class="mt-3 text-muted">Aucun membre trouvé</p>
+        <button class="btn btn-outline-primary" (click)="resetFilters()">
+          Réinitialiser les filtres
+        </button>
+      </div>
+
+      <!-- Liste des membres -->
+      <div *ngIf="!loading && membres.length > 0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Code</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Ville</th>
+                <th>Rôle</th>
+                <th>Statut</th>
+                <th>Inscription</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let membre of membres">
+                <td>
+                  <strong>{{ membre.code_membre }}</strong>
+                </td>
+                <td>{{ membre.nom }}</td>
+                <td>{{ membre.prenom }}</td>
+                <td>
+                  <small>{{ membre.email }}</small>
+                </td>
+                <td>{{ membre.telephone || 'N/A' }}</td>
+                <td>{{ membre.ville || 'N/A' }}</td>
+                <td>
+                  <span [class]="getRoleBadgeClass(membre.role)">
+                    {{ membre.role === 'administrateur' ? 'Admin' : 'Membre' }}
+                  </span>
+                </td>
+                <td>
+                  <span [class]="getStatutBadgeClass(membre.est_actif)">
+                    {{ membre.est_actif ? 'Actif' : 'Inactif' }}
+                  </span>
+                </td>
+                <td>
+                  <small>{{ formatDate(membre.date_inscription) }}</small>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav *ngIf="totalPages > 1" class="mt-4">
+          <ul class="pagination justify-content-center">
+            <!-- Bouton Précédent -->
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <a class="page-link" (click)="changePage(currentPage - 1)" style="cursor: pointer;">
+                <i class="bi bi-chevron-left"></i>
+                Précédent
+              </a>
+            </li>
+
+            <!-- Première page -->
+            <li class="page-item" *ngIf="getPageNumbers()[0] > 1">
+              <a class="page-link" (click)="changePage(1)" style="cursor: pointer;">1</a>
+            </li>
+            <li class="page-item disabled" *ngIf="getPageNumbers()[0] > 2">
+              <span class="page-link">...</span>
+            </li>
+
+            <!-- Pages numérotées -->
+            <li class="page-item" 
+              *ngFor="let page of getPageNumbers()"
+              [class.active]="currentPage === page">
+              <a class="page-link" (click)="changePage(page)" style="cursor: pointer;">
+                {{ page }}
+              </a>
+            </li>
+
+            <!-- Dernière page -->
+            <li class="page-item disabled" *ngIf="getPageNumbers()[getPageNumbers().length - 1] < totalPages - 1">
+              <span class="page-link">...</span>
+            </li>
+            <li class="page-item" *ngIf="getPageNumbers()[getPageNumbers().length - 1] < totalPages">
+              <a class="page-link" (click)="changePage(totalPages)" style="cursor: pointer;">{{ totalPages }}</a>
+            </li>
+
+            <!-- Bouton Suivant -->
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <a class="page-link" (click)="changePage(currentPage + 1)" style="cursor: pointer;">
+                Suivant
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Info pagination -->
+        <div class="text-center text-muted mt-3">
+          <i class="bi bi-info-circle me-1"></i>
+          Affichage de <strong>{{ membres.length }}</strong> membres sur <strong>{{ totalItems }}</strong> au total
+          <span *ngIf="filters.statut || filters.role || filters.search">
+            (filtré)
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

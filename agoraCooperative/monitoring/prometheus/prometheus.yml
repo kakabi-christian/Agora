@@ -1,0 +1,31 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'agora-cooperative'
+
+scrape_configs:
+  # Laravel Application Metrics
+  - job_name: 'laravel-app'
+    static_configs:
+      - targets: ['agora-cooperative-webserver']
+    metrics_path: '/api/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 20s
+
+  # Nginx Metrics
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['agora-nginx-exporter:9113']
+    scrape_interval: 30s
+
+  # MySQL Metrics (désactivé temporairement - problème de configuration)
+  # - job_name: 'mysql'
+  #   static_configs:
+  #     - targets: ['agora-mysqld-exporter:9104']
+  #   scrape_interval: 30s
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

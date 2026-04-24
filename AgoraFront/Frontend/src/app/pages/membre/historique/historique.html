@@ -1,0 +1,210 @@
+<div class="historique-container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Chargement de votre historique...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!loading" class="historique-content">
+        <!-- Header Section -->
+        <div class="historique-header">
+            <div class="header-left">
+                <h1 class="page-title">Historique</h1>
+                <p class="page-subtitle">Consultez l'historique de vos participations</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="stat-icon"><i class="bi bi-clock-history"></i></i>
+                    <div>
+                        <span class="stat-number">{{ items.length || 0 }}</span>
+                        <span class="stat-label">Participations</span>
+                    </div>
+                </div>
+                <div class="stat-badge total" *ngIf="getTotalAmount() > 0">
+                    <i class="stat-icon"><i class="bi bi-cash-coin"></i></i>
+                    <div>
+                        <span class="stat-number">{{ formatAmount(getTotalAmount()) }}</span>
+                        <span class="stat-label">Total</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="alert alert-error">
+            <i class="alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></i>
+            <div>
+                <strong>Erreur</strong>
+                <p>{{ errorMessage }}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!errorMessage">
+            <!-- Filters Section -->
+            <div class="filters-card" *ngIf="items.length">
+                <div class="filters-header">
+                    <h3>
+                        <i class="filter-icon"><i class="bi bi-funnel-fill"></i></i>
+                        Filtrer l'historique
+                    </h3>
+                </div>
+                <div class="filters-grid">
+                    <div class="filter-item">
+                        <label class="filter-label">Type de participation</label>
+                        <select class="filter-select" [(ngModel)]="selectedType" (change)="applyFilters()">
+                            <option value="all">Tous les types</option>
+                            <option *ngFor="let type of getUniqueTypes()" [value]="type">{{ type }}</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Période</label>
+                        <select class="filter-select" [(ngModel)]="selectedPeriod" (change)="applyFilters()">
+                            <option value="all">Toutes les périodes</option>
+                            <option value="month">Ce mois</option>
+                            <option value="quarter">Ce trimestre</option>
+                            <option value="year">Cette année</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Trier par</label>
+                        <select class="filter-select" [(ngModel)]="sortBy" (change)="applyFilters()">
+                            <option value="date-desc">Date (plus récent)</option>
+                            <option value="date-asc">Date (plus ancien)</option>
+                            <option value="amount-desc">Montant (décroissant)</option>
+                            <option value="amount-asc">Montant (croissant)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline View -->
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="header-title-wrapper">
+                        <div class="section-icon"><i class="bi bi-list-check"></i></div>
+                        <div>
+                            <h2>Vos Participations</h2>
+                            <p class="section-subtitle">Historique détaillé de vos activités</p>
+                        </div>
+                    </div>
+                    <span class="count-badge">{{ filteredItems.length || 0 }}</span>
+                </div>
+
+                <div *ngIf="filteredItems.length; else empty" class="timeline">
+                    <!-- Group by Month -->
+                    <div *ngFor="let group of groupedByMonth" class="timeline-group">
+                        <div class="timeline-group-header">
+                            <i class="month-icon"><i class="bi bi-calendar-month-fill"></i></i>
+                            <h3>{{ group.month }}</h3>
+                            <span class="group-count">{{ group.items.length }} participation(s)</span>
+                        </div>
+
+                        <div class="timeline-items">
+                            <div *ngFor="let it of group.items; let isLast = last" class="timeline-item"
+                                [class.timeline-item-last]="isLast">
+                                <div class="timeline-marker">
+                                    <div class="marker-dot" [class]="getTypeClass(it.type_participation)"></div>
+                                    <div class="marker-line" *ngIf="!isLast"></div>
+                                </div>
+
+                                <div class="timeline-card">
+                                    <div class="card-header">
+                                        <div class="card-icon" [class]="getTypeClass(it.type_participation)">
+                                            <i class="bi" [ngClass]="getTypeIcon(it.type_participation)"></i>
+                                        </div>
+                                        <div class="card-header-content">
+                                            <h4 class="card-title">
+                                                {{ it.titre || it.type_participation || 'Participation' }}
+                                            </h4>
+                                            <div class="card-meta">
+                                                <span class="meta-badge" [class]="getTypeClass(it.type_participation)">
+                                                    {{ it.type_participation || 'Non spécifié' }}
+                                                </span>
+                                                <span class="meta-date" *ngIf="it.date_participation">
+                                                    <i class="date-icon"><i class="bi bi-calendar-check-fill"></i></i>
+                                                    {{ formatDate(it.date_participation) }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="card-amount" *ngIf="it.montant_implique">
+                                            <span class="amount-value">{{ formatAmount(it.montant_implique) }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-body" *ngIf="it.description">
+                                        <p class="card-description">{{ it.description }}</p>
+                                    </div>
+
+                                    <div class="card-footer" *ngIf="hasAdditionalInfo(it)">
+                                        <div class="footer-info">
+                                            <div class="info-item" *ngIf="it.projet_nom">
+                                                <i class="info-icon"><i class="bi bi-bullseye"></i></i>
+                                                <span>Projet: {{ it.projet_nom }}</span>
+                                            </div>
+                                            <div class="info-item" *ngIf="it.evenement_nom">
+                                                <i class="info-icon"><i class="bi bi-calendar-event-fill"></i></i>
+                                                <span>Événement: {{ it.evenement_nom }}</span>
+                                            </div>
+                                            <div class="info-item" *ngIf="it.statut">
+                                                <i class="info-icon"><i class="bi bi-check-circle-fill"></i></i>
+                                                <span>Statut: {{ it.statut }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ng-template #empty>
+                    <div class="empty-state">
+                        <i class="empty-icon"><i class="bi bi-clipboard-x"></i></i>
+                        <h4>Aucune participation</h4>
+                        <p>Votre historique de participations est vide pour le moment.</p>
+                        <p class="empty-hint">Participez aux projets et événements pour enrichir votre historique !</p>
+                        <div class="empty-actions">
+                            <a routerLink="/membre/projets" class="btn btn-primary">
+                                <i class="btn-icon"><i class="bi bi-rocket-takeoff-fill"></i></i>
+                                Découvrir les projets
+                            </a>
+                            <a routerLink="/membre/evenements" class="btn btn-secondary">
+                                <i class="btn-icon"><i class="bi bi-calendar-event-fill"></i></i>
+                                Voir les événements
+                            </a>
+                        </div>
+                    </div>
+                </ng-template>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="stats-card" *ngIf="items.length">
+                <h3 class="stats-title">
+                    <i class="stats-icon"><i class="bi bi-bar-chart-fill"></i></i>
+                    Statistiques
+                </h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ items.length }}</div>
+                        <div class="stat-label">Total participations</div>
+                    </div>
+                    <div class="stat-item" *ngIf="getTotalAmount() > 0">
+                        <div class="stat-value">{{ formatAmount(getTotalAmount()) }}</div>
+                        <div class="stat-label">Montant total</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ getUniqueTypes().length }}</div>
+                        <div class="stat-label">Types d'activités</div>
+                    </div>
+                    <div class="stat-item" *ngIf="getThisMonthCount() > 0">
+                        <div class="stat-value">{{ getThisMonthCount() }}</div>
+                        <div class="stat-label">Ce mois-ci</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,239 @@
+<div class="dashboard-container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Chargement de votre espace...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!loading" class="dashboard-content">
+        <!-- Header Section -->
+        <div class="dashboard-header">
+            <div class="header-left">
+                <h1 class="page-title">Espace Membre</h1>
+                <p class="page-subtitle">Tableau de bord personnel</p>
+            </div>
+            <div class="header-right">
+                <div class="date-display">
+                    <i class="bi bi-calendar-event-fill"></i>
+                    {{ currentDate | date:'fullDate' : '' : 'fr-FR' }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Welcome Card -->
+        <div *ngIf="membre; else noUser" class="welcome-card ag-card">
+            <div class="welcome-header">
+                <div class="user-avatar">
+                    <span>{{ getInitials() }}</span>
+                </div>
+                <div class="welcome-text">
+                    <h2>Bienvenue, {{ formatNom(membre.prenom) }} {{ formatNom(membre.nom) }}</h2>
+                    <p class="welcome-subtitle">Coopérative UNICITÉ - Espace collaboratif</p>
+                </div>
+            </div>
+            <div class="user-details">
+                <div class="detail-item">
+                    <i class="bi bi-envelope-fill"></i>
+                    <div>
+                        <span class="detail-label">Email</span>
+                        <span class="detail-value">{{ membre.email }}</span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="bi bi-tag-fill"></i>
+                    <div>
+                        <span class="detail-label">Code membre</span>
+                        <span class="detail-value badge">{{ membre.code_membre }}</span>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <div>
+                        <span class="detail-label">Statut</span>
+                        <span class="detail-value status-active">● Actif</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <ng-template #noUser>
+            <div class="error-card ag-card">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <div>
+                    <h3>Profil non disponible</h3>
+                    <p>Impossible de charger votre profil pour le moment.</p>
+                </div>
+            </div>
+        </ng-template>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <i class="stat-icon bi bi-calendar-event-fill"></i>
+                    <h4>Événements à venir</h4>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ upcomingEvents.length || 0 }}</div>
+                    <div class="stat-trend">
+                        <span class="trend-up" *ngIf="upcomingEvents.length">+{{ upcomingEvents.length }} ce mois</span>
+                        <span class="trend-neutral" *ngIf="!upcomingEvents.length">Aucun événement</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <i class="stat-icon bi bi-hourglass-split"></i>
+                    <h4>Échéances projets</h4>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ projectDeadlines.length || 0 }}</div>
+                    <div class="stat-trend">
+                        <span *ngIf="projectDeadlines.length" [class]="getDeadlineStatusClass()">
+                            {{ getDeadlineStatusText() }}
+                        </span>
+                        <span *ngIf="!projectDeadlines.length">Aucune échéance</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <i class="stat-icon bi bi-rocket-takeoff-fill"></i>
+                    <h4>Mes contributions</h4>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">--</div>
+                    <div class="stat-trend">
+                        <span class="trend-neutral">À venir</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events Section -->
+        <div class="section-card ag-card">
+            <div class="section-header">
+                <h3>
+                    <i class="section-icon bi bi-calendar-event-fill"></i>
+                    Événements à venir
+                </h3>
+                <button class="view-all-btn" [routerLink]="['/membre/evenements']">
+                    Voir tout
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <div *ngIf="upcomingEvents.length; else noEvents" class="events-list">
+                <div *ngFor="let e of upcomingEvents" class="event-item">
+                    <div class="event-date">
+                        <div class="event-day">{{ getEventDay(e) }}</div>
+                        <div class="event-month">{{ getEventMonth(e) }}</div>
+                    </div>
+                    <div class="event-details">
+                        <h4 class="event-title">{{ e.titre || e.nom || e.code_evenement }}</h4>
+                        <div class="event-meta">
+                            <span class="event-time">
+                                <i class="bi bi-clock-fill"></i>
+                                {{ getEventTime(e) }}
+                            </span>
+                            <span class="event-location">
+                                <i class="bi bi-geo-alt-fill"></i>
+                                {{ e.lieu || 'En ligne' }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="event-actions">
+                        <button class="btn-secondary">Détails</button>
+                    </div>
+                </div>
+            </div>
+
+            <ng-template #noEvents>
+                <div class="empty-state">
+                    <i class="empty-icon bi bi-calendar-x"></i>
+                    <h4>Aucun événement à venir</h4>
+                    <p>Les prochains événements apparaîtront ici.</p>
+                    <button class="btn-primary" [routerLink]="['/membre/evenements']">
+                        Explorer les événements
+                    </button>
+                </div>
+            </ng-template>
+        </div>
+
+        <!-- Deadlines Section -->
+        <div class="section-card ag-card">
+            <div class="section-header">
+                <h3>
+                    <i class="section-icon bi bi-hourglass-split"></i>
+                    Échéances projets
+                </h3>
+                <button class="view-all-btn" [routerLink]="['/membre/projets']">
+                    Voir tout
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+            <div *ngIf="projectDeadlines.length; else noDeadlines" class="deadlines-list">
+                <div *ngFor="let d of projectDeadlines" class="deadline-item">
+                    <div class="deadline-indicator" [class]="getDeadlinePriority(d)"></div>
+                    <div class="deadline-content">
+                        <div class="deadline-header">
+                            <h4>{{ d.titre || d.nom || d.projet || 'Projet sans titre' }}</h4>
+                            <span class="deadline-date">
+                                {{ getDeadlineDate(d) }}
+                            </span>
+                        </div>
+                        <p class="deadline-description">
+                            {{ d.description || 'Aucune description disponible' }}
+                        </p>
+                        <div class="deadline-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" [style.width.%]="d.progress || 0"></div>
+                            </div>
+                            <span class="progress-text">{{ d.progress || 0 }}% complété</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <ng-template #noDeadlines>
+                <div class="empty-state">
+                    <i class="empty-icon bi bi-clipboard-x"></i>
+                    <h4>Aucune échéance en cours</h4>
+                    <p>Les échéances de vos projets apparaîtront ici.</p>
+                    <button class="btn-primary" [routerLink]="['/membre/projets']">
+                        Voir mes projets
+                    </button>
+                </div>
+            </ng-template>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions ag-card">
+            <h3>Accès rapide</h3>
+            <div class="actions-grid">
+                <a class="action-item" [routerLink]="['/membre/evenements']">
+                    <i class="action-icon bi bi-calendar-event-fill"></i>
+                    <span>Événements</span>
+                </a>
+                <a class="action-item" [routerLink]="['/membre/projets']">
+                    <i class="action-icon bi bi-rocket-takeoff-fill"></i>
+                    <span>Mes projets</span>
+                </a>
+                <a class="action-item" [routerLink]="['/membre/profil']">
+                    <i class="action-icon bi bi-person-fill"></i>
+                    <span>Mon profil</span>
+                </a>
+                <a class="action-item" [routerLink]="['/membre/historique']">
+                    <i class="action-icon bi bi-clock-history"></i>
+                    <span>Historique</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

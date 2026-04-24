@@ -1,0 +1,388 @@
+<div class="container-fluid py-4">
+  <div class="d-md-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Gestion des Projets AGORA</h2>
+      <p class="text-muted small mb-0">
+        Pilotez, suivez et mettez à jour les initiatives de la coopérative
+      </p>
+    </div>
+    <div class="d-flex gap-3 align-items-center">
+      <div class="badge bg-success fs-6 py-2 px-3 shadow-sm">
+        Total : {{ paginationMeta?.total || 0 }} projet(s)
+      </div>
+      <button class="btn btn-primary px-4 py-2 rounded shadow-sm" (click)="ouvrirModal()">
+        <i class="bi bi-plus-circle me-2"></i>Nouveau Projet
+      </button>
+    </div>
+  </div>
+
+  <div class="btn-group mb-4 shadow-sm bg-white p-1 rounded border">
+    <button
+      type="button"
+      class="btn btn-sm px-3"
+      [ngClass]="currentStatut === '' ? 'btn-success text-white' : 'btn-white'"
+      (click)="filtrerProjets('')"
+    >
+      Tous
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm px-3"
+      [ngClass]="currentStatut === 'propose' ? 'btn-success text-white' : 'btn-white'"
+      (click)="filtrerProjets('propose')"
+    >
+      Proposés
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm px-3"
+      [ngClass]="currentStatut === 'en_cours' ? 'btn-success text-white' : 'btn-white'"
+      (click)="filtrerProjets('en_cours')"
+    >
+      En cours
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm px-3"
+      [ngClass]="currentStatut === 'approuve' ? 'btn-success text-white' : 'btn-white'"
+      (click)="filtrerProjets('approuve')"
+    >
+      Approuvés
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm px-3"
+      [ngClass]="currentStatut === 'termine' ? 'btn-success text-white' : 'btn-white'"
+      (click)="filtrerProjets('termine')"
+    >
+      Terminés
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-success" role="status"></div>
+    <p class="mt-2 text-muted small">Chargement des projets en cours...</p>
+  </div>
+
+  <div class="row g-4" *ngIf="!loading && projets.length > 0">
+    <div class="col-12 col-md-6 col-lg-4" *ngFor="let p of projets">
+      <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="position-relative" *ngIf="p.image_url">
+          <!-- Image -->
+          <img
+            [src]="'http://localhost:8000/' + p.image_url"
+            class="card-img-top"
+            style="height: 180px; object-fit: cover"
+          />
+
+          <!-- Badge statut -->
+          <div class="position-absolute top-0 end-0 p-2">
+            <span
+              class="badge shadow-sm"
+              [ngClass]="{
+                'bg-warning text-dark': p.statut === 'propose' || p.statut === 'en_etude',
+                'bg-info text-white': p.statut === 'en_cours',
+                'bg-success': p.statut === 'termine',
+                'bg-danger': p.statut === 'annule'
+              }"
+            >
+              {{ p.statut | titlecase }}
+            </span>
+          </div>
+
+          <!-- Dates en bas -->
+          <div class="position-absolute bottom-0 w-100 bg-dark bg-opacity-75 text-white px-3 py-0">
+            <div class="d-flex justify-content-between small">
+              <span>
+                <strong>Date début :</strong>
+                {{ p.date_debut | date : 'dd/MM/yyyy' }}
+              </span>
+              <span>
+                <strong>Date fin :</strong>
+                {{ p.date_fin_prevue | date : 'dd/MM/yyyy' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-light text-success border-success border">{{
+              p.type | uppercase
+            }}</span>
+            <small class="text-muted" *ngIf="p.date_debut">{{
+              p.date_debut | date : 'dd/MM/yyyy'
+            }}</small>
+
+            <span
+              *ngIf="!p.image_url"
+              class="badge border text-dark fw-normal"
+              [ngClass]="{
+                'border-warning': p.statut === 'propose',
+                'border-info': p.statut === 'en_cours',
+                'border-success': p.statut === 'termine'
+              }"
+            >
+              {{ p.statut | titlecase }}
+            </span>
+          </div>
+
+          <h5 class="card-title fw-bold text-dark mb-1">{{ p.nom }}</h5>
+          <p class="text-primary small mb-2">
+            <i class="bi bi-person-badge me-1"></i> {{ p.coordinateur || 'Non assigné' }}
+          </p>
+
+          <p class="card-text small text-muted mb-3">
+            {{ p.description | slice : 0 : 100
+            }}{{ (p.description?.length ?? 0) > 100 ? '...' : '' }}
+          </p>
+
+          <div class="mb-3" *ngIf="p.objectifs && p.objectifs.length > 0">
+            <div class="d-flex flex-wrap gap-1">
+              <span
+                *ngFor="let obj of p.objectifs | slice : 0 : 2"
+                class="badge bg-light text-muted border-0 fw-normal"
+                style="font-size: 0.7rem"
+              >
+                <i class="bi bi-check2 text-success me-1"></i>{{ obj }}
+              </span>
+            </div>
+          </div>
+
+          <div
+            class="p-2 bg-light rounded d-flex justify-content-between align-items-center mt-auto"
+          >
+            <span class="small fw-bold text-secondary">Budget:</span>
+            <span class="fw-bold text-success">{{ p.budget_estime || 0 }} CFA</span>
+          </div>
+        </div>
+
+        <div class="card-footer bg-white border-top-0 p-3">
+          <div class="row g-2">
+            <div class="col-6">
+              <button class="btn btn-outline-primary btn-sm w-100 py-2" (click)="ouvrirModal(p)">
+                <i class="bi bi-pencil me-1"></i> Modifier
+              </button>
+            </div>
+            <div class="col-6">
+              <button
+                class="btn btn-danger btn-sm w-100 py-2 text-white shadow-sm"
+                (click)="supprimer(p.id!)"
+              >
+                <i class="bi bi-trash me-1"></i> Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    *ngIf="showModal"
+    style="display: block; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px)"
+  >
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content shadow border-0 rounded-4">
+        <div class="modal-header bg-dark text-white rounded-top-4">
+          <h5 class="modal-title fw-bold">
+            {{ isEditMode ? 'Modifier le Projet' : 'Nouveau Projet' }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close btn-close-white"
+            (click)="showModal = false"
+          ></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <form (ngSubmit)="enregistrerProjet()">
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label fw-bold small">Nom du Projet *</label>
+                <input
+                  type="text"
+                  class="form-control shadow-none"
+                  [(ngModel)]="currentProjet.nom"
+                  name="nom"
+                  required
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold small">Type</label>
+                <select class="form-select" [(ngModel)]="currentProjet.type" name="type">
+                  <option value="agricole">Agricole</option>
+                  <option value="social">Social</option>
+                  <option value="environnemental">Environnemental</option>
+                  <option value="educatif">Éducatif</option>
+                </select>
+              </div>
+
+              <div class="col-md-12">
+                <label class="form-label fw-bold small">Coordinateur</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="currentProjet.coordinateur"
+                  name="coordinateur"
+                />
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fw-bold small">Date Début</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  [(ngModel)]="currentProjet.date_debut"
+                  name="date_debut"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold small">Date Fin Prévue</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  [(ngModel)]="currentProjet.date_fin_prevue"
+                  name="date_fin_prevue"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold small">Budget (CFA)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="currentProjet.budget_estime"
+                  name="budget_estime"
+                />
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-bold small">Description du projet</label>
+                <textarea
+                  class="form-control"
+                  rows="2"
+                  [(ngModel)]="currentProjet.description"
+                  name="description"
+                ></textarea>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-bold small text-primary">Objectifs du Projet</label>
+                <div class="input-group mb-2">
+                  <input
+                    type="text"
+                    class="form-control bg-light"
+                    [(ngModel)]="nouvelObjectif"
+                    name="newObj"
+                    placeholder="Ajouter un objectif..."
+                  />
+                  <button class="btn btn-primary" type="button" (click)="ajouterObjectif()">
+                    <i class="bi bi-plus-lg"></i>
+                  </button>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                  <span
+                    class="badge bg-light text-dark border p-2 fw-normal"
+                    *ngFor="let obj of currentProjet.objectifs; let i = index"
+                  >
+                    {{ obj }}
+                    <i
+                      class="bi bi-x-circle ms-2 text-danger cursor-pointer"
+                      (click)="retirerObjectif(i)"
+                    ></i>
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold small">Type</label>
+                <select class="form-select" [(ngModel)]="currentProjet.type" name="type">
+                  <option value="agricole">Agricole</option>
+                  <option value="social">Social</option>
+                  <option value="environnemental">Environnemental</option>
+                  <option value="educatif">Éducatif</option>
+                </select>
+              </div>
+              <!-- Statut du projet (uniquement en modification) -->
+              <div class="col-md-4" *ngIf="isEditMode">
+                <label class="form-label fw-bold small">Statut du projet</label>
+                <select
+                  class="form-select"
+                  [(ngModel)]="currentProjet.statut"
+                  name="statut"
+                  required
+                >
+                  <option value="propose">Proposé</option>
+                  <option value="en_etude">En étude</option>
+                  <option value="approuve">Approuvé</option>
+                  <option value="en_cours">En cours</option>
+                  <option value="termine">Terminé</option>
+                  <option value="annule">Annulé</option>
+                </select>
+              </div>
+
+              <div class="col-md-8">
+                <label class="form-label fw-bold small">Image illustrative (Optionnel)</label>
+                <input type="file" class="form-control" (change)="onFileSelected($event)" />
+              </div>
+              <div class="col-md-4 d-flex align-items-end pb-2">
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    [(ngModel)]="currentProjet.est_public"
+                    name="est_public"
+                    id="pPublic"
+                  />
+                  <label class="form-check-label fw-bold small" for="pPublic">Public</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer px-0 pb-0 pt-4 border-top-0">
+              <button type="button" class="btn btn-light px-4 py-2" (click)="showModal = false">
+                Annuler
+              </button>
+              <button type="submit" class="btn btn-success px-5 py-2 shadow-sm">
+                {{ isEditMode ? 'Enregistrer les modifications' : 'Créer le Projet' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav
+    class="mt-5 d-flex justify-content-center"
+    *ngIf="paginationMeta && paginationMeta.last_page > 1"
+  >
+    <ul class="pagination shadow-sm border rounded">
+      <li class="page-item" [class.disabled]="paginationMeta.current_page === 1">
+        <button
+          class="page-link border-0 text-dark"
+          (click)="allerAPage(paginationMeta.current_page - 1)"
+        >
+          <i class="bi bi-chevron-left"></i> Précédent
+        </button>
+      </li>
+      <li class="page-item active">
+        <span class="page-link bg-success border-success px-4">
+          Page {{ paginationMeta.current_page }} / {{ paginationMeta.last_page }}
+        </span>
+      </li>
+      <li
+        class="page-item"
+        [class.disabled]="paginationMeta.current_page === paginationMeta.last_page"
+      >
+        <button
+          class="page-link border-0 text-dark"
+          (click)="allerAPage(paginationMeta.current_page + 1)"
+        >
+          Suivant <i class="bi bi-chevron-right"></i>
+        </button>
+      </li>
+    </ul>
+  </nav>
+</div>

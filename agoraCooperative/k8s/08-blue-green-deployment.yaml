@@ -1,0 +1,127 @@
+# Blue Deployment (Version actuelle en production)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agora-app-blue
+  namespace: agora-cooperative
+  labels:
+    app: agora-app
+    version: blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: agora-app
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: agora-app
+        version: blue
+    spec:
+      imagePullSecrets:
+      - name: docker-registry-secret
+      containers:
+      - name: app
+        image: YOUR_DOCKERHUB_USERNAME/agora-cooperative:v1.0.0
+        ports:
+        - containerPort: 9000
+        envFrom:
+        - configMapRef:
+            name: agora-app-config
+        env:
+        - name: APP_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agora-app-secrets
+              key: APP_KEY
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+---
+# Green Deployment (Nouvelle version à déployer)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agora-app-green
+  namespace: agora-cooperative
+  labels:
+    app: agora-app
+    version: green
+spec:
+  replicas: 0  # Démarrer à 0, augmenter lors du déploiement
+  selector:
+    matchLabels:
+      app: agora-app
+      version: green
+  template:
+    metadata:
+      labels:
+        app: agora-app
+        version: green
+    spec:
+      imagePullSecrets:
+      - name: docker-registry-secret
+      containers:
+      - name: app
+        image: YOUR_DOCKERHUB_USERNAME/agora-cooperative:v2.0.0
+        ports:
+        - containerPort: 9000
+        envFrom:
+        - configMapRef:
+            name: agora-app-config
+        env:
+        - name: APP_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agora-app-secrets
+              key: APP_KEY
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+---
+# Service qui pointe vers Blue ou Green
+apiVersion: v1
+kind: Service
+metadata:
+  name: agora-app-service-bg
+  namespace: agora-cooperative
+spec:
+  type: ClusterIP
+  selector:
+    app: agora-app
+    version: blue  # Changer à "green" pour basculer
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP

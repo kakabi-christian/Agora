@@ -1,0 +1,89 @@
+<section class="events-section py-5 bg-light">
+  <div class="container">
+
+    <div class="text-center mb-5">
+      <h2 class="display-6 fw-bold text-dark mb-3">
+        Nos <span class="text-primary-custom">Événements</span>
+      </h2>
+      <div class="header-line mx-auto mb-3"></div>
+      <p class="text-muted lead">Rejoignez nos prochaines activités et consultez les événements passés.</p>
+    </div>
+
+    <!-- Boutons de filtre -->
+    <div class="d-flex justify-content-center mb-5 flex-wrap">
+      <button class="btn btn-outline-primary mx-2"
+              [ngClass]="{'active-filter': filtre === 'tous'}"
+              (click)="setFiltre('tous')">Tous</button>
+      <button class="btn btn-outline-warning mx-2"
+              [ngClass]="{'active-filter': filtre === 'planifie'}"
+              (click)="setFiltre('planifie')">Planifiés</button>
+      <button class="btn btn-outline-success mx-2"
+              [ngClass]="{'active-filter': filtre === 'termine'}"
+              (click)="setFiltre('termine')">Terminés</button>
+    </div>
+
+    <!-- Liste des événements filtrés -->
+    <div class="row g-4">
+      <ng-container *ngIf="!isLoading && !error; else loaderOrError">
+        <ng-container *ngIf="evenementsFiltres.length > 0; else noEvent">
+          <div *ngFor="let event of evenementsFiltres" class="col-12 col-sm-6 col-lg-4">
+            <div class="event-card shadow-sm h-100" [ngClass]="{'opacity-75': event.statut === 'termine'}">
+              
+              <!-- Image + date + type -->
+              <div class="event-image-wrapper">
+                <img [src]="getEventImage(event.image_url)" [alt]="event.titre" class="event-img">
+                <div class="date-overlay">
+                  <span class="day">{{ formatDate(event.date_debut).day }}</span>
+                  <span class="month">{{ formatDate(event.date_debut).month }}</span>
+                </div>
+                <div class="type-badge">{{ event.type | uppercase }}</div>
+              </div>
+
+              <!-- Corps de la carte -->
+              <div class="card-body d-flex flex-column p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="status-pill d-flex align-items-center" [ngClass]="getStatutClass(event.statut)">
+                    <span class="dot me-2"></span> {{ event.statut | titlecase }}
+                  </span>
+                  <small class="text-muted"><i class="far fa-clock"></i> {{ event.date_debut | date:'HH:mm' }}</small>
+                </div>
+
+                <h3 class="h5 fw-bold text-dark mb-3">{{ event.titre }}</h3>
+                <p class="text-secondary small mb-4 flex-grow-1">
+                  <i class="fas fa-map-marker-alt text-success me-1"></i>
+                  {{ event.lieu }} {{ event.ville ? '• ' + event.ville : '' }}
+                </p>
+
+                <div class="mt-auto d-flex justify-content-between align-items-center pt-3 border-top">
+                  <span class="fw-bold text-primary-custom">
+                    {{ event.frais_inscription > 0 ? (event.frais_inscription | number) + ' FCFA' : 'Gratuit' }}
+                  </span>
+                  <a [routerLink]="['/evenements', event.code_evenement]"
+                     [ngClass]="event.statut === 'termine' ? 'btn btn-outline-success btn-sm px-4' : 'btn btn-primary-custom btn-sm px-4'">
+                    Détails <i class="fas fa-arrow-right ms-2"></i>
+                  </a>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <ng-template #noEvent>
+        <div class="col-12 text-center fst-italic text-muted py-5">Aucun événement à afficher</div>
+      </ng-template>
+
+      <ng-template #loaderOrError>
+        <div *ngIf="isLoading" class="col-12 text-center py-5">
+          <div class="spinner-grow text-success" role="status">
+            <span class="visually-hidden">Chargement...</span>
+          </div>
+          <p class="mt-2 text-muted fw-medium">Récupération des événements...</p>
+        </div>
+        <div *ngIf="!isLoading && error" class="col-12 text-center text-danger">{{ error }}</div>
+      </ng-template>
+
+    </div>
+  </div>
+</section>

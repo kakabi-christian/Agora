@@ -1,0 +1,33 @@
+/* Force le composant à occuper l'espace */
+:host {
+    display: block;
+    width: 100%;
+    min-height: 400px; 
+}
+
+/* Force les conteneurs de canvas à être visibles */
+.ag-card div[style*="height"] {
+    height: 300px !important;
+    min-height: 300px !important;
+    width: 100% !important;
+    position: relative !important;
+    display: block !important;
+}
+
+canvas {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(0,0,0,0.01); /* Légère teinte pour voir si le canvas est là */
+}
+.ag-card {
+    background: white;
+    border-radius: 15px;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+}

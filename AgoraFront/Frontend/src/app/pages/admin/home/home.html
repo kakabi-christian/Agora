@@ -1,0 +1,179 @@
+<div class="container-fluid py-1 animate__animated animate__fadeIn">
+
+  <div class="row mb-5 justify-content-center">
+    <div class="col-xl-10">
+      <div class="welcome-card-premium shadow-lg animate__animated animate__fadeInDown">
+        <div class="card-header-accent"></div>
+        <div class="p-4 p-md-5 d-md-flex align-items-center justify-content-between">
+          <div class="d-flex align-items-center mb-4 mb-md-0">
+            <div class="icon-box-premium me-4">
+              <i class="bi bi-megaphone-fill">
+                <div class="logo-wrapper">
+                  <img src="assets/logo-app.png" alt="Logo UNICITE" class="cooperative-logo-ultra">
+                </div>
+              </i>
+            </div>
+            <div>
+              <h1 class="main-title-premium mb-0" style="padding-left:25px;">Bienvenue sur <span
+                  class="text-success-custom">AGORA</span></h1>
+              <p class="subtitle-premium text-muted mb-0" style="padding-left:25px;">Espace d'administration d'UNICITÉ
+              </p>
+            </div>
+          </div>
+
+          <div class="session-pill">
+            <div class="status-indicator-pill">
+              <span class="pulse-indicator"></span>
+              <i class="bi bi-shield-check-fill me-2"></i>
+              <span class="small fw-bold text-uppercase">Session Admin Active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-5 justify-content-center animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+    <div class="col-xl-10">
+      <div class="section-header-modern d-flex align-items-center mb-4">
+        <h4 class="fw-bold mb-0 text-dark me-3">
+          <i class="bi bi-wallet2 me-2 text-success"></i>Revenus de la Plateforme
+        </h4>
+        <div class="flex-grow-1 border-top border-2 opacity-10"></div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-md-6 col-xl-4">
+          <div class="project-card-modern shadow-sm border-start border-4 border-success p-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <p class="text-muted small text-uppercase fw-bold mb-1">Total des Dons</p>
+                <h2 class="fw-extrabold mb-0" style="color: #198754; letter-spacing: -1px;">
+                  {{ revenuTotal | number:'1.0-0' }} <small class="fs-6 fw-normal">{{ devise }}</small>
+                </h2>
+              </div>
+              <div class="bg-success-soft p-3 rounded-circle">
+                <i class="bi bi-cash-coin text-success fs-3"></i>
+              </div>
+            </div>
+            <div class="mt-3 small text-muted">
+              <i class="bi bi-check-circle-fill text-success me-1"></i> Basé sur {{ totalDonsCount }} dons confirmés
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-5 justify-content-center">
+    <div class="col-xl-10">
+      <div class="section-header-modern d-flex align-items-center mb-4">
+        <h4 class="fw-bold mb-0 text-dark me-3">
+          <i class="bi bi-hourglass-split me-2 text-primary-custom"></i>Suivi des Échéances Projets
+        </h4>
+        <div class="flex-grow-1 border-top border-2 opacity-10"></div>
+        <span class="ms-3 badge rounded-pill bg-primary-custom text-white px-3 py-2">
+          {{ projetsCountdown.length }} Projets actifs
+        </span>
+      </div>
+
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        <div *ngIf="projetsCountdown.length === 0 && !loading"
+          class="col-12 text-center py-5 bg-white rounded-4 shadow-sm border">
+          <i class="bi bi-clipboard-check text-muted display-4 mb-3 d-block"></i>
+          <p class="text-muted mb-0">Aucun projet en cours de suivi.</p>
+        </div>
+
+        <div class="col animate__animated animate__fadeInUp" *ngFor="let p of projetsCountdown; let i = index"
+          [style.animation-delay]="i * 0.1 + 's'">
+          <div class="project-card-modern h-100 shadow-sm border-start border-4 border-primary-custom">
+            <div class="p-4">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h6 class="project-name-text text-truncate pe-2" [title]="p.nom">{{ p.nom }}</h6>
+                <div class="days-pill-mini">J-{{ p.remaining.d }}</div>
+              </div>
+
+              <div class="timer-grid-modern mb-3" *ngIf="!p.isExpired; else projetFini">
+                <div class="timer-unit"><span class="val">{{ p.remaining.d }}</span><span class="lab">Jours</span></div>
+                <div class="timer-unit"><span class="val">{{ p.remaining.h }}</span><span class="lab">Hrs</span></div>
+                <div class="timer-unit"><span class="val">{{ p.remaining.m }}</span><span class="lab">Min</span></div>
+                <div class="timer-unit highlight-sec-danger"><span class="val">{{ p.remaining.s }}</span><span
+                    class="lab">Sec</span></div>
+              </div>
+
+              <ng-template #projetFini>
+                <div class="alert-expired-mini mb-3">
+                  <i class="bi bi-clock-history me-2"></i>Délai expiré
+                </div>
+              </ng-template>
+
+              <div class="card-meta d-flex align-items-center text-muted small mt-auto">
+                <i class="bi bi-calendar-check me-2 text-success"></i>
+                <span>Fin : {{ p.date_fin_prevue | date:'dd MMM yyyy' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4 justify-content-center">
+    <div class="col-xl-10">
+      <div class="section-header-modern d-flex align-items-center mb-4">
+        <h4 class="fw-bold mb-0 text-dark me-3">
+          <i class="bi bi-calendar-event me-2 text-warning"></i>Événements à Venir
+        </h4>
+        <div class="flex-grow-1 border-top border-2 opacity-10"></div>
+        <span class="ms-3 badge rounded-pill bg-warning text-dark px-3 py-2">
+          {{ evenementsCountdown.length }} Événements
+        </span>
+      </div>
+
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        <div *ngIf="evenementsCountdown.length === 0 && !loading"
+          class="col-12 text-center py-5 bg-white rounded-4 shadow-sm border">
+          <i class="bi bi-calendar-x text-muted display-4 mb-3 d-block"></i>
+          <p class="text-muted mb-0">Aucun événement planifié pour le moment.</p>
+        </div>
+
+        <div class="col animate__animated animate__fadeInUp" *ngFor="let e of evenementsCountdown; let i = index"
+          [style.animation-delay]="i * 0.1 + 's'">
+          <div class="project-card-modern h-100 shadow-sm border-start border-4 border-warning">
+            <div class="p-4">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="project-name-text text-truncate pe-2" [title]="e.titre">{{ e.titre }}</h6>
+                <span class="badge type-badge">{{ e.type }}</span>
+              </div>
+
+              <p class="small text-muted mb-3"><i class="bi bi-geo-alt-fill me-1 text-danger"></i> {{ e.ville }}</p>
+
+              <div class="timer-grid-modern bg-warning-soft mb-3" *ngIf="!e.isExpired; else eventStarted">
+                <div class="timer-unit text-warning-dark"><span class="val">{{ e.remaining.d }}</span><span
+                    class="lab">Jours</span></div>
+                <div class="timer-unit text-warning-dark"><span class="val">{{ e.remaining.h }}</span><span
+                    class="lab">Hrs</span></div>
+                <div class="timer-unit text-warning-dark"><span class="val">{{ e.remaining.m }}</span><span
+                    class="lab">Min</span></div>
+                <div class="timer-unit highlight-warning-sec"><span class="val">{{ e.remaining.s }}</span><span
+                    class="lab">Sec</span></div>
+              </div>
+
+              <ng-template #eventStarted>
+                <div class="alert-success-mini mb-3">
+                  <i class="bi bi-play-circle-fill me-2"></i>Événement en cours
+                </div>
+              </ng-template>
+
+              <div class="card-meta d-flex align-items-center text-muted small mt-auto">
+                <i class="bi bi-clock me-2 text-primary"></i>
+                <span>Début : {{ e.date_debut | date:'dd MMM yyyy HH:mm' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

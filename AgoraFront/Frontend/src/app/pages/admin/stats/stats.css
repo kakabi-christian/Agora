@@ -1,0 +1,510 @@
+/* Stats Page - Modern Responsive Design */
+
+/* ============================================
+   TYPOGRAPHY & BASE
+   ============================================ */
+.fw-black {
+    font-weight: 900;
+}
+
+.fw-bold {
+    font-weight: 700;
+}
+
+.extra-small {
+    font-size: 0.7rem;
+    line-height: 1.4;
+}
+
+.small {
+    font-size: 0.875rem;
+}
+
+/* ============================================
+   LAYOUT & SPACING
+   ============================================ */
+.container-fluid {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   CARDS - Unified Design
+   ============================================ */
+.ag-card {
+    background: var(--color-surface);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--color-border);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+}
+
+.ag-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(27, 94, 32, 0.12);
+}
+
+/* KPI Cards - Fixed Height */
+.ag-card.h-50 {
+    min-height: 160px;
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.25rem;
+}
+
+/* Border Accent */
+.border-start.border-4 {
+    border-left-width: 5px !important;
+    border-left-style: solid !important;
+}
+
+.border-primary {
+    border-left-color: var(--color-primary) !important;
+}
+
+/* ============================================
+   KPI METRICS
+   ============================================ */
+.ag-card h3 {
+    font-size: 1.75rem;
+    margin: 0.5rem 0;
+    line-height: 1.2;
+}
+
+.ag-card h3 small {
+    font-size: 0.875rem;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+.ag-card p.text-uppercase {
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+/* ============================================
+   COLORS & BACKGROUNDS
+   ============================================ */
+.text-primary {
+    color: var(--color-primary) !important;
+}
+
+.text-success {
+    color: var(--color-success) !important;
+}
+
+.text-danger {
+    color: var(--color-danger) !important;
+}
+
+.text-warning {
+    color: #d97706 !important;
+}
+
+.text-info {
+    color: #0891b2 !important;
+}
+
+.bg-light-success {
+    background-color: rgba(46, 125, 50, 0.1) !important;
+}
+
+.bg-light-warning {
+    background-color: rgba(245, 158, 11, 0.1) !important;
+}
+
+.bg-light-danger {
+    background-color: rgba(198, 40, 40, 0.1) !important;
+}
+
+.bg-light-primary {
+    background-color: rgba(27, 94, 32, 0.1) !important;
+}
+
+.bg-dark {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;
+}
+
+.bg-light {
+    background-color: var(--color-surface-2) !important;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge {
+    border-radius: 6px;
+    padding: 0.35rem 0.75rem;
+    font-weight: 600;
+    font-size: 0.7rem;
+}
+
+/* ============================================
+   PROGRESS BARS
+   ============================================ */
+.progress {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 50px;
+    overflow: hidden;
+    height: 6px;
+}
+
+.progress-bar {
+    transition: width 1.5s ease-in-out;
+    border-radius: 50px;
+}
+
+.bg-primary .progress-bar,
+.progress-bar.bg-primary {
+    background-color: var(--color-primary) !important;
+}
+
+.bg-success .progress-bar,
+.progress-bar.bg-success {
+    background-color: var(--color-success) !important;
+}
+
+/* ============================================
+   ICON CIRCLES
+   ============================================ */
+.icon-circle {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.avatar-sm {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead {
+    background-color: var(--color-surface-2);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.table thead th {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-muted);
+    border: none;
+    padding: 1rem 0.75rem;
+    font-weight: 700;
+}
+
+.table tbody td {
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-hover tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--color-surface-2);
+}
+
+/* ============================================
+   BUTTONS & FORMS
+   ============================================ */
+.btn {
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #144a18;
+    border-color: #144a18;
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.form-select {
+    border-radius: 8px;
+    border-color: var(--color-border);
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.form-select:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(27, 94, 32, 0.15);
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+.spinner-border {
+    border-color: var(--color-primary);
+    border-right-color: transparent;
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ============================================
+   ALERTS
+   ============================================ */
+.alert-danger {
+    background-color: rgba(198, 40, 40, 0.1);
+    border: 1px solid var(--color-danger);
+    color: var(--color-danger);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+/* ============================================
+   LIST GROUPS
+   ============================================ */
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: transparent;
+    padding: 0.75rem 0;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+/* ============================================
+   CHART CONTAINER
+   ============================================ */
+app-stats-graphe {
+    display: block;
+    width: 100%;
+    min-height: 350px;
+    position: relative;
+}
+
+canvas {
+    display: block !important;
+    width: 100% !important;
+    max-height: 400px !important;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablets (768px - 1024px) */
+@media (max-width: 1024px) {
+    .ag-card {
+        padding: 1.25rem;
+    }
+
+    .ag-card h3 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Mobile Large (576px - 768px) */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Stack KPI cards vertically */
+    .row.g-4 {
+        gap: 1rem !important;
+    }
+
+    .col-md-3,
+    .col-lg-4,
+    .col-lg-7,
+    .col-lg-8,
+    .col-lg-5 {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    /* Adjust KPI card height for mobile */
+    .ag-card.h-50 {
+        min-height: 140px;
+        height: auto;
+        padding: 1rem;
+    }
+
+    .ag-card h3 {
+        font-size: 1.5rem;
+    }
+
+    .ag-card h3 small {
+        font-size: 0.75rem;
+    }
+
+    /* Adjust icon sizes */
+    .icon-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    /* Header adjustments */
+    .d-flex.flex-wrap.justify-content-between {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    .d-flex.gap-2 {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .form-select,
+    .btn {
+        width: 100%;
+    }
+
+    /* Table responsive */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        font-size: 0.875rem;
+    }
+
+    .table thead th,
+    .table tbody td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+/* Mobile Small (< 576px) */
+@media (max-width: 576px) {
+    .ag-card {
+        padding: 1rem;
+    }
+
+    .ag-card.h-50 {
+        min-height: 130px;
+    }
+
+    .ag-card h3 {
+        font-size: 1.25rem;
+    }
+
+    .ag-card h5 {
+        font-size: 1rem;
+    }
+
+    .icon-circle {
+        width: 36px;
+        height: 36px;
+        font-size: 0.875rem;
+    }
+
+    .avatar-sm {
+        width: 32px;
+        height: 32px;
+    }
+
+    /* Reduce padding in nested cards */
+    .ag-card .p-3 {
+        padding: 0.75rem !important;
+    }
+
+    .ag-card .p-4 {
+        padding: 1rem !important;
+    }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+.shadow-sm {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.rounded-3 {
+    border-radius: 12px !important;
+}
+
+.rounded-circle {
+    border-radius: 50% !important;
+}
+
+/* Gap utilities */
+.gap-2 {
+    gap: 0.5rem !important;
+}
+
+.gap-3 {
+    gap: 1rem !important;
+}
+
+.g-4 {
+    gap: 1.5rem !important;
+}
+
+/* Height utilities */
+.h-100 {
+    height: 100% !important;
+}

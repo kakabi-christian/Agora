@@ -1,0 +1,138 @@
+/* You can add global styles to this file, and also import other style files */
+/*  agoraCooperativefrontend/src/styles.css */
+
+/* Import Bootstrap Icons */
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+/* Définition des couleurs de la coopérative */
+/* src/styles.css */
+:root {
+  --color-primary: #1b5e20;
+  --color-success: #2e7d32;
+  --color-danger: #c62828;
+
+  --color-white: #ffffff;
+  --color-black: #111827;
+
+  --color-light-gray: #f7f7f4;
+  --color-dark-gray: #1f2937;
+
+  --color-surface: #ffffff;
+  --color-surface-2: #f0f4f1;
+
+  --color-accent: #8d6e63;
+  --color-border: #e5e7eb;
+  --color-text-muted: #6b7280;
+
+  --radius-md: 10px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 6px 18px rgba(17, 24, 39, 0.08);
+
+  --bs-primary: var(--color-primary);
+  --bs-success: var(--color-success);
+  --bs-danger: var(--color-danger);
+  --bs-body-bg: var(--color-light-gray);
+  --bs-body-color: var(--color-black);
+  --bs-border-color: var(--color-border);
+  --bs-link-color: var(--color-primary);
+  --bs-link-hover-color: #144a18;
+  --bs-border-radius: var(--radius-md);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-light-gray);
+  color: var(--color-black);
+}
+
+.card,
+.modal-content,
+.dropdown-menu {
+  border-color: var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn {
+  border-radius: var(--radius-md);
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-outline-primary {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.form-control,
+.form-select {
+  border-radius: var(--radius-md);
+  border-color: var(--color-border);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem rgba(27, 94, 32, 0.15);
+}
+
+.ag-error {
+  color: var(--color-danger);
+  margin-bottom: 0.75rem;
+}
+
+.ag-section {
+  margin-bottom: 1rem;
+}
+
+.ag-card {
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.75rem;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.ag-card--row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.ag-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ag-spacer-top {
+  margin-top: 0.75rem;
+}
+
+/* Force l'affichage des conteneurs de graphiques */
+canvas {
+  display: block !important;
+  min-height: 250px !important;
+  width: 100% !important;
+}
+
+.ag-card {
+  min-height: 300px;
+  background-color: white !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}

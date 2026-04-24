@@ -1,0 +1,41 @@
+/* Utilisation de tes variables CSS */
+.bg-black-custom {
+    background-color: var(--color-black) !important;
+}
+
+.bg-success-custom {
+    background-color: var(--color-success) !important;
+    color: var(--color-white);
+}
+
+.btn-success-custom {
+    background-color: var(--color-success);
+    border-color: var(--color-success);
+    color: var(--color-white);
+}
+
+.btn-success-custom:hover {
+    background-color: #218838; /* Vert un peu plus sombre au survol */
+}
+
+.btn-outline-primary-custom {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.btn-outline-primary-custom:hover {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+}
+
+.logo-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.nav-link:hover {
+    color: var(--color-success) !important;
+    transition: 0.3s;
+}

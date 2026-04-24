@@ -1,0 +1,49 @@
+<div class="login-wrapper d-flex align-items-center justify-content-center">
+  <div class="card login-card shadow-lg border-0">
+    <div class="card-body p-4 p-md-5">
+      <h2 class="login-title text-center mb-2">Vérification du code</h2>
+      <p class="login-subtitle text-center mb-4">
+        Entrez le code à 6 chiffres envoyé à votre adresse email : <br>
+        <strong class="text-dark">{{ email }}</strong>
+      </p>
+
+      <form [formGroup]="verifyForm" (ngSubmit)="onVerifyOtp()">
+        <div class="mb-4">
+          <label for="otp" class="form-label fw-bold">Code de vérification (OTP)</label>
+          <input 
+            type="text" 
+            id="otp" 
+            class="form-control form-control-lg text-center letter-spacing-otp"
+            formControlName="otp" 
+            placeholder="000000"
+            maxlength="6"
+            [class.is-invalid]="verifyForm.get('otp')?.invalid && verifyForm.get('otp')?.touched"
+          >
+          <div class="invalid-feedback text-center">
+            Le code doit contenir exactement 6 chiffres.
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger py-2 mb-3 text-center" role="alert">
+          <i class="bi bi-exclamation-triangle me-2"></i> {{ errorMessage }}
+        </div>
+
+        <button 
+          type="submit" 
+          class="btn btn-primary w-100 py-2 fw-bold" 
+          [disabled]="verifyForm.invalid || isLoading">
+          <span *ngIf="!isLoading">Vérifier le code</span>
+          <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+          <span *ngIf="isLoading">Vérification...</span>
+        </button>
+
+        <div class="text-center mt-4">
+          <p class="small text-muted mb-0">Vous n'avez rien reçu ?</p>
+          <a routerLink="/forgot-password" class="text-decoration-none back-link">
+             Renvoyer un nouveau code
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

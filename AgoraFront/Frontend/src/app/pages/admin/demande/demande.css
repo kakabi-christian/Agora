@@ -1,0 +1,26 @@
+/* Utilisation de tes codes couleurs pour écraser les styles Bootstrap par défaut */
+.btn-primary {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+.btn-success {
+  background-color: var(--color-success) !important;
+  border-color: var(--color-success) !important;
+}
+
+.btn-danger {
+  background-color: var(--color-danger) !important;
+  border-color: var(--color-danger) !important;
+}
+
+.bg-primary { background-color: var(--color-primary) !important; }
+.bg-success { background-color: var(--color-success) !important; }
+.bg-danger { background-color: var(--color-danger) !important; }
+.text-primary { color: var(--color-primary) !important; }
+
+/* Style pour l'effet de carte au survol */
+.demande-card:hover {
+  transform: translateY(-5px);
+  transition: transform 0.3s ease;
+}

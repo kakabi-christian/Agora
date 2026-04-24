@@ -1,0 +1,137 @@
+/* --- Mise en page globale --- */
+.container-fluid {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* --- Cartes Événements --- */
+.card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 12px;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Overlay pour la ville et le lieu sur l'image */
+.bg-dark.bg-opacity-75 {
+    backdrop-filter: blur(2px);
+    font-size: 0.85rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* --- Badges et Labels --- */
+.badge {
+    font-weight: 600;
+    padding: 0.5em 0.8em;
+    letter-spacing: 0.3px;
+}
+
+.text-primary {
+    color: #0d6efd !important;
+}
+
+.border-primary {
+    border-color: #0d6efd !important;
+}
+
+/* --- Formulaire et Modal --- */
+.modal {
+    display: block;
+    z-index: 1060;
+}
+
+.modal-content {
+    border: none;
+    overflow: hidden;
+}
+
+.modal-header {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-label {
+    margin-bottom: 0.4rem;
+    color: #495057;
+}
+
+.form-control, .form-select {
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.15);
+}
+
+/* --- Styles pour les prix et places --- */
+.bg-light {
+    background-color: #f1f3f5 !important;
+}
+
+.text-success {
+    color: #198754 !important;
+}
+
+/* --- Boutons --- */
+.btn-primary {
+    background-color: #0d6efd;
+    border: none;
+}
+
+.btn-success {
+    background-color: #198754;
+    border: none;
+}
+
+.btn-outline-primary {
+    border-width: 1.5px;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: white;
+}
+
+/* --- Animation Modal --- */
+.animate__animated {
+    animation-duration: 0.4s;
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale3d(0.95, 0.95, 0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale3d(1, 1, 1);
+    }
+}
+
+.modal.fade.show {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* --- Image Preview --- */
+img.rounded.border {
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .card-img-top {
+        height: 150px;
+    }
+    
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+}

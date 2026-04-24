@@ -1,0 +1,140 @@
+<div class="adhesion-wrapper">
+  <div class="form-container">
+    <h2 class="title">Devenir Membre de la Coopérative</h2>
+    <p class="subtitle">Rejoignez-nous pour construire l'avenir de l'agriculture.</p>
+
+    <div *ngIf="successMessage" class="alert alert-success">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="adhesionForm" (ngSubmit)="onSubmit()" *ngIf="!successMessage">
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Nom <span class="required">*</span></label>
+          <input type="text" formControlName="nom"
+                 [class.is-invalid]="adhesionForm.get('nom')?.touched && adhesionForm.get('nom')?.invalid">
+          <small class="error-msg" *ngIf="adhesionForm.get('nom')?.touched && adhesionForm.get('nom')?.errors?.['required']">
+            Le nom est obligatoire.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Prénom <span class="required">*</span></label>
+          <input type="text" formControlName="prenom"
+                 [class.is-invalid]="adhesionForm.get('prenom')?.touched && adhesionForm.get('prenom')?.invalid">
+          <small class="error-msg" *ngIf="adhesionForm.get('prenom')?.touched && adhesionForm.get('prenom')?.errors?.['required']">
+            Le prénom est obligatoire.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Email <span class="required">*</span></label>
+          <input type="email" formControlName="email"
+                 [class.is-invalid]="adhesionForm.get('email')?.touched && adhesionForm.get('email')?.invalid">
+          <small class="error-msg" *ngIf="adhesionForm.get('email')?.touched && adhesionForm.get('email')?.errors?.['required']">
+            L'email est requis.
+          </small>
+          <small class="error-msg" *ngIf="adhesionForm.get('email')?.touched && adhesionForm.get('email')?.errors?.['email']">
+            Email invalide.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Téléphone (9 chiffres) <span class="required">*</span></label>
+          <input type="tel" formControlName="telephone"
+                 [class.is-invalid]="adhesionForm.get('telephone')?.touched && adhesionForm.get('telephone')?.invalid">
+          <small class="error-msg" *ngIf="adhesionForm.get('telephone')?.touched && adhesionForm.get('telephone')?.errors?.['required']">
+            Le numéro est obligatoire.
+          </small>
+          <small class="error-msg" *ngIf="adhesionForm.get('telephone')?.touched && adhesionForm.get('telephone')?.errors?.['pattern']">
+            9 chiffres requis.
+          </small>
+        </div>
+
+        <div class="form-group full-width">
+          <label>Adresse Résidentielle <span class="required">*</span></label>
+          <input type="text" formControlName="adresse" placeholder="Ex: Rue Elf, Quartier..."
+                 [class.is-invalid]="adhesionForm.get('adresse')?.touched && adhesionForm.get('adresse')?.invalid">
+          <small class="error-msg" *ngIf="adhesionForm.get('adresse')?.touched && adhesionForm.get('adresse')?.errors?.['required']">
+            L'adresse exacte est nécessaire.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Ville <span class="required">*</span></label>
+          <input type="text" formControlName="ville"
+                 [class.is-invalid]="adhesionForm.get('ville')?.touched && adhesionForm.get('ville')?.invalid">
+          <small class="error-msg" *ngIf="adhesionForm.get('ville')?.touched && adhesionForm.get('ville')?.errors?.['required']">
+            La ville est requise.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Code Postal (5 chiffres) <span class="required">*</span></label>
+          <input type="text" formControlName="code_postal"
+                 [class.is-invalid]="adhesionForm.get('code_postal')?.touched && adhesionForm.get('code_postal')?.invalid">
+          <small class="error-msg" *ngIf="adhesionForm.get('code_postal')?.touched && adhesionForm.get('code_postal')?.errors?.['required']">
+            Le code postal est requis.
+          </small>
+          <small class="error-msg" *ngIf="adhesionForm.get('code_postal')?.touched && adhesionForm.get('code_postal')?.errors?.['pattern']">
+            5 chiffres requis.
+          </small>
+        </div>
+
+        <div class="form-group full-width">
+          <label>Compétences (Séparez par des virgules)</label>
+          <input type="text" formControlName="competences" placeholder="Ex: Irrigation, Élevage," [class.is-invalid]="adhesionForm.get('competences')?.touched && adhesionForm.get('competences')?.invalid">
+        </div>
+
+        <div class="form-group full-width">
+          <div class="label-row">
+            <label>Motivations <span class="required">*</span></label>
+            <span class="char-counter" [class.valid-count]="motivationLength >= 50">
+              {{ motivationLength }}/50 caractères minimum
+            </span>
+          </div>
+          <textarea formControlName="motivation" rows="4"
+                    [class.is-invalid]="adhesionForm.get('motivation')?.touched && adhesionForm.get('motivation')?.invalid"></textarea>
+          <small class="error-msg" *ngIf="adhesionForm.get('motivation')?.touched && adhesionForm.get('motivation')?.errors?.['required']">
+            Motivation obligatoire.
+          </small>
+          <small class="error-msg" *ngIf="adhesionForm.get('motivation')?.touched && adhesionForm.get('motivation')?.errors?.['minlength']">
+            Minimum 50 caractères requis.
+          </small>
+          <small class="error-msg" *ngIf="adhesionForm.get('motivation')?.touched && adhesionForm.get('motivation')?.errors?.['maxlength']">
+            Maximum 1000 caractères autorisés.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Date de naissance <span class="required">*</span></label>
+          <input type="date" formControlName="date_naissance"
+                 [class.is-invalid]="adhesionForm.get('date_naissance')?.touched && adhesionForm.get('date_naissance')?.invalid">
+          <small class="error-msg" *ngIf="adhesionForm.get('date_naissance')?.touched && adhesionForm.get('date_naissance')?.errors?.['required']">
+            Date obligatoire.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Profession <span class="required">*</span></label>
+          <input type="text" formControlName="profession"
+                 [class.is-invalid]="adhesionForm.get('profession')?.touched && adhesionForm.get('profession')?.invalid">
+          <small class="error-msg" *ngIf="adhesionForm.get('profession')?.touched && adhesionForm.get('profession')?.errors?.['required']">
+            Profession obligatoire.
+          </small>
+        </div>
+
+      </div>
+
+      <div class="form-footer">
+        <button type="submit" [disabled]="isSubmitting || adhesionForm.invalid" class="btn-submit">
+          {{ isSubmitting ? 'Envoi en cours...' : 'Soumettre mon adhésion' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

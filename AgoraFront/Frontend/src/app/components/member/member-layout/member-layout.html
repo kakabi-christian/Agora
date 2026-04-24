@@ -1,0 +1,83 @@
+<div class="member-layout">
+  <aside class="member-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <span class="logo-icon"><i class="bi bi-person-circle"></i></span>
+        <h2 class="logo-text">Espace Membre</h2>
+      </div>
+    </div>
+
+    <nav class="member-nav">
+      <a routerLink="/membre/tableau-de-bord" routerLinkActive="active" class="member-nav__link">
+        <span class="nav-icon"><i class="bi bi-speedometer2"></i></span>
+        <span class="nav-label">Tableau de bord</span>
+      </a>
+
+      <a routerLink="/membre/profil" routerLinkActive="active" class="member-nav__link">
+        <span class="nav-icon"><i class="bi bi-person-fill"></i></span>
+        <span class="nav-label">Mon profil</span>
+      </a>
+
+      <a routerLink="/membre/historique" routerLinkActive="active" class="member-nav__link">
+        <span class="nav-icon"><i class="bi bi-clock-history"></i></span>
+        <span class="nav-label">Historique</span>
+      </a>
+
+      <a routerLink="/membre/ressources" routerLinkActive="active" class="member-nav__link">
+        <span class="nav-icon"><i class="bi bi-folder-fill"></i></span>
+        <span class="nav-label">Ressources</span>
+      </a>
+
+      <!-- ✅ MISE À JOUR RÉUNIONS -->
+      <a routerLink="/membre/meetings" routerLinkActive="active" class="member-nav__link">
+        <span class="nav-icon"><i class="bi bi-camera-video-fill"></i></span>
+        <span class="nav-label">Réunions</span>
+      </a>
+
+      <a routerLink="/membre/evenements" routerLinkActive="active" class="member-nav__link">
+        <span class="nav-icon"><i class="bi bi-calendar-event-fill"></i></span>
+        <span class="nav-label">Événements</span>
+      </a>
+
+      <a routerLink="/membre/projets" routerLinkActive="active" class="member-nav__link">
+        <span class="nav-icon"><i class="bi bi-rocket-takeoff-fill"></i></span>
+        <span class="nav-label">Projets</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button type="button" class="member-logout" (click)="openLogoutModal()">
+        <span class="logout-icon"><i class="bi bi-box-arrow-right"></i></span>
+        <span class="logout-label">Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="member-content">
+    <router-outlet></router-outlet>
+  </div>
+
+  <!-- Modal de déconnexion -->
+  <div class="logout-modal-overlay" *ngIf="showLogoutModal" (click)="closeLogoutModal()">
+    <div class="logout-modal" (click)="$event.stopPropagation()">
+      <div class="modal-body">
+        <div class="logout-icon-box">
+          <i class="bi bi-box-arrow-right text-danger"></i>
+        </div>
+        <h3 class="modal-title">Déconnexion</h3>
+        <p class="modal-text">Êtes-vous sûr de vouloir quitter votre session ?</p>
+
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="closeLogoutModal()" [disabled]="isLoggingOut">
+            Annuler
+          </button>
+          <button class="btn-confirm" (click)="confirmLogout()" [disabled]="isLoggingOut">
+            <span *ngIf="isLoggingOut" class="spinner-border spinner-border-sm me-2"></span>
+            <span *ngIf="!isLoggingOut">Se déconnecter</span>
+            <span *ngIf="isLoggingOut">Déconnexion...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

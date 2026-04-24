@@ -1,0 +1,109 @@
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h2>AGORA</h2>
+  </div>
+
+  <nav class="sidebar-menu">
+    <a routerLink="/admin/dashboard" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-house-fill"></i></span>
+      <span class="label">Accueil</span>
+    </a>
+
+    <a routerLink="/admin/demandes" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-file-earmark-text-fill"></i></span>
+      <span class="label">Demandes d'adhésion</span>
+      <span class="badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+    </a>
+
+    <a routerLink="/admin/membres" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-people-fill"></i></span>
+      <span class="label">Membres</span>
+    </a>
+
+    <a routerLink="/admin/ressources" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-folder-fill"></i></span>
+      <span class="label">Ressources</span>
+    </a>
+
+    <a routerLink="/admin/contact" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-envelope-fill"></i></span>
+      <span class="label">Messages</span>
+      <span class="badge badge-danger" *ngIf="unreadContactCount > 0">{{ unreadContactCount }}</span>
+    </a>
+
+    <a routerLink="/admin/notifications" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-bell-fill"></i></span>
+      <span class="label">Notifications</span>
+      <span class="badge badge-warning" *ngIf="unreadNotifCount > 0">{{ unreadNotifCount }}</span>
+    </a>
+
+    <a routerLink="/admin/profil" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-person-fill"></i></span>
+      <span class="label">Mon Profil</span>
+    </a>
+
+    <a routerLink="/admin/projects" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-folder-fill"></i></span>
+      <span class="label">Projets</span>
+    </a>
+
+    <a routerLink="/admin/partner" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-handshake-fill"></i></span>
+      <span class="label">Partenaires</span>
+    </a>
+
+    <a routerLink="/admin/faq" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-question-circle-fill"></i></span>
+      <span class="label">FAQ</span>
+    </a>
+
+    <!-- ✅ MISE À JOUR RÉUNIONS -->
+    <a routerLink="/admin/meetings" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-camera-video-fill"></i></span>
+      <span class="label">Réunions</span>
+    </a>
+
+    <a routerLink="/admin/evenements" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-calendar-event-fill"></i></span>
+      <span class="label">Evénements</span>
+    </a>
+
+    <a routerLink="/admin/retrait" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-cash-coin"></i></span>
+      <span class="label">Retrait</span>
+    </a>
+
+    <!-- ✅ CORRECTION STATISTIQUES -->
+    <a routerLink="/admin/stats" routerLinkActive="active" class="menu-item">
+      <span class="icon"><i class="bi bi-bar-chart-fill"></i></span>
+      <span class="label">Statistiques</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="btn-logout" (click)="ouvrirModalDeconnexion()">
+      <span class="icon"><i class="bi bi-box-arrow-right"></i></span>
+      <span class="label">Déconnexion</span>
+    </button>
+  </div>
+</aside>
+
+<div class="logout-modal-overlay" *ngIf="showLogoutModal">
+  <div class="logout-modal animate__animated animate__fadeInUp">
+    <div class="modal-body text-center">
+      <div class="logout-icon-box">
+        <i class="bi bi-box-arrow-right text-danger"></i>
+      </div>
+      <h3>Déconnexion</h3>
+      <p>Êtes-vous sûr de vouloir quitter votre session ?</p>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="fermerModal()" [disabled]="isLoggingOut">Annuler</button>
+        <button class="btn-confirm" (click)="confirmerDeconnexion()" [disabled]="isLoggingOut">
+          <span *ngIf="isLoggingOut" class="spinner-border spinner-border-sm me-2"></span>
+          Se déconnecter
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

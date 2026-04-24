@@ -1,0 +1,99 @@
+<div class="container-fluid py-4">
+  <div class="d-md-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Gestion des Demandes d'Adhésion</h2>
+      <p class="text-muted small mb-0">Consultez et traitez les nouvelles inscriptions à la coopérative</p>
+    </div>
+    <div class="badge bg-primary fs-6 py-2 px-3 shadow-sm">
+      Total : {{ paginationMeta?.total || 0 }} demande(s)
+    </div>
+  </div>
+
+  <div class="btn-group mb-4 shadow-sm">
+    <button type="button" class="btn border" [ngClass]="!currentStatut ? 'btn-primary text-white' : 'btn-white bg-white'" (click)="chargerDemandes()">Toutes</button>
+    <button type="button" class="btn border" [ngClass]="currentStatut === 'en_attente' ? 'btn-primary text-white' : 'btn-white bg-white'" (click)="chargerDemandes('en_attente')">En attente</button>
+    <button type="button" class="btn border" [ngClass]="currentStatut === 'approuvee' ? 'btn-primary text-white' : 'btn-white bg-white'" (click)="chargerDemandes('approuvee')">Approuvées</button>
+  </div>
+
+  <div class="row g-4" *ngIf="!loading && demandes.length > 0">
+    <div class="col-12 col-md-6 col-lg-4" *ngFor="let d of demandes">
+      <div class="card h-100 shadow-sm border-0 position-relative">
+        <div class="position-absolute top-0 end-0 p-2">
+          <span class="badge" [ngClass]="{'bg-warning text-dark': d.statut === 'en_attente', 'bg-success': d.statut === 'approuvee', 'bg-danger': d.statut === 'rejetee'}">
+            {{ d.statut | titlecase }}
+          </span>
+        </div>
+
+        <div class="card-body pt-5">
+          <h5 class="card-title fw-bold text-dark mb-1">{{ d.prenom }} {{ d.nom }}</h5>
+          <div class="small text-muted mb-3">
+            <div class="mb-1"><i class="bi bi-envelope me-2"></i>{{ d.email }}</div>
+            <div class="mb-1"><i class="bi bi-telephone me-2"></i>{{ d.telephone }}</div>
+            <div class="mb-1" *ngIf="d.profession"><i class="bi bi-briefcase me-2 text-primary"></i><strong>Profession:</strong> {{ d.profession }}</div>
+            <div class="mb-1" *ngIf="d.ville"><i class="bi bi-briefcase me-2 text-primary"></i><strong>Ville:</strong> {{ d.ville }}</div>
+            <div class="mb-1" *ngIf="d.date_naissance"><i class="bi bi-calendar-event me-2 text-primary"></i><strong>Né(e) le:</strong> {{ d.date_naissance | date:'dd/MM/yyyy' }}</div>
+          </div>
+          
+          <div class="p-3 bg-light rounded mb-3">
+            <label class="fw-bold small text-uppercase text-secondary d-block mb-1">Motivation :</label>
+            <p class="card-text small mb-0">{{ d.motivation }}</p>
+          </div>
+
+          <div class="d-flex flex-wrap gap-1">
+            <span class="badge bg-light text-dark border" *ngFor="let tag of d.competences">{{ tag }}</span>
+          </div>
+        </div>
+
+        <div class="card-footer bg-white border-top-0 p-3" *ngIf="d.statut === 'en_attente'">
+          <div class="row g-2">
+            <div class="col-6"><button class="btn btn-success w-100 py-2 shadow-sm" (click)="valider(d.id!)">Approuver</button></div>
+            <div class="col-6">
+                <button class="btn btn-danger w-100 py-2 shadow-sm" (click)="ouvrirModalRejet(d)">Rejeter</button>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-light border-0 text-center small text-muted py-2">
+          Reçue le : {{ d.date_demande | date : 'dd/MM/yyyy HH:mm' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade show" tabindex="-1" *ngIf="afficherModal" style="display: block; background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow border-0">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title fw-bold">Motif du Rejet</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="fermerModal()"></button>
+        </div>
+        <div class="modal-body py-4">
+          <p class="text-muted">Vous allez rejeter la demande de <strong>{{ demandeSelectionnee?.prenom }} {{ demandeSelectionnee?.nom }}</strong>.</p>
+          <label class="form-label fw-bold">Pourquoi rejetez-vous ce dossier ?</label>
+          <textarea 
+            class="form-control" 
+            rows="4" 
+            [(ngModel)]="motifRejet" 
+            placeholder="Saisissez la raison ici (sera envoyée par mail au candidat)..."></textarea>
+          <div class="text-danger small mt-2" *ngIf="erreurModal">{{ erreurModal }}</div>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary px-4" (click)="fermerModal()">Annuler</button>
+          <button type="button" class="btn btn-danger px-4" (click)="confirmerRejet()" [disabled]="!motifRejet">
+            <span *ngIf="!loadingRejet">Confirmer le rejet</span>
+            <span *ngIf="loadingRejet" class="spinner-border spinner-border-sm"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="mt-5 d-flex flex-column align-items-center" *ngIf="paginationMeta && paginationMeta.last_page >= 1">
+    <ul class="pagination shadow-sm">
+      <li class="page-item" [class.disabled]="paginationMeta.current_page === 1">
+        <button class="page-link" (click)="allerAPage(paginationMeta.current_page - 1)">&laquo; Précédent</button>
+      </li>
+      <li class="page-item active"><span class="page-link px-4">Page {{ paginationMeta.current_page }} / {{ paginationMeta.last_page }}</span></li>
+      <li class="page-item" [class.disabled]="paginationMeta.current_page === paginationMeta.last_page"><button class="page-link" (click)="allerAPage(paginationMeta.current_page + 1)">Suivant &raquo;</button></li>
+    </ul>
+  </nav>
+</div>

@@ -1,0 +1,234 @@
+<div class="detail-container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Chargement du projet...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!loading" class="detail-content">
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="alert alert-error">
+            <i class="alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></i>
+            <div>
+                <strong>Erreur</strong>
+                <p>{{ errorMessage }}</p>
+            </div>
+        </div>
+
+        <div *ngIf="projet">
+            <!-- Breadcrumb -->
+            <nav class="breadcrumb">
+                <a routerLink="/membre/projets" class="breadcrumb-item">
+                    <i class="breadcrumb-icon"><i class="bi bi-arrow-left"></i></i>
+                    Retour aux projets
+                </a>
+            </nav>
+
+            <!-- Project Header -->
+            <div class="project-header">
+                <div class="header-content">
+                    <div class="header-top">
+                        <div class="project-badges">
+                            <div class="project-type-badge" [class]="getProjectTypeClass(projet.type)">
+                                <i class="type-icon bi" [ngClass]="getProjectTypeIcon(projet.type)"></i>
+                                {{ projet.type || 'Projet' }}
+                            </div>
+                            <div class="project-status" [class]="getStatusClass(projet.statut)">
+                                <span class="status-dot"></span>
+                                {{ projet.statut || 'En cours' }}
+                            </div>
+                        </div>
+                        <div class="participation-indicator" *ngIf="isParticipant">
+                            <i class="indicator-icon"><i class="bi bi-check-circle-fill"></i></i>
+                            <span>Vous participez</span>
+                        </div>
+                    </div>
+
+                    <h1 class="project-title">{{ projet.nom }}</h1>
+
+                    <div class="project-meta-bar">
+                        <div class="meta-item" *ngIf="projet.date_debut">
+                            <i class="meta-icon"><i class="bi bi-calendar-event-fill"></i></i>
+                            <span>Début: {{ formatDate(projet.date_debut) }}</span>
+                        </div>
+                        <div class="meta-item" *ngIf="projet.date_fin">
+                            <i class="meta-icon"><i class="bi bi-calendar-check"></i></i>
+                            <span>Fin: {{ formatDate(projet.date_fin) }}</span>
+                        </div>
+                        <div class="meta-item" *ngIf="projet.participants_count">
+                            <i class="meta-icon"><i class="bi bi-people-fill"></i></i>
+                            <span>{{ projet.participants_count }} participant(s)</span>
+                        </div>
+                        <div class="meta-item" *ngIf="projet.budget">
+                            <i class="meta-icon"><i class="bi bi-cash-coin"></i></i>
+                            <span>{{ formatBudget(projet.budget) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="header-actions">
+                    <button *ngIf="!isParticipant" type="button" class="btn btn-participate" (click)="participer()"
+                        [disabled]="actionLoading">
+                        <i class="btn-icon" *ngIf="!actionLoading"><i class="bi bi-people-fill"></i></i>
+                        <div class="btn-spinner" *ngIf="actionLoading"></div>
+                        {{ actionLoading ? 'Chargement...' : 'Participer au projet' }}
+                    </button>
+                    <button *ngIf="isParticipant" type="button" class="btn btn-leave" (click)="quitter()"
+                        [disabled]="actionLoading">
+                        <i class="btn-icon" *ngIf="!actionLoading"><i class="bi bi-box-arrow-right"></i></i>
+                        <div class="btn-spinner" *ngIf="actionLoading"></div>
+                        {{ actionLoading ? 'Chargement...' : 'Quitter le projet' }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Project Content -->
+            <div class="project-content-grid">
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Description Section -->
+                    <div class="content-card" *ngIf="projet.description">
+                        <div class="card-header">
+                            <i class="card-icon"><i class="bi bi-pencil-square"></i></i>
+                            <h2>Description du projet</h2>
+                        </div>
+                        <div class="card-body">
+                            <p class="project-description">{{ projet.description }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Objectifs Section -->
+                    <div class="content-card" *ngIf="projet.objectifs">
+                        <div class="card-header">
+                            <i class="card-icon"><i class="bi bi-bullseye"></i></i>
+                            <h2>Objectifs</h2>
+                        </div>
+                        <div class="card-body">
+                            <p class="project-objectifs">{{ projet.objectifs }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Impact Section -->
+                    <div class="content-card" *ngIf="projet.impact">
+                        <div class="card-header">
+                            <i class="card-icon"><i class="bi bi-bar-chart-fill"></i></i>
+                            <h2>Impact attendu</h2>
+                        </div>
+                        <div class="card-body">
+                            <p class="project-impact">{{ projet.impact }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Ressources nécessaires -->
+                    <div class="content-card" *ngIf="projet.ressources">
+                        <div class="card-header">
+                            <i class="card-icon"><i class="bi bi-tools"></i></i>
+                            <h2>Ressources nécessaires</h2>
+                        </div>
+                        <div class="card-body">
+                            <p class="project-ressources">{{ projet.ressources }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <!-- Info Card -->
+                    <div class="info-card">
+                        <h3 class="info-card-title">Informations clés</h3>
+                        <div class="info-list">
+                            <div class="info-item" *ngIf="projet.responsable">
+                                <i class="info-icon"><i class="bi bi-person-fill"></i></i>
+                                <div>
+                                    <span class="info-label">Responsable</span>
+                                    <span class="info-value">{{ projet.responsable }}</span>
+                                </div>
+                            </div>
+                            <div class="info-item" *ngIf="projet.localisation">
+                                <i class="info-icon"><i class="bi bi-geo-alt-fill"></i></i>
+                                <div>
+                                    <span class="info-label">Localisation</span>
+                                    <span class="info-value">{{ projet.localisation }}</span>
+                                </div>
+                            </div>
+                            <div class="info-item" *ngIf="projet.duree">
+                                <i class="info-icon"><i class="bi bi-stopwatch-fill"></i></i>
+                                <div>
+                                    <span class="info-label">Durée</span>
+                                    <span class="info-value">{{ projet.duree }}</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="info-icon"><i class="bi bi-graph-up-arrow"></i></i>
+                                <div>
+                                    <span class="info-label">Progression</span>
+                                    <div class="progress-wrapper">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" [style.width.%]="projet.progression || 0"></div>
+                                        </div>
+                                        <span class="progress-text">{{ projet.progression || 0 }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Participation Card -->
+                    <div class="participation-card">
+                        <div class="participation-icon">
+                            <i class="bi" [ngClass]="isParticipant ? 'bi-check-circle-fill' : 'bi-people-fill'"></i>
+                        </div>
+                        <h3>{{ isParticipant ? 'Vous participez !' : 'Rejoignez le projet' }}</h3>
+                        <p>{{ isParticipant ? 'Vous êtes membre actif de ce projet.' : 'Contribuez à la réalisation de
+                            ce projet avec la communauté.' }}</p>
+                        <button *ngIf="!isParticipant" type="button" class="btn btn-join" (click)="participer()"
+                            [disabled]="actionLoading">
+                            <i class="btn-icon"><i class="bi bi-rocket-takeoff-fill"></i></i>
+                            Participer maintenant
+                        </button>
+                        <div *ngIf="isParticipant" class="participation-actions">
+                            <button type="button" class="btn btn-secondary-outline" (click)="quitter()"
+                                [disabled]="actionLoading">
+                                Quitter
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Contact Card -->
+                    <div class="contact-card" *ngIf="projet.contact_email || projet.contact_phone">
+                        <h3 class="contact-title">
+                            <i class="contact-icon"><i class="bi bi-telephone-fill"></i></i>
+                            Contact
+                        </h3>
+                        <div class="contact-info">
+                            <a *ngIf="projet.contact_email" [href]="'mailto:' + projet.contact_email"
+                                class="contact-link">
+                                <i class="link-icon"><i class="bi bi-envelope-fill"></i></i>
+                                {{ projet.contact_email }}
+                            </a>
+                            <a *ngIf="projet.contact_phone" [href]="'tel:' + projet.contact_phone" class="contact-link">
+                                <i class="link-icon"><i class="bi bi-telephone-fill"></i></i>
+                                {{ projet.contact_phone }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tags Section -->
+            <div class="tags-section" *ngIf="projet.tags && projet.tags.length">
+                <h3 class="tags-title">
+                    <i class="tags-icon"><i class="bi bi-tag-fill"></i></i>
+                    Tags
+                </h3>
+                <div class="tags-list">
+                    <span *ngFor="let tag of projet.tags" class="tag">{{ tag }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

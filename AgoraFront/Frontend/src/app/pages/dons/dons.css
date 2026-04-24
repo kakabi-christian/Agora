@@ -1,0 +1,52 @@
+/* Utilisation de tes variables */
+.bg-custom-primary {
+  background-color: var(--color-primary) !important;
+}
+
+.btn-ag-primary {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.btn-ag-primary:hover:not(:disabled) {
+  background-color: var(--color-success); /* Change vers vert clair au survol */
+  transform: translateY(-2px);
+}
+
+.ag-input {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.ag-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.2rem rgba(27, 94, 32, 0.1);
+}
+
+.ag-card-light {
+  background-color: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border);
+}
+
+.ag-card-main {
+  border-radius: var(--radius-md);
+}
+
+/* Texte et icônes */
+.text-primary { color: var(--color-primary) !important; }
+.text-success { color: var(--color-success) !important; }
+
+/* Switch couleur */
+.form-check-input:checked {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+/* Boîte d'impact à droite */
+.impact-box {
+  background: transparent;
+}

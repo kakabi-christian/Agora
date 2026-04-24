@@ -1,0 +1,60 @@
+/* Fond de page et centrage */
+.login-wrapper {
+  min-height: 100vh;
+  background-color: var(--color-light-gray);
+  padding: 15px;
+}
+
+/* Style de la carte */
+.login-card {
+  width: 100%;
+  max-width: 450px;
+  border-radius: var(--radius-md) !important;
+}
+
+.login-title {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.login-subtitle {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Style spécifique pour le champ OTP */
+.letter-spacing-otp {
+  letter-spacing: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.form-control:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 0.25rem rgba(27, 94, 32, 0.15);
+}
+
+/* Bouton principal */
+.btn-primary {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--bs-link-hover-color) !important;
+  transform: translateY(-1px);
+}
+
+/* Style des liens */
+.back-link {
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.back-link:hover {
+  text-decoration: underline !important;
+}

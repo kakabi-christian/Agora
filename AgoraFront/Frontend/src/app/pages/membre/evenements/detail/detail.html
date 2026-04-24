@@ -1,0 +1,175 @@
+<div class="event-detail-container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="loading-text">Chargement des détails de l'événement...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!loading && errorMessage" class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+        <div>
+            <strong>Erreur</strong>
+            <p class="mb-0">{{ errorMessage }}</p>
+        </div>
+    </div>
+
+    <!-- Event Content -->
+    <div *ngIf="!loading && evenement" class="event-content">
+        <!-- Back Button -->
+        <div class="back-navigation mb-4">
+            <a routerLink="/membre/evenements" class="btn-back">
+                <i class="bi bi-arrow-left"></i>
+                <span>Retour aux événements</span>
+            </a>
+        </div>
+
+        <!-- Event Header -->
+        <div class="event-header">
+            <div class="event-header-content">
+                <div class="event-badge-group">
+                    <span class="event-type-badge">{{ evenement.type || 'Événement' }}</span>
+                    <span *ngIf="isInscrit()" class="inscription-badge">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Inscrit
+                    </span>
+                </div>
+                <h1 class="event-title">{{ evenement.titre || evenement.nom || evenement.code_evenement }}</h1>
+                <p class="event-subtitle" *ngIf="evenement.description">{{ evenement.description }}</p>
+            </div>
+        </div>
+
+        <!-- Event Info Cards -->
+        <div class="event-info-grid">
+            <!-- Date & Time Card -->
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i class="bi bi-calendar-event-fill"></i>
+                </div>
+                <div class="info-card-content">
+                    <h3 class="info-card-title">Date et Heure</h3>
+                    <div class="info-card-details">
+                        <div class="info-item" *ngIf="evenement.date_debut">
+                            <i class="bi bi-calendar-check"></i>
+                            <span><strong>Début:</strong> {{ evenement.date_debut | date:'dd/MM/yyyy à HH:mm' }}</span>
+                        </div>
+                        <div class="info-item" *ngIf="evenement.date_fin">
+                            <i class="bi bi-calendar-x"></i>
+                            <span><strong>Fin:</strong> {{ evenement.date_fin | date:'dd/MM/yyyy à HH:mm' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Card -->
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <div class="info-card-content">
+                    <h3 class="info-card-title">Localisation</h3>
+                    <div class="info-card-details">
+                        <div class="info-item" *ngIf="evenement.lieu">
+                            <i class="bi bi-pin-map-fill"></i>
+                            <span>{{ evenement.lieu }}</span>
+                        </div>
+                        <div class="info-item" *ngIf="evenement.ville">
+                            <i class="bi bi-building"></i>
+                            <span>{{ evenement.ville }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Capacity Card -->
+            <div class="info-card" *ngIf="evenement.places_disponibles">
+                <div class="info-card-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="info-card-content">
+                    <h3 class="info-card-title">Capacité</h3>
+                    <div class="info-card-details">
+                        <div class="info-item">
+                            <i class="bi bi-person-check-fill"></i>
+                            <span>{{ evenement.places_disponibles }} places disponibles</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price Card -->
+            <div class="info-card"
+                *ngIf="evenement.frais_inscription !== null && evenement.frais_inscription !== undefined">
+                <div class="info-card-icon">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+                <div class="info-card-content">
+                    <h3 class="info-card-title">Frais d'inscription</h3>
+                    <div class="info-card-details">
+                        <div class="info-item">
+                            <i class="bi bi-currency-exchange"></i>
+                            <span *ngIf="evenement.frais_inscription === 0" class="text-success fw-bold">Gratuit</span>
+                            <span *ngIf="evenement.frais_inscription > 0" class="fw-bold">{{ evenement.frais_inscription
+                                }} XAF</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inscription Status -->
+        <div *ngIf="statutInscription && isInscrit()" class="inscription-status-card">
+            <div class="status-header">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <h3>Votre Inscription</h3>
+            </div>
+            <div class="status-details">
+                <div class="status-item" *ngIf="statutInscription.inscription?.date_inscription">
+                    <span class="status-label">Date d'inscription:</span>
+                    <span class="status-value">{{ statutInscription.inscription.date_inscription | date:'dd/MM/yyyy à
+                        HH:mm' }}</span>
+                </div>
+                <div class="status-item" *ngIf="statutInscription.inscription?.statut_paiement">
+                    <span class="status-label">Statut paiement:</span>
+                    <span class="status-value" [ngClass]="{
+                        'text-success': statutInscription.inscription.statut_paiement === 'paye',
+                        'text-warning': statutInscription.inscription.statut_paiement === 'en_attente',
+                        'text-danger': statutInscription.inscription.statut_paiement === 'rembourse'
+                    }">
+                        {{ statutInscription.inscription.statut_paiement }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <!-- Not Registered -->
+            <button *ngIf="!isInscrit()" type="button" class="btn btn-primary btn-lg btn-action" (click)="inscrire()"
+                [disabled]="actionLoading">
+                <i class="bi bi-calendar-plus-fill" *ngIf="!actionLoading"></i>
+                <span class="spinner-border spinner-border-sm" *ngIf="actionLoading"></span>
+                <span>{{ actionLoading ? 'Inscription en cours...' : 'S\'inscrire à l\'événement' }}</span>
+            </button>
+
+            <!-- Registered Actions -->
+            <div *ngIf="isInscrit()" class="registered-actions">
+                <button type="button" class="btn btn-success btn-lg btn-action" (click)="telechargerPdf()"
+                    [disabled]="actionLoading">
+                    <i class="bi bi-file-earmark-pdf-fill" *ngIf="!actionLoading"></i>
+                    <span class="spinner-border spinner-border-sm" *ngIf="actionLoading"></span>
+                    <span>Télécharger ma confirmation (PDF)</span>
+                </button>
+
+                <button type="button" class="btn btn-outline-danger btn-lg btn-action" (click)="annuler()"
+                    [disabled]="actionLoading">
+                    <i class="bi bi-x-circle-fill" *ngIf="!actionLoading"></i>
+                    <span class="spinner-border spinner-border-sm" *ngIf="actionLoading"></span>
+                    <span>Annuler mon inscription</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,263 @@
+<!-- Section Hero avec background-image -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Ensemble, Nous Sommes Plus Forts</h1>
+    <p>Rejoignez une communauté de {{ stats?.membres?.total ?? 850 }}+ membres passionnés qui construisent ensemble un
+      avenir durable et solidaire</p>
+    <div class="hero-buttons">
+      <a href="/login" class="btn-hero btn-hero-primary">Devenir Membre Aujourd'hui</a>
+      <a href="/home" class="btn-hero btn-hero-outline">Découvrir Notre Histoire</a>
+    </div>
+  </div>
+</section>
+
+<!-- Message d'erreur si chargement échoue -->
+<div *ngIf="errorStats || errorPartenaires" class="container">
+  <div class="error-message">
+    <p>{{ errorStats || errorPartenaires }}</p>
+    <button (click)="retry()" class="btn btn-primary">Réessayer</button>
+  </div>
+</div>
+
+<div class="container">
+  <h2 class="section-title scroll-animate animate-fade-up">Bienvenue sur Agora Coopérative</h2>
+  <p class="section-subtitle scroll-animate animate-fade-up" style="animation-delay: 0.1s">
+    Une plateforme digitale au service de la coopération et de l'entraide
+  </p>
+
+  <div class="about-platform">
+    <div class="about-content">
+      <div class="about-text">
+        <h3>Qui sommes-nous ?</h3>
+        <p>Agora Coopérative est bien plus qu'un simple site web. C'est un écosystème numérique conçu pour faciliter la
+          collaboration entre membres, valoriser les initiatives locales et renforcer les liens au sein de notre
+          communauté. Notre plateforme rassemble des entrepreneurs, des agriculteurs, des artisans et des citoyens
+          engagés autour de valeurs communes de solidarité et de développement durable.</p>
+
+        <h3>Notre mission</h3>
+        <p>Nous croyons que l'union fait la force. Notre mission est de créer un espace où chaque membre peut
+          contribuer, partager ses compétences, participer à des projets collectifs et bénéficier du soutien d'une
+          communauté bienveillante.</p>
+      </div>
+
+      <div class="about-features">
+        <div class="feature-item">
+          <div class="feature-number">01</div>
+          <div>
+            <h4>Gestion de Projets</h4>
+            <p>Créez, suivez et collaborez sur des projets coopératifs avec d'autres membres</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-number">02</div>
+          <div>
+            <h4>Événements & Formations</h4>
+            <p>Participez à des rencontres, ateliers et formations pour développer vos compétences</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-number">03</div>
+          <div>
+            <h4>Réseau de Membres</h4>
+            <p>Connectez-vous avec d'autres coopérateurs et créez des synergies</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-number">04</div>
+          <div>
+            <h4>Ressources Partagées</h4>
+            <p>Accédez à une bibliothèque de ressources, outils et bonnes pratiques</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Banner avec données dynamiques -->
+    <div class="platform-stats-banner" *ngIf="stats">
+      <div class="banner-stat">
+        <span class="banner-icon"><i class="bi bi-people-fill"></i></span>
+        <div>
+          <strong>{{ animatedCounters.membres }}+ Membres</strong>
+          <p>Une communauté en croissance</p>
+        </div>
+      </div>
+      <div class="banner-stat">
+        <span class="banner-icon"><i class="bi bi-rocket-takeoff-fill"></i></span>
+        <div>
+          <strong>{{ animatedCounters.projets }} Projets</strong>
+          <p>Des initiatives concrètes</p>
+        </div>
+      </div>
+      <div class="banner-stat">
+        <span class="banner-icon"><i class="bi bi-calendar-event-fill"></i></span>
+        <div>
+          <strong>{{ stats.evenements.total_annee }}+ Événements</strong>
+          <p>Organisés chaque année</p>
+        </div>
+      </div>
+      <div class="banner-stat">
+        <span class="banner-icon"><i class="bi bi-heart-fill"></i></span>
+        <div>
+          <strong>{{ formatMontant(animatedCounters.totalDons) }} XAF</strong>
+          <p>Total des dons reçus</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div class="platform-stats-banner" *ngIf="isLoadingStats">
+      <div class="banner-stat">
+        <span class="banner-icon"><i class="bi bi-hourglass-split"></i></span>
+        <div><strong>Chargement...</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Image + Texte après les stats -->
+  <div class="image-text-section">
+    <div class="image-container">
+      <img src="/assets/image2.png" alt="Coopérative en action">
+    </div>
+    <div class="text-container">
+      <h3>Une Communauté Dynamique et Solidaire</h3>
+      <p>Chaque jour, nos membres collaborent sur des projets innovants qui transforment notre région. De l'agriculture
+        durable aux initiatives sociales, nous créons ensemble un impact positif et durable.</p>
+      <p>Notre force réside dans la diversité de nos membres et dans notre engagement commun envers l'entraide, le
+        partage et le développement local. Ensemble, nous construisons un avenir où chacun peut s'épanouir.</p>
+      <p>Rejoignez-nous pour faire partie de cette aventure collective et contribuer à bâtir une économie plus juste et
+        plus humaine.</p>
+    </div>
+  </div>
+
+
+  <h2 class="section-title scroll-animate animate-fade-up">Nos Valeurs Fondamentales</h2>
+  <p class="section-subtitle scroll-animate animate-fade-up" style="animation-delay: 0.1s">
+    Les principes qui guident chacune de nos actions et décisions
+  </p>
+
+  <div class="features">
+    <div class="feature-card scroll-animate animate-fade-up" style="animation-delay: 0.1s">
+      <div class="feature-icon"><i class="bi bi-people-fill"></i></div>
+      <h3>Solidarité</h3>
+      <p>Nous croyons en la force du collectif et en l'entraide mutuelle pour construire une communauté forte et
+        résiliente où chacun peut s'épanouir.</p>
+    </div>
+    <div class="feature-card scroll-animate animate-fade-up" style="animation-delay: 0.2s">
+      <div class="feature-icon"><i class="bi bi-globe-americas"></i></div>
+      <h3>Durabilité</h3>
+      <p>Notre engagement envers l'environnement guide chacune de nos décisions pour un avenir plus vert et des
+        ressources préservées.</p>
+    </div>
+    <div class="feature-card scroll-animate animate-fade-up" style="animation-delay: 0.3s">
+      <div class="feature-icon"><i class="bi bi-balance-scale"></i></div>
+      <h3>Équité</h3>
+      <p>Chaque membre a une voix égale dans nos décisions, garantissant une gouvernance démocratique et transparente
+        pour tous.</p>
+    </div>
+    <div class="feature-card scroll-animate animate-fade-up" style="animation-delay: 0.4s">
+      <div class="feature-icon"><i class="bi bi-lightbulb-fill"></i></div>
+      <h3>Innovation</h3>
+      <p>Nous adoptons des solutions modernes et créatives pour répondre efficacement aux défis d'aujourd'hui et de
+        demain.</p>
+    </div>
+  </div>
+
+
+
+
+  <!-- STATS GLOBALES avec compteurs animés -->
+  <!--<div class="stats scroll-animate animate-fade-up" *ngIf="stats">
+    <div class="stats-grid">
+      <div class="stat-item scroll-animate animate-count" style="animation-delay: 0.1s">
+        <h4>{{ animatedCounters.membres }}+</h4>
+        <p>Membres Actifs</p>
+      </div>
+      <div class="stat-item scroll-animate animate-count" style="animation-delay: 0.2s">
+        <h4>{{ animatedCounters.annees }}</h4>
+        <p>Années d'Expérience</p>
+      </div>
+      <div class="stat-item scroll-animate animate-count" style="animation-delay: 0.3s">
+        <h4>{{ animatedCounters.projets }}</h4>
+        <p>Projets Réalisés</p>
+      </div>
+      <div class="stat-item scroll-animate animate-count" style="animation-delay: 0.4s">
+        <h4>{{ animatedCounters.engagement }}%</h4>
+        <p>Engagement Local</p>
+      </div>
+    </div>
+  </div>-->
+
+  <h2 class="section-title scroll-animate animate-fade-up">Comment Nous Rejoindre</h2>
+  <p class="section-subtitle scroll-animate animate-fade-up" style="animation-delay: 0.1s">
+    Un processus simple et transparent pour devenir membre
+  </p>
+</div>
+
+<div class="process-section">
+  <div class="process-steps">
+    <div class="step scroll-animate animate-fade-up" style="animation-delay: 0.1s">
+      <div class="step-number">1</div>
+      <h3>Inscription</h3>
+      <p>Remplissez notre formulaire en ligne en quelques minutes</p>
+    </div>
+    <div class="step scroll-animate animate-fade-up" style="animation-delay: 0.2s">
+      <div class="step-number">2</div>
+      <h3>Découverte</h3>
+      <p>Participez à une session d'orientation pour rencontrer la communauté</p>
+    </div>
+    <div class="step scroll-animate animate-fade-up" style="animation-delay: 0.3s">
+      <div class="step-number">3</div>
+      <h3>Validation</h3>
+      <p>Votre adhésion est validée par le conseil d'administration</p>
+    </div>
+    <div class="step scroll-animate animate-fade-up" style="animation-delay: 0.4s">
+      <div class="step-number">4</div>
+      <h3>Bienvenue !</h3>
+      <p>Commencez à profiter de tous les avantages de la coopérative</p>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <h2 class="section-title scroll-animate animate-fade-up">Témoignages de Nos Membres</h2>
+  <p class="section-subtitle scroll-animate animate-fade-up" style="animation-delay: 0.1s">
+    Découvrez ce que nos membres disent de leur expérience
+  </p>
+
+  <div class="carousel-container scroll-animate animate-fade-up" style="animation-delay: 0.2s">
+    <div class="carousel" [style.transform]="'translateX(-' + (currentSlide * 100) + '%)'">
+      <div class="carousel-slide">
+        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop" alt="Marie Dupont">
+        <p>"Rejoindre Agora Coopérative a été la meilleure décision pour mon entreprise. L'entraide et le soutien
+          constant de la communauté m'ont permis de développer mes projets bien au-delà de mes espérances."</p>
+        <h4>Marie Dupont - Productrice locale</h4>
+      </div>
+      <div class="carousel-slide">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop" alt="Jean Martin">
+        <p>"L'esprit de solidarité et les valeurs partagées font toute la différence. Ici, nous ne sommes pas en
+          compétition, nous construisons ensemble un avenir meilleur pour notre région."</p>
+        <h4>Jean Martin - Membre fondateur</h4>
+      </div>
+      <div class="carousel-slide">
+        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop"
+          alt="Sophie Leblanc">
+        <p>"Grâce à la coopérative, j'ai accès à des ressources et des opportunités que je n'aurais jamais pu avoir
+          seule. C'est vraiment le pouvoir du collectif qui se manifeste au quotidien."</p>
+        <h4>Sophie Leblanc - Entrepreneure sociale</h4>
+      </div>
+    </div>
+    <div class="carousel-dots">
+      <span class="dot" *ngFor="let slide of [0, 1, 2]; let i = index" [class.active]="i === currentSlide"
+        (click)="moveToSlide(i)"></span>
+    </div>
+  </div>
+
+  <div class="cta-section scroll-animate animate-fade-up">
+    <div class="cta-content">
+      <h2>Prêt à Faire Partie du Changement ?</h2>
+      <p>Rejoignez {{ stats?.membres?.total ?? 'des centaines de' }} membres qui transforment ensemble l'économie locale
+      </p>
+      <a href="/login" class="btn btn-primary">Inscrivez-vous Maintenant</a>
+    </div>
+  </div>
+</div>

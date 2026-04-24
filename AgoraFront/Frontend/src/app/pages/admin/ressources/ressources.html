@@ -1,0 +1,337 @@
+<div class="container-fluid py-4">
+  <!-- En-tête -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">
+      <i class="bi bi-folder-fill me-2"></i>
+      Gestion des Ressources
+    </h2>
+    
+    <button class="btn btn-primary" (click)="openModal()">
+      <i class="bi bi-cloud-upload me-2"></i>
+      Ajouter une Ressource
+    </button>
+  </div>
+
+  <!-- Messages de succès/erreur -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle me-2"></i>
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+
+  <!-- Filtres -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">
+            <i class="bi bi-search me-1"></i>
+            Recherche
+          </label>
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="Titre de la ressource..."
+            [(ngModel)]="filters.search"
+            (keyup.enter)="applyFilters()">
+        </div>
+        
+        <div class="col-md-3">
+          <label class="form-label">
+            <i class="bi bi-tag me-1"></i>
+            Catégorie
+          </label>
+          <select class="form-select" [(ngModel)]="filters.categorie">
+            <option value="">Toutes</option>
+            <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.label }}</option>
+          </select>
+        </div>
+        
+        <div class="col-md-3">
+          <label class="form-label">
+            <i class="bi bi-file-earmark me-1"></i>
+            Type
+          </label>
+          <select class="form-select" [(ngModel)]="filters.type">
+            <option value="">Tous</option>
+            <option *ngFor="let type of types" [value]="type.value">{{ type.label }}</option>
+          </select>
+        </div>
+        
+        <div class="col-md-2 d-flex align-items-end">
+          <button 
+            class="btn btn-primary me-2 w-100" 
+            (click)="applyFilters()"
+            [disabled]="loading">
+            <i class="bi bi-search me-2"></i>
+            Filtrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des ressources -->
+  <div class="card">
+    <div class="card-body">
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-3 text-muted">Chargement des ressources...</p>
+      </div>
+
+      <!-- Aucune ressource -->
+      <div *ngIf="!loading && ressources.length === 0" class="text-center py-5">
+        <i class="bi bi-inbox display-1 text-muted"></i>
+        <p class="mt-3 text-muted">Aucune ressource trouvée</p>
+        <button class="btn btn-outline-primary" (click)="openModal()">
+          <i class="bi bi-cloud-upload me-2"></i>
+          Ajouter la première ressource
+        </button>
+      </div>
+
+      <!-- Liste des ressources -->
+      <div *ngIf="!loading && ressources.length > 0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 50px;">Fichier</th>
+                <th>Titre</th>
+                <th>Type</th>
+                <th>Catégorie</th>
+                <th>Uploadé par</th>
+                <th>Date</th>
+                <th>Téléchargements</th>
+                <th>Visibilité</th>
+                <th style="width: 100px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ressource of ressources">
+                <td class="text-center">
+                  <i [class]="'bi ' + getFileIcon(ressource.extension_fichier)" style="font-size: 1.5rem;"></i>
+                </td>
+                <td>
+                  <strong>{{ ressource.titre }}</strong>
+                  <br>
+                  <small class="text-muted">{{ ressource.nom_fichier }}</small>
+                </td>
+                <td>
+                  <span class="badge bg-info">{{ getTypeLabel(ressource.type) }}</span>
+                </td>
+                <td>
+                  <span class="badge bg-secondary">{{ getCategorieLabel(ressource.categorie) }}</span>
+                </td>
+                <td>
+                  <small *ngIf="ressource.uploader">
+                    {{ ressource.uploader.prenom }} {{ ressource.uploader.nom }}
+                  </small>
+                  <small *ngIf="!ressource.uploader" class="text-muted">N/A</small>
+                </td>
+                <td>
+                  <small>{{ formatDate(ressource.date_publication) }}</small>
+                </td>
+                <td class="text-center">
+                  <span class="badge bg-primary">{{ ressource.nombre_telechargements }}</span>
+                </td>
+                <td>
+                  <span *ngIf="ressource.est_public" class="badge bg-success">
+                    <i class="bi bi-globe me-1"></i>
+                    Public
+                  </span>
+                  <span *ngIf="!ressource.est_public && ressource.necessite_authentification" class="badge bg-warning">
+                    <i class="bi bi-lock me-1"></i>
+                    Membres
+                  </span>
+                  <span *ngIf="!ressource.est_public && !ressource.necessite_authentification" class="badge bg-danger">
+                    <i class="bi bi-shield-lock me-1"></i>
+                    Privé
+                  </span>
+                </td>
+                <td>
+                  <button 
+                    class="btn btn-sm btn-outline-primary"
+                    (click)="downloadRessource(ressource)"
+                    title="Télécharger">
+                    <i class="bi bi-download"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Info -->
+        <div class="text-center text-muted mt-3">
+          <i class="bi bi-info-circle me-1"></i>
+          Affichage de <strong>{{ ressources.length }}</strong> ressources sur <strong>{{ totalItems }}</strong> au total
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal d'upload -->
+<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-cloud-upload me-2"></i>
+          Ajouter une Ressource
+        </h5>
+        <button type="button" class="btn-close" (click)="closeModal()" [disabled]="uploading"></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="onSubmit()">
+          <!-- Titre -->
+          <div class="mb-3">
+            <label class="form-label">
+              Titre <span class="text-danger">*</span>
+            </label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [(ngModel)]="form.titre"
+              name="titre"
+              placeholder="Ex: Règlement intérieur 2025"
+              required>
+          </div>
+
+          <!-- Type et Catégorie -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">
+                Type <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" [(ngModel)]="form.type" name="type" required>
+                <option *ngFor="let type of types" [value]="type.value">{{ type.label }}</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">
+                Catégorie <span class="text-danger">*</span>
+              </label>
+              <select class="form-select" [(ngModel)]="form.categorie" name="categorie" required>
+                <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.label }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Fichier -->
+          <div class="mb-3">
+            <label class="form-label">
+              Fichier <span class="text-danger">*</span>
+            </label>
+            <input 
+              type="file" 
+              class="form-control" 
+              (change)="onFileSelected($event)"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip"
+              required>
+            <small class="form-text text-muted">
+              Formats acceptés : PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, ZIP (Max 10 MB)
+            </small>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea 
+              class="form-control" 
+              [(ngModel)]="form.description"
+              name="description"
+              rows="3"
+              placeholder="Description de la ressource..."
+              maxlength="1000"></textarea>
+            <small class="form-text text-muted">{{ form.description.length }}/1000 caractères</small>
+          </div>
+
+          <!-- Date d'expiration -->
+          <div class="mb-3">
+            <label class="form-label">Date d'expiration (optionnel)</label>
+            <input 
+              type="date" 
+              class="form-control" 
+              [(ngModel)]="form.date_expiration"
+              name="date_expiration"
+              [min]="getTomorrowDate()">
+            <small class="form-text text-muted">Laisser vide si la ressource n'expire pas</small>
+          </div>
+
+          <!-- Options de visibilité -->
+          <div class="mb-3">
+            <div class="form-check">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                [(ngModel)]="form.est_public"
+                name="est_public"
+                id="est_public">
+              <label class="form-check-label" for="est_public">
+                <i class="bi bi-globe me-1"></i>
+                Ressource publique (accessible sans connexion)
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                [(ngModel)]="form.necessite_authentification"
+                name="necessite_authentification"
+                id="necessite_authentification">
+              <label class="form-check-label" for="necessite_authentification">
+                <i class="bi bi-lock me-1"></i>
+                Nécessite une authentification
+              </label>
+            </div>
+          </div>
+
+          <!-- Messages d'erreur dans la modal -->
+          <div *ngIf="errorMessage" class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            {{ errorMessage }}
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="closeModal()"
+          [disabled]="uploading">
+          Annuler
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary" 
+          (click)="onSubmit()"
+          [disabled]="uploading">
+          <span *ngIf="!uploading">
+            <i class="bi bi-cloud-upload me-2"></i>
+            Uploader
+          </span>
+          <span *ngIf="uploading">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Upload en cours...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop de la modal -->
+<div class="modal-backdrop fade" [class.show]="showModal" *ngIf="showModal"></div>

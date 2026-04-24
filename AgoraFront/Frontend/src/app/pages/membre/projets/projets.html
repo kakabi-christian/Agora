@@ -1,0 +1,160 @@
+<div class="projets-container">
+    <div *ngIf="loading" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Chargement des projets...</p>
+        </div>
+    </div>
+
+    <div *ngIf="!loading" class="projets-content">
+        <div class="projets-header">
+            <div class="header-left">
+                <h1 class="page-title">Projets</h1>
+                <p class="page-subtitle">Découvrez et participez aux projets de la coopérative</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <i class="stat-icon"><i class="bi bi-bar-chart-fill"></i></i>
+                    <div>
+                        <span class="stat-number">{{ projets.length }}</span>
+                        <span class="stat-label">Projets</span>
+                    </div>
+                </div>
+                <div class="stat-badge participation">
+                    <i class="stat-icon"><i class="bi bi-people-fill"></i></i>
+                    <div>
+                        <span class="stat-number">{{ mesParticipations.length }}</span>
+                        <span class="stat-label">Participations</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-error">
+            <i class="alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></i>
+            <div>
+                <strong>Erreur</strong>
+                <p>{{ errorMessage }}</p>
+            </div>
+        </div>
+
+        <div *ngIf="!errorMessage">
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="header-title-wrapper">
+                        <div class="section-icon"><i class="bi bi-people-fill"></i></div>
+                        <div>
+                            <h2>Mes Participations</h2>
+                            <p class="section-subtitle">Les projets auxquels vous contribuez</p>
+                        </div>
+                    </div>
+                    <span class="count-badge">{{ mesParticipations.length }}</span>
+                </div>
+
+                <div *ngIf="mesParticipations.length; else noPart" class="participations-grid">
+                    <div *ngFor="let it of mesParticipations" class="participation-card">
+                        <div class="card-header">
+                            <div class="project-icon"><i class="bi bi-bullseye"></i></div>
+                            <div class="card-header-content">
+                                <h3 class="project-title">
+                                    {{ it.projet?.nom || it.nom || ('Projet ' + (it.projet_id || it.id)) }}
+                                </h3>
+                                <span class="participation-badge">
+                                    <i class="badge-icon"><i class="bi bi-check-circle-fill"></i></i>
+                                    Participant actif
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-actions">
+                            <a *ngIf="it.projet?.id || it.projet_id"
+                                [routerLink]="['/membre/projets', (it.projet?.id || it.projet_id)]"
+                                class="btn btn-detail">
+                                <i class="btn-icon"><i class="bi bi-eye-fill"></i></i>
+                                Voir les détails
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <ng-template #noPart>
+                    <div class="empty-state">
+                        <i class="empty-icon"><i class="bi bi-clipboard-check"></i></i>
+                        <h4>Aucune participation</h4>
+                        <p>Vous ne participez à aucun projet pour le moment.</p>
+                        <p class="empty-hint">Explorez les projets ci-dessous pour commencer !</p>
+                    </div>
+                </ng-template>
+            </div>
+
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="header-title-wrapper">
+                        <div class="section-icon"><i class="bi bi-rocket-takeoff-fill"></i></div>
+                        <div>
+                            <h2>Tous les Projets</h2>
+                            <p class="section-subtitle">Explorez les projets de la coopérative</p>
+                        </div>
+                    </div>
+                    <span class="count-badge">{{ projets.length }}</span>
+                </div>
+
+                <div *ngIf="projets.length; else empty" class="projets-list">
+                    <div *ngFor="let p of projets" class="project-card">
+                        <div class="project-card-header">
+                            <div class="project-type-badge" [class]="getProjectTypeClass(p.type)">
+                                <i class="type-icon bi" [ngClass]="getProjectTypeIcon(p.type)"></i>
+                                {{ p.type || 'Projet' }}
+                            </div>
+                            <div class="project-status" [class]="getStatusClass(p.statut)">
+                                <span class="status-dot"></span>
+                                {{ p.statut || 'En cours' }}
+                            </div>
+                        </div>
+
+                        <div class="project-card-content">
+                            <h3 class="project-name">{{ p.nom }}</h3>
+                            <p class="project-description" *ngIf="p.description">
+                                {{ truncateDescription(p.description) }}
+                            </p>
+                        </div>
+
+                        <div class="project-card-footer">
+                            <div class="project-meta">
+                                <span class="meta-item" *ngIf="p.participants_count">
+                                    <i class="meta-icon"><i class="bi bi-people-fill"></i></i>
+                                    {{ p.participants_count }} participant(s)
+                                </span>
+                            </div>
+                            <a *ngIf="p.id" [routerLink]="['/membre/projets', p.id]" class="btn btn-primary-outline">
+                                <span>Découvrir</span>
+                                <i class="arrow-icon">→</i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="pagination-wrapper">
+                        <button type="button" class="btn btn-pagination" (click)="prevPage()" [disabled]="page <= 1">
+                            <i class="arrow-left">←</i>
+                            Précédent
+                        </button>
+                        <span class="page-indicator">Page {{ page }}</span>
+                        <button type="button" class="btn btn-pagination" (click)="nextPage()">
+                            Suivant
+                            <i class="arrow-right">→</i>
+                        </button>
+                    </div>
+                </div>
+
+                <ng-template #empty>
+                    <div class="empty-state">
+                        <i class="empty-icon"><i class="bi bi-box-seam-fill"></i></i>
+                        <h4>Aucun projet disponible</h4>
+                        <p>Il n'y a pas de projets pour le moment.</p>
+                        <p class="empty-hint">Revenez plus tard pour découvrir de nouveaux projets !</p>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</div>

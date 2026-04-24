@@ -1,0 +1,132 @@
+<div class="notification-container">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0"><i class="bi bi-send"></i> Envoyer une nouvelle notification</h5>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="envoyerNotification()">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Titre</label>
+            <input type="text" class="form-control" [(ngModel)]="newNotification.titre" name="titre" required
+              placeholder="Ex: Rappel cotisation mensuelle">
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label fw-bold">Catégorie</label>
+            <select class="form-select" [(ngModel)]="newNotification.categorie" name="categorie">
+              <option value="systeme">Système</option>
+              <option value="evenement">Événement</option>
+              <option value="projet">Projet</option>
+              <option value="administratif">Administratif</option>
+              <option value="urgence">Urgence</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label class="form-label fw-bold">Type d'envoi</label>
+            <select class="form-select" [(ngModel)]="newNotification.type" name="type">
+              <option value="alerte_site">Alerte Site</option>
+              <option value="email">Email</option>
+              <option value="sms">SMS</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold">Contenu du message</label>
+          <textarea class="form-control" [(ngModel)]="newNotification.contenu" name="contenu" rows="2" required
+            placeholder="Écrivez votre message ici..."></textarea>
+        </div>
+
+        <div class="d-flex align-items-center gap-3 flex-wrap bg-light p-3 rounded border">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="pourTous" [(ngModel)]="newNotification.pour_tous"
+              name="pour_tous">
+            <label class="form-check-label fw-bold" for="pourTous">
+              <i [class]="newNotification.pour_tous ? 'bi bi-megaphone-fill' : 'bi bi-bullseye'"></i>
+              {{ newNotification.pour_tous ? ' Envoyer à tous' : ' Cibler un membre' }}
+            </label>
+          </div>
+
+          <div class="flex-grow-1" *ngIf="!newNotification.pour_tous">
+            <select class="form-select border-primary" [(ngModel)]="newNotification.code_membre" name="code_membre"
+              required>
+              <option value="" disabled selected>Sélectionner le membre (Nom / Email)...</option>
+              <option *ngFor="let m of membres" [value]="m.code_membre">
+                {{ m.nom | uppercase }} {{ m.prenom }} — {{ m.email }} ({{ m.code_membre }})
+              </option>
+            </select>
+          </div>
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="urgent" [(ngModel)]="newNotification.est_urgent"
+              name="est_urgent">
+            <label class="form-check-label text-danger fw-bold" for="urgent">
+              <i class="bi bi-exclamation-triangle-fill"></i> Urgent
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-success ms-auto shadow-sm">
+            <i class="bi bi-megaphone-fill me-2"></i>Diffuser
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center bg-white">
+      <h5 class="mb-0 text-dark fw-bold">Historique des Notifications</h5>
+      <button class="btn btn-outline-primary btn-sm" (click)="loadNotifications()">
+        <i class="bi bi-arrow-clockwise"></i> Actualiser
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light text-uppercase small fw-bold">
+          <tr>
+            <th>Date</th>
+            <th>Destinataire</th>
+            <th>Message</th>
+            <th>Statut</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let n of notifications" [class.urgent-row]="n.est_urgent">
+            <td class="small">{{ n.date_envoi | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <span class="badge bg-light text-dark border px-2 py-1">
+                <i class="bi" [ngClass]="n.code_membre ? 'bi-person-fill' : 'bi-globe'"></i>
+                {{ n.code_membre || ' TOUS' }}
+              </span>
+            </td>
+            <td>
+              <div [ngClass]="getCategorieClass(n.categorie)" class="badge-cat mb-1">{{ n.categorie }}</div>
+              <div class="fw-bold text-dark">{{ n.titre }}</div>
+              <div class="small text-muted text-truncate" style="max-width: 300px;">{{ n.contenu }}</div>
+            </td>
+            <td>
+              <span [class]="n.statut === 'lu' ? 'text-success' : 'text-warning fw-bold'">
+                <i class="bi" [ngClass]="n.statut === 'lu' ? 'bi-check2-all' : 'bi-clock-history'"></i>
+                {{ n.statut === 'lu' ? 'Lue' : 'En attente' }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons justify-content-center">
+                <button *ngIf="n.statut === 'non_lu'" (click)="marquerCommeLue(n.id)"
+                  class="btn-static-action btn-static-success" title="Marquer comme lu">
+                  <i class="bi bi-check2-all"> </i>
+                </button>
+
+                <button (click)="supprimer(n.id)" class="btn-static-action btn-static-danger" title="Supprimer">
+                  <i class="bi bi-trash3"> </i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

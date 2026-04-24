@@ -1,0 +1,5 @@
+.main-container {
+    min-height: calc(100vh - 200px); /* Ajuste selon la taille de ton header/footer */
+    display: flex;
+    flex-direction: column;
+}

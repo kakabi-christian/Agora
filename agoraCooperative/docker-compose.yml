@@ -1,0 +1,186 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agora-cooperative-app
+    restart: unless-stopped
+    working_dir: /var/www
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=agora
+      - DB_USERNAME=agora_user
+      - DB_PASSWORD=password
+    volumes:
+      - ./:/var/www
+      - ./storage/app/public:/var/www/storage/app/public
+    depends_on:
+      - db
+    networks:
+      - agora-network
+
+  webserver:
+    image: nginx:alpine
+    container_name: agora-cooperative-webserver
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "8081:8080"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/:ro
+    depends_on:
+      - app
+    networks:
+      - agora-network
+
+  db:
+    image: mysql:8.0
+    container_name: agora-cooperative-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: agora
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_PASSWORD: password
+      MYSQL_USER: agora_user
+    volumes:
+      - dbdata:/var/lib/mysql/
+    ports:
+      - "3308:3306"
+    networks:
+      - agora-network
+
+  # Prometheus - Collecte des métriques
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: agora-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - agora-network
+
+  # Grafana - Visualisation des métriques
+  grafana:
+    image: grafana/grafana:10.0.3
+    container_name: agora-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    networks:
+      - agora-network
+
+  # ELK Stack - Gestion des Logs
+  
+  # Elasticsearch - Stockage des logs
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    container_name: agora-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - agora-network
+
+  # Logstash - Traitement des logs
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.8.0
+    container_name: agora-logstash
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+      - "5044:5044"
+    volumes:
+      - ./monitoring/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+      - ./monitoring/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+    depends_on:
+      - elasticsearch
+    networks:
+      - agora-network
+
+  # Kibana - Visualisation des logs
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.0
+    container_name: agora-kibana
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - agora-network
+
+  # Filebeat - Collecte des logs Laravel
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.8.0
+    container_name: agora-filebeat
+    restart: unless-stopped
+    user: root
+    volumes:
+      - ./monitoring/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./storage/logs:/var/www/storage/logs:ro
+      - filebeat-data:/usr/share/filebeat/data
+    command: filebeat -e -strict.perms=false
+    depends_on:
+      - logstash
+    networks:
+      - agora-network
+
+  # Nginx Exporter - Métriques Nginx
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:0.11.0
+    container_name: agora-nginx-exporter
+    restart: unless-stopped
+    ports:
+      - "9113:9113"
+    command:
+      - '-nginx.scrape-uri=http://webserver:8080/nginx_status'
+    depends_on:
+      - webserver
+    networks:
+      - agora-network
+
+networks:
+  agora-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  elasticsearch-data:
+    driver: local
+  filebeat-data:
+    driver: local

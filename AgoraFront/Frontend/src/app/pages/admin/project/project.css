@@ -1,0 +1,78 @@
+.container-fluid {
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+/* Style des Cartes */
+.card {
+  transition: all 0.3s ease;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+}
+
+.bg-success-soft {
+  background-color: #e6fcf5;
+  color: #0ca678;
+}
+
+/* Badge de statut personnalisé */
+.badge {
+  padding: 6px 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Modal Overlay */
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: none;
+}
+
+.modal-header {
+  padding: 20px 30px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-body {
+  padding: 30px;
+}
+
+/* Formulaire */
+.form-label {
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.form-control, .form-select {
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.form-control:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}

@@ -1,0 +1,117 @@
+<div class="container py-5">
+  <div class="row justify-content-center align-items-center g-5">
+    
+    <div class="col-md-7 col-lg-6">
+      <div class="card shadow-md border-0 ag-card-main overflow-hidden">
+        <div class="card-header bg-custom-primary text-white p-4 text-center border-0">
+          <i class="fas fa-seedling mb-2 fa-2x"></i>
+          <h3 class="mb-0 fw-bold">Soutenir la Coopérative</h3>
+          <p class="mb-0 opacity-75 small">Chaque graine semée aujourd'hui nourrit demain</p>
+        </div>
+        
+        <div class="card-body p-4">
+          <div *ngIf="successMessage" class="alert alert-success d-flex align-items-center mb-4 shadow-sm" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <div>{{ successMessage }}</div>
+          </div>
+
+          <form (ngSubmit)="onSubmit()" #donForm="ngForm" class="needs-validation">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-bold">Nom complet</label>
+                <input type="text" [(ngModel)]="don.nom_donateur" name="nom" required 
+                       class="form-control ag-input" placeholder="Ex: Christian Kakabi">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-bold">Email</label>
+                <input type="email" [(ngModel)]="don.email_donateur" name="email" required 
+                       class="form-control ag-input" placeholder="exemple@mail.com">
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-bold text-success">Téléphone Mobile Money</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light fw-bold border-end-0 text-muted">+237</span>
+                  <input type="text" [(ngModel)]="don.telephone" name="tel" required 
+                         class="form-control border-start-0 ps-1 ag-input" placeholder="6XXXXXXXX" maxlength="9">
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-bold text-primary">Montant du don (XAF)</label>
+                <div class="input-group input-group-lg">
+                  <input type="number" [(ngModel)]="don.montant" name="montant" required 
+                         class="form-control border-end-0 text-primary fw-bold ag-input" placeholder="2500">
+                  <span class="input-group-text bg-white border-start-0 fw-bold text-primary">XAF</span>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-bold">Votre message d'encouragement</label>
+                <textarea [(ngModel)]="don.message_donateur" name="message" 
+                          class="form-control ag-input" rows="2" placeholder="Un mot pour la communauté..."></textarea>
+              </div>
+
+              <div class="col-12">
+                <div class="form-check form-switch p-3 ag-card-light d-flex align-items-center">
+                  <input class="form-check-input ms-0 me-3" type="checkbox" id="anonyme" [(ngModel)]="don.anonyme" name="anonyme">
+                  <label class="form-check-label fw-bold mb-0" for="anonyme">Faire ce don de manière anonyme</label>
+                </div>
+              </div>
+
+              <div class="col-12 mt-4">
+                <button type="submit" [disabled]="!donForm.form.valid || isLoading" 
+                        class="btn btn-ag-primary btn-lg w-100 py-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                  <div *ngIf="isLoading" class="spinner-border spinner-border-sm"></div>
+                  <span class="fw-bold">{{ isLoading ? 'Traitement...' : 'Confirmer mon soutien' }}</span>
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+        
+        <div class="card-footer bg-light p-3 text-center border-0 rounded-bottom">
+          <small class="text-muted"><i class="fas fa-lock me-1"></i> Paiement sécurisé par <strong>Campay</strong></small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-5 d-none d-md-block">
+      <div class="impact-box p-4 border-start border-4 border-success">
+        <h4 class="text-success fw-bold mb-4">Pourquoi donner ?</h4>
+        
+        <div class="d-flex mb-4">
+          <div class="me-3"><i class="fas fa-tractor fa-lg text-primary"></i></div>
+          <div>
+            <h6 class="fw-bold mb-1 text-dark">Soutien Agricole</h6>
+            <p class="small text-muted">Achat de semences et d'outils pour nos jeunes agriculteurs.</p>
+          </div>
+        </div>
+
+        <div class="d-flex mb-4">
+          <div class="me-3"><i class="fas fa-graduation-cap fa-lg text-primary"></i></div>
+          <div>
+            <h6 class="fw-bold mb-1 text-dark">Éducation Solidaire</h6>
+            <p class="small text-muted">Financement des formations techniques pour les membres.</p>
+          </div>
+        </div>
+
+        <div class="d-flex">
+          <div class="me-3"><i class="fas fa-lightbulb fa-lg text-primary"></i></div>
+          <div>
+            <h6 class="fw-bold mb-1 text-dark">Énergie Durable</h6>
+            <p class="small text-muted">Aidez-nous à installer des solutions solaires en zone rurale.</p>
+          </div>
+        </div>
+
+        <div class="mt-5 p-3 bg-white shadow-sm rounded-3 border">
+           <p class="fst-italic small mb-0 text-muted">
+             "La force de notre coopérative réside dans l'unité de ses membres."
+           </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

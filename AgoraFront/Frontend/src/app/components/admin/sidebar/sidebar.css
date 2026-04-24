@@ -1,0 +1,357 @@
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background-color: var(--color-dark-gray);
+  color: var(--color-white);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.sidebar-logo {
+  padding: 2rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.sidebar-logo h2 {
+  color: var(--color-success);
+  margin: 0;
+  font-weight: bold;
+}
+
+.sidebar-menu {
+  flex: 1;
+  padding: 1rem 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: var(--color-light-gray);
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 4px solid transparent;
+  position: relative;
+}
+
+.menu-item::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1));
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-white);
+  border-left: 4px solid var(--color-primary);
+}
+
+.menu-item:hover::after {
+  width: 100%;
+}
+
+/* ---------------------------------------------------- */
+/* ÉLÉMENT ACTIF - EFFET CHEMISE BLANCHE */
+/* ---------------------------------------------------- */
+
+.menu-item.active {
+  background-color: white;
+  color: var(--color-dark-gray);
+  font-weight: 600;
+  border-left: 4px solid transparent;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Désactiver les effets hover sur l'élément actif */
+.menu-item.active:hover {
+  background-color: white;
+  color: var(--color-dark-gray);
+  border-left: 4px solid transparent;
+}
+
+.icon {
+  margin-right: 12px;
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.menu-item:hover .icon {
+  transform: scale(1.1);
+}
+
+.label {
+  flex: 1;
+}
+
+.badge {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  padding: 3px 9px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  margin-left: auto;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+.badge-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.badge-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+@keyframes pulse-badge {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.sidebar-footer {
+  padding: 1.5rem;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: var(--color-dark-gray);
+}
+
+.btn-logout {
+  width: 100%;
+  padding: 12px;
+  background-color: transparent;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+.btn-logout .icon {
+  margin-right: 8px;
+}
+
+.btn-logout:hover {
+  background-color: var(--color-danger);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.logout-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.logout-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.logout-icon-box {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.btn-cancel {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-light-gray);
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.btn-confirm {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: var(--color-danger);
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.btn-confirm:hover {
+  background: var(--color-danger);
+}
+
+
+/* --- Responsive Design - Menu Rail Déroulant --- */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 72px;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    z-index: 1000;
+  }
+
+  /* Expansion au survol */
+  .sidebar:hover {
+    width: 260px;
+  }
+
+  .sidebar-logo {
+    padding: 1.5rem 1rem;
+    white-space: nowrap;
+  }
+
+  .sidebar-logo h2 {
+    font-size: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .sidebar:hover .sidebar-logo h2 {
+    opacity: 1;
+  }
+
+  /* Afficher une lettre quand fermé */
+  .sidebar-logo::before {
+    content: 'A';
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--color-success);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: opacity 0.2s ease;
+  }
+
+  .sidebar:hover .sidebar-logo::before {
+    opacity: 0;
+  }
+
+  .menu-item {
+    padding: 14px 20px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .menu-item .icon {
+    min-width: 32px;
+    font-size: 1.4rem;
+    text-align: center;
+  }
+
+  .menu-item .label {
+    opacity: 0;
+    transition: opacity 0.2s ease 0.1s;
+  }
+
+  .sidebar:hover .menu-item .label {
+    opacity: 1;
+  }
+
+  .menu-item.active {
+    background-color: white;
+  }
+
+  .badge {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .sidebar:hover .badge {
+    opacity: 1;
+  }
+
+  .sidebar-footer {
+    padding: 1rem;
+  }
+
+  .btn-logout {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .btn-logout .label {
+    opacity: 0;
+    transition: opacity 0.2s ease 0.1s;
+  }
+
+  .sidebar:hover .btn-logout .label {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 576px) {
+  .sidebar {
+    width: 64px;
+  }
+
+  .sidebar:hover {
+    width: 240px;
+  }
+
+  .sidebar-logo {
+    padding: 1rem 0.75rem;
+  }
+
+  .sidebar-logo::before {
+    font-size: 1.5rem;
+  }
+
+  .menu-item {
+    padding: 12px 16px;
+  }
+
+  .menu-item .icon {
+    min-width: 28px;
+    font-size: 1.3rem;
+  }
+}

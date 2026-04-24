@@ -1,0 +1,61 @@
+<section class="projects-section">
+
+  <!--PROJETS DYNAMIQUES -->
+  <h2 class="section-title scroll-animate animate-fade-up">Nos Projets en Action</h2>
+  <p class="section-subtitle scroll-animate animate-fade-up" style="animation-delay: 0.1s">
+    Découvrez les initiatives portées par nos membres pour transformer notre communauté
+  </p>
+
+  <div class="projects-cta scroll-animate animate-fade-up" style="animation-delay: 0.2s">
+    <a href="/contact" class="btn-propose-project">
+      <i class="bi bi-plus-circle-fill"></i> Proposer un projet
+    </a>
+  </div>
+
+
+  <div class="projects-grid">
+    <ng-container *ngIf="!isLoadingStats && projetsTermines.length > 0">
+
+      <div *ngFor="let projet of projetsTermines; let i = index" class="project-card scroll-animate animate-fade-up"
+        [style.animation-delay]="(i * 0.1) + 's'">
+        <div class="project-image">
+          <img [src]="getImageUrl(projet.image_url)" [alt]="projet.nom">
+          <div [class]="getProjetBadgeClass(projet.statut)">{{ getProjetBadgeText(projet.statut) }}</div>
+        </div>
+        <div class="project-content">
+          <h3>{{ projet.nom }}</h3>
+          <p>{{ projet.description }}</p>
+          <div class="project-team">
+            <div class="team-avatars">
+              <span class="team-count" *ngIf="projet.participants_count > 0">+{{ projet.participants_count }}</span>
+            </div>
+            <span class="team-label">{{ projet.type }}</span>
+          </div>
+          <div>
+            <a href="#" class="project-action">Voir les détails →</a>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <div *ngIf="!isLoadingStats && projetsTermines.length === 0"
+      class="no-projects-card scroll-animate animate-fade-up">
+      <div class="no-projects-icon"><i class="bi bi-folder2-open"></i></div>
+      <h3>Aucun projet terminé</h3>
+      <p>
+        Aucun projet n’a encore été finalisé.<br />
+        Revenez bientôt pour découvrir nos réalisations.
+      </p>
+    </div>
+
+
+    <!--Loader -->
+    <div *ngIf="isLoadingStats" class="project-card loader-card">
+
+      <div class="project-content">
+        <p>Chargement des projets...</p>
+      </div>
+    </div>
+  </div>
+
+</section>
