@@ -301,12 +301,15 @@ jobs:
           protocol: ftp
           port: 21
           local-dir: ./deploy/frontend/
-          server-dir: ${{ secrets.O2SWITCH_FRONTEND_PATH }}/
+          server-dir: /public_html/groupe4/
           log-level: standard
+          state-name: .ftp-deploy-state.json
+          dangerous-clean-slate: false
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
+            dist/**
         timeout-minutes: 10
 
       - name: Deployment notification
