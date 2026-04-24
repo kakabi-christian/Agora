@@ -96,6 +96,7 @@ jobs:
             --exclude='storage/framework/cache/*' \
             --exclude='storage/framework/sessions/*' \
             --exclude='storage/framework/views/*' \
+            --transform 's,^agoraCooperative/,,' \
             agoraCooperative/
 
       - name: Upload backend artifact
