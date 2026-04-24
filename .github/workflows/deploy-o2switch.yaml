@@ -165,7 +165,7 @@ jobs:
         with:
           host: ${{ secrets.O2SWITCH_HOST }}
           username: ${{ secrets.O2SWITCH_USER }}
-          key: ${{ secrets.O2SWITCH_SSH_KEY }}
+          password: ${{ secrets.O2SWITCH_PASSWORD }}
           port: ${{ secrets.O2SWITCH_PORT }}
           script: |
             # Create deployment directory structure
@@ -196,7 +196,7 @@ jobs:
         with:
           host: ${{ secrets.O2SWITCH_HOST }}
           username: ${{ secrets.O2SWITCH_USER }}
-          key: ${{ secrets.O2SWITCH_SSH_KEY }}
+          password: ${{ secrets.O2SWITCH_PASSWORD }}
           port: ${{ secrets.O2SWITCH_PORT }}
           source: "artifacts/*"
           target: ${{ secrets.O2SWITCH_DEPLOY_PATH }}/
@@ -207,7 +207,7 @@ jobs:
         with:
           host: ${{ secrets.O2SWITCH_HOST }}
           username: ${{ secrets.O2SWITCH_USER }}
-          key: ${{ secrets.O2SWITCH_SSH_KEY }}
+          password: ${{ secrets.O2SWITCH_PASSWORD }}
           port: ${{ secrets.O2SWITCH_PORT }}
           script: |
             set -e
@@ -262,7 +262,7 @@ jobs:
         with:
           host: ${{ secrets.O2SWITCH_HOST }}
           username: ${{ secrets.O2SWITCH_USER }}
-          key: ${{ secrets.O2SWITCH_SSH_KEY }}
+          password: ${{ secrets.O2SWITCH_PASSWORD }}
           port: ${{ secrets.O2SWITCH_PORT }}
           script: |
             GROUPE_PATH="${{ secrets.GROUPE_PATH }}"
