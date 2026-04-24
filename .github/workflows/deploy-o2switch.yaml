@@ -79,6 +79,8 @@ jobs:
             --exclude='.git' \
             --exclude='node_modules' \
             --exclude='tests' \
+            --exclude='Test' \
+            --exclude='Tests' \
             --exclude='.github' \
             --exclude='docker-compose.override.yml' \
             --exclude='Homestead.json' \
@@ -86,6 +88,18 @@ jobs:
             --exclude='.idea' \
             --exclude='.vscode' \
             --exclude='README.md' \
+            --exclude='vendor/*/test' \
+            --exclude='vendor/*/tests' \
+            --exclude='vendor/*/Test' \
+            --exclude='vendor/*/Tests' \
+            --exclude='vendor/*/*/test' \
+            --exclude='vendor/*/*/tests' \
+            --exclude='vendor/*/*/Test' \
+            --exclude='vendor/*/*/Tests' \
+            --exclude='*/__snapshots__' \
+            --exclude='phpunit.xml' \
+            --exclude='phpunit.xml.dist' \
+            --exclude='.phpunit.result.cache' \
             agoraCooperative/
 
       - name: Upload backend artifact
@@ -197,14 +211,28 @@ jobs:
           port: 21
           local-dir: ./deploy/backend/
           server-dir: ${{ secrets.O2SWITCH_BACKEND_PATH }}/
-          log-level: verbose
+          log-level: standard
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
             **/tests/**
+            **/Test/**
+            **/Tests/**
             **/.env.example
-        timeout-minutes: 15
+            **/vendor/*/test/**
+            **/vendor/*/tests/**
+            **/vendor/*/Test/**
+            **/vendor/*/Tests/**
+            **/vendor/*/*/test/**
+            **/vendor/*/*/tests/**
+            **/vendor/*/*/Test/**
+            **/vendor/*/*/Tests/**
+            **/__snapshots__/**
+            **/phpunit.xml
+            **/phpunit.xml.dist
+            **/.phpunit.result.cache
+        timeout-minutes: 20
 
       - name: Deploy Frontend via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -216,11 +244,12 @@ jobs:
           port: 21
           local-dir: ./deploy/frontend/
           server-dir: ${{ secrets.O2SWITCH_FRONTEND_PATH }}/
-          log-level: verbose
+          log-level: standard
           exclude: |
             **/.git*
             **/.git*/**
-        timeout-minutes: 15
+            **/node_modules/**
+        timeout-minutes: 10
 
       - name: Deployment notification
         if: always()
