@@ -9,8 +9,16 @@ Ajoute ces secrets :
 ### 1. O2SWITCH_FTP_HOST
 - **Nom** : `O2SWITCH_FTP_HOST`
 - **Valeur** : L'adresse de ton serveur O2Switch (SANS le protocole)
-- **Exemple** : `ssh.o2switch.net` ou `ton-domaine.com`
+- **Exemples courants** :
+  - `ssh.o2switch.net` (le plus courant)
+  - `ftp.o2switch.net`
+  - `ton-domaine.com` (si tu as un domaine personnalisé)
 - **PAS** : `sftp://` (juste l'adresse)
+
+**Comment trouver la bonne adresse :**
+1. Regarde ton email de bienvenue O2Switch
+2. Connecte-toi à ton cPanel → section "Accès SSH"
+3. Teste avec `ssh.o2switch.net` en premier
 
 ### 2. O2SWITCH_FTP_USER
 - **Nom** : `O2SWITCH_FTP_USER`
@@ -52,11 +60,22 @@ Le workflow utilise maintenant **SFTP uniquement** (SSH File Transfer Protocol) 
 - Il contient les informations de connexion SSH/SFTP
 
 ### Informations typiques O2Switch :
-- **Host** : `ssh.o2switch.net`
+- **Host** : `ssh.o2switch.net` (le plus courant)
+- **Alternatives** : `ftp.o2switch.net` ou ton domaine
 - **User** : ton nom d'utilisateur O2Switch
 - **Password** : ton mot de passe O2Switch
 - **Port** : 22 (SFTP)
 - **Protocole** : SFTP (SSH File Transfer Protocol)
+
+### Test de connectivité local :
+Pour tester depuis ta machine :
+```bash
+# Test de connectivité
+nc -zv ssh.o2switch.net 22
+
+# Test SFTP
+sftp -P 22 ton-username@ssh.o2switch.net
+```
 
 ## 🗂️ Structure de déploiement recommandée
 
@@ -98,12 +117,37 @@ Le workflow va :
 
 ## 🔧 Dépannage
 
-Si le déploiement SFTP échoue :
+### Erreur "Operation timed out" :
+1. **Vérifier l'adresse du serveur** :
+   - Essaie `ssh.o2switch.net` en premier
+   - Puis `ftp.o2switch.net`
+   - Enfin ton domaine personnalisé
 
-1. **Vérifier les credentials** : Teste avec un client SFTP (FileZilla, WinSCP)
-2. **Vérifier l'host** : Utilise `ssh.o2switch.net` ou ton domaine
-3. **Vérifier les chemins** : Assure-toi que les dossiers de destination existent
-4. **Port** : Utilise le port 22 (SFTP/SSH)
+2. **Vérifier la connectivité réseau** :
+   - Assure-toi d'être sur une connexion stable (WiFi/Ethernet)
+   - Certains réseaux d'entreprise bloquent le port 22
+
+3. **Tester localement** :
+   ```bash
+   # Test de ping
+   ping ssh.o2switch.net
+   
+   # Test du port 22
+   telnet ssh.o2switch.net 22
+   
+   # Test SFTP complet
+   sftp ton-username@ssh.o2switch.net
+   ```
+
+### Erreur d'authentification :
+1. **Vérifier les credentials** dans GitHub Secrets
+2. **Tester avec un client SFTP** (FileZilla, WinSCP)
+3. **Vérifier que le compte n'est pas suspendu**
+
+### Erreur de chemin :
+1. **Vérifier que les dossiers existent** sur O2Switch
+2. **Créer les dossiers manuellement** via cPanel ou SFTP
+3. **Utiliser des chemins absolus** : `/public_html/api`
 
 ## 📁 Chemins typiques O2Switch
 

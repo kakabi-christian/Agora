@@ -176,6 +176,18 @@ jobs:
           echo "Extracted files:"
           ls -la deploy/
 
+      - name: Test SFTP connectivity
+        run: |
+          echo "Testing SFTP connectivity to ${{ secrets.O2SWITCH_FTP_HOST }}:22"
+          timeout 30 nc -zv ${{ secrets.O2SWITCH_FTP_HOST }} 22 || echo "Connection failed - checking alternatives"
+          
+          # Test common O2Switch hosts
+          echo "Testing ssh.o2switch.net:22"
+          timeout 30 nc -zv ssh.o2switch.net 22 || echo "ssh.o2switch.net not reachable"
+          
+          echo "Testing ftp.o2switch.net:22"
+          timeout 30 nc -zv ftp.o2switch.net 22 || echo "ftp.o2switch.net not reachable"
+
       - name: Deploy Backend via SFTP
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
@@ -186,6 +198,7 @@ jobs:
           local_path: './deploy/backend/*'
           remote_path: ${{ secrets.O2SWITCH_BACKEND_PATH }}/
           sftp_only: true
+        timeout-minutes: 10
 
       - name: Deploy Frontend via SFTP
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
@@ -197,6 +210,7 @@ jobs:
           local_path: './deploy/frontend/*'
           remote_path: ${{ secrets.O2SWITCH_FRONTEND_PATH }}/
           sftp_only: true
+        timeout-minutes: 10
 
       - name: Deployment notification
         if: always()
