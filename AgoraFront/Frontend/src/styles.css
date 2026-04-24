@@ -7,7 +7,7 @@
 /* Définition des couleurs de la coopérative */
 /* src/styles.css */
 :root {
-  --color-primary: #1b5e20;
+  --color-primary: cyan;
   --color-success: #2e7d32;
   --color-danger: #c62828;
 
