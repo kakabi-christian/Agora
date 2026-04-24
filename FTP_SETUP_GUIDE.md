@@ -8,41 +8,56 @@ Ajoute ces secrets :
 
 ### 1. O2SWITCH_FTP_HOST
 - **Nom** : `O2SWITCH_FTP_HOST`
-- **Valeur** : L'adresse FTP de ton serveur O2Switch
-- **Exemple** : `ftp.ton-domaine.com` ou `ftp.o2switch.net`
+- **Valeur** : L'adresse de ton serveur O2Switch (SANS le protocole)
+- **Exemple** : `ton-domaine.com` ou `ssh.o2switch.net`
+- **PAS** : `ftp://` ou `sftp://` (juste l'adresse)
 
 ### 2. O2SWITCH_FTP_USER
 - **Nom** : `O2SWITCH_FTP_USER`
-- **Valeur** : Ton nom d'utilisateur FTP O2Switch
+- **Valeur** : Ton nom d'utilisateur O2Switch
 - **Exemple** : `ton-username`
 
 ### 3. O2SWITCH_FTP_PASSWORD
 - **Nom** : `O2SWITCH_FTP_PASSWORD`
-- **Valeur** : Ton mot de passe FTP O2Switch
+- **Valeur** : Ton mot de passe O2Switch
 
 ### 4. O2SWITCH_BACKEND_PATH
 - **Nom** : `O2SWITCH_BACKEND_PATH`
 - **Valeur** : Le chemin où déployer le backend Laravel
-- **Exemple** : `/public_html/api/` ou `/agora-backend/`
+- **Exemple** : `/public_html/api` ou `/agora-backend`
+- **Note** : SANS slash final
 
 ### 5. O2SWITCH_FRONTEND_PATH
 - **Nom** : `O2SWITCH_FRONTEND_PATH`
 - **Valeur** : Le chemin où déployer le frontend Angular
-- **Exemple** : `/public_html/` ou `/agora-frontend/`
+- **Exemple** : `/public_html` ou `/agora-frontend`
+- **Note** : SANS slash final
 
-## 📋 Comment trouver tes informations FTP O2Switch
+## � Protocoles testés automatiquement
+
+Le workflow teste automatiquement :
+1. **FTPS** (FTP sécurisé) sur le port 21
+2. **SFTP** (SSH File Transfer) sur le port 22 (fallback)
+
+## �📋 Comment trouver tes informations O2Switch
 
 ### Via cPanel :
 1. Connecte-toi à ton cPanel O2Switch
 2. Va dans "Comptes FTP" ou "FTP Accounts"
 3. Tu y trouveras :
-   - **Serveur FTP** : généralement `ftp.ton-domaine.com`
-   - **Nom d'utilisateur** : ton nom d'utilisateur principal ou un sous-compte
-   - **Mot de passe** : celui que tu as défini
+   - **Serveur** : généralement `ton-domaine.com` ou `ssh.o2switch.net`
+   - **Nom d'utilisateur** : ton nom d'utilisateur principal
+   - **Mot de passe** : celui de ton compte O2Switch
 
 ### Via email de bienvenue O2Switch :
 - Cherche l'email de bienvenue d'O2Switch
-- Il contient les informations FTP
+- Il contient les informations de connexion
+
+### Informations typiques O2Switch :
+- **Host** : `ssh.o2switch.net` ou ton domaine
+- **User** : ton nom d'utilisateur O2Switch
+- **Password** : ton mot de passe O2Switch
+- **Protocole** : SFTP (port 22) ou FTPS (port 21)
 
 ## 🗂️ Structure de déploiement recommandée
 

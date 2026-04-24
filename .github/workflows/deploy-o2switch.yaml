@@ -182,14 +182,30 @@ jobs:
           server: ${{ secrets.O2SWITCH_FTP_HOST }}
           username: ${{ secrets.O2SWITCH_FTP_USER }}
           password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
           local-dir: ./deploy/backend/
           server-dir: ${{ secrets.O2SWITCH_BACKEND_PATH }}/
+          log-level: verbose
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
             **/tests/**
             **/.env.example
+        continue-on-error: true
+        id: ftp-backend
+
+      - name: Deploy Backend via SFTP (fallback)
+        if: steps.ftp-backend.outcome == 'failure'
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.O2SWITCH_FTP_HOST }}
+          username: ${{ secrets.O2SWITCH_FTP_USER }}
+          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          port: 22
+          local_path: './deploy/backend/*'
+          remote_path: ${{ secrets.O2SWITCH_BACKEND_PATH }}/
 
       - name: Deploy Frontend via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -197,11 +213,27 @@ jobs:
           server: ${{ secrets.O2SWITCH_FTP_HOST }}
           username: ${{ secrets.O2SWITCH_FTP_USER }}
           password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
           local-dir: ./deploy/frontend/
           server-dir: ${{ secrets.O2SWITCH_FRONTEND_PATH }}/
+          log-level: verbose
           exclude: |
             **/.git*
             **/.git*/**
+        continue-on-error: true
+        id: ftp-frontend
+
+      - name: Deploy Frontend via SFTP (fallback)
+        if: steps.ftp-frontend.outcome == 'failure'
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.O2SWITCH_FTP_HOST }}
+          username: ${{ secrets.O2SWITCH_FTP_USER }}
+          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          port: 22
+          local_path: './deploy/frontend/*'
+          remote_path: ${{ secrets.O2SWITCH_FRONTEND_PATH }}/
 
       - name: Deployment notification
         if: always()
