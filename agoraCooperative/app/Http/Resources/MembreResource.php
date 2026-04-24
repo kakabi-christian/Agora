@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MembreResource extends JsonResource
@@ -9,8 +11,8 @@ class MembreResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array|Arrayable|\JsonSerializable
      */
     public function toArray($request)
     {
@@ -25,7 +27,7 @@ class MembreResource extends JsonResource
             'telephone' => $this->telephone,
             'ville' => $this->ville,
             'photo_url' => $this->photo_url,
-            'date_inscription' => $this->date_inscription? $this->date_inscription->format('Y-m-d'):null,
+            'date_inscription' => $this->date_inscription ? $this->date_inscription->format('Y-m-d') : null,
             'profil' => new ProfilResource($this->whenLoaded('profil')),
         ];
     }

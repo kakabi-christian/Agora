@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Partenaire;
-use Illuminate\Http\Request;
 use App\Http\Requests\PartenaireRequest;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Partenaire;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PartenaireController extends Controller
 {
@@ -27,7 +26,7 @@ class PartenaireController extends Controller
 
         return response()->json([
             'message' => 'Liste des partenaires',
-            'partenaires' => $partenaires
+            'partenaires' => $partenaires,
         ], 200);
     }
 
@@ -48,11 +47,11 @@ class PartenaireController extends Controller
         // 🔹 Upload du logo
         if ($request->hasFile('logo')) {
             $logo = $request->file('logo');
-            $filename = Str::uuid() . '.' . $logo->getClientOriginalExtension();
+            $filename = Str::uuid().'.'.$logo->getClientOriginalExtension();
 
             $logo->storeAs('public/partenaires', $filename);
 
-            $data['logo_url'] = 'storage/partenaires/' . $filename;
+            $data['logo_url'] = 'storage/partenaires/'.$filename;
             Log::info('Logo uploadé', ['logo_url' => $data['logo_url']]);
         } else {
             Log::info('Aucun logo uploadé.');
@@ -63,7 +62,7 @@ class PartenaireController extends Controller
 
         return response()->json([
             'message' => 'Partenaire créé avec succès',
-            'partenaire' => $partenaire
+            'partenaire' => $partenaire,
         ], 201);
     }
 
@@ -76,7 +75,7 @@ class PartenaireController extends Controller
 
         return response()->json([
             'message' => 'Détails du partenaire',
-            'partenaire' => $partenaire
+            'partenaire' => $partenaire,
         ], 200);
     }
 
@@ -100,10 +99,10 @@ class PartenaireController extends Controller
             }
 
             $logo = $request->file('logo');
-            $filename = Str::uuid() . '.' . $logo->getClientOriginalExtension();
+            $filename = Str::uuid().'.'.$logo->getClientOriginalExtension();
             $logo->storeAs('public/partenaires', $filename);
 
-            $data['logo_url'] = 'storage/partenaires/' . $filename;
+            $data['logo_url'] = 'storage/partenaires/'.$filename;
             Log::info('Nouveau logo uploadé', ['logo_url' => $data['logo_url']]);
         }
 
@@ -112,7 +111,7 @@ class PartenaireController extends Controller
 
         return response()->json([
             'message' => 'Partenaire mis à jour avec succès',
-            'partenaire' => $partenaire
+            'partenaire' => $partenaire,
         ], 200);
     }
 
@@ -126,7 +125,7 @@ class PartenaireController extends Controller
         $partenaire->delete();
 
         return response()->json([
-            'message' => 'Partenaire supprimé avec succès'
+            'message' => 'Partenaire supprimé avec succès',
         ], 200);
     }
 
@@ -136,7 +135,7 @@ class PartenaireController extends Controller
     private function generateCodePartenaire(): string
     {
         do {
-            $code = 'PART-' . strtoupper(Str::random(6));
+            $code = 'PART-'.strtoupper(Str::random(6));
         } while (Partenaire::where('code_partenaire', $code)->exists());
 
         Log::info('Code partenaire unique généré', ['code' => $code]);

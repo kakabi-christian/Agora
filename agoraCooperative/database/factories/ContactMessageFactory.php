@@ -15,11 +15,11 @@ class ContactMessageFactory extends Factory
         return [
             'nom' => $this->faker->name(),
             'email' => $this->faker->safeEmail(),
-            'telephone' => '+336' . $this->faker->numberBetween(10000000, 99999999),
+            'telephone' => '+336'.$this->faker->numberBetween(10000000, 99999999),
             'sujet' => $this->faker->sentence(3),
             'message' => $this->faker->paragraph(3),
             'statut' => $this->faker->randomElement(['non_lu', 'lu', 'traite']),
-            'reference' => 'MSG' . strtoupper(Str::random(8)),
+            'reference' => 'MSG'.strtoupper(Str::random(8)),
             'reponse' => null,
             'date_reponse' => null,
         ];
@@ -60,7 +60,7 @@ class ContactMessageFactory extends Factory
     public function urgent()
     {
         return $this->state(fn (array $attributes) => [
-            'sujet' => 'URGENT: ' . $this->faker->sentence(3),
+            'sujet' => 'URGENT: '.$this->faker->sentence(3),
         ]);
     }
 

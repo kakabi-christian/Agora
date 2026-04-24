@@ -12,7 +12,6 @@ use App\Models\Inscription_events;
 use App\Services\PdfService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class InscriptionEvenementController extends Controller
@@ -34,16 +33,16 @@ class InscriptionEvenementController extends Controller
         // Vérifier que l'événement existe
         $evenement = Evenements::where('code_evenement', $code_evenement)->first();
 
-        if (!$evenement) {
+        if (! $evenement) {
             return response()->json([
-                'message' => 'Événement non trouvé.'
+                'message' => 'Événement non trouvé.',
             ], 404);
         }
 
         // Vérifier que l'événement n'est pas annulé ou terminé
         if (in_array($evenement->statut, ['annule', 'termine'])) {
             return response()->json([
-                'message' => 'Cet événement n\'est plus disponible pour inscription.'
+                'message' => 'Cet événement n\'est plus disponible pour inscription.',
             ], 422);
         }
 
@@ -54,7 +53,7 @@ class InscriptionEvenementController extends Controller
 
         if ($dejaInscrit) {
             return response()->json([
-                'message' => 'Vous êtes déjà inscrit à cet événement.'
+                'message' => 'Vous êtes déjà inscrit à cet événement.',
             ], 409);
         }
 
@@ -66,14 +65,14 @@ class InscriptionEvenementController extends Controller
 
             if ($inscriptionsCount >= $evenement->places_disponibles) {
                 return response()->json([
-                    'message' => 'Plus de places disponibles pour cet événement.'
+                    'message' => 'Plus de places disponibles pour cet événement.',
                 ], 422);
             }
         }
 
         // Déterminer le statut de paiement initial
         $statutPaiement = 'en_attente';
-        if ($evenement->frais_inscription == 0 || !$evenement->paiement_obligatoire) {
+        if ($evenement->frais_inscription == 0 || ! $evenement->paiement_obligatoire) {
             $statutPaiement = 'paye';
         }
 
@@ -95,7 +94,7 @@ class InscriptionEvenementController extends Controller
             Mail::to($membre->email)->send(new InscriptionConfirmation($inscription, $evenement, $membre));
         } catch (\Exception $e) {
             // Log l'erreur mais ne bloque pas l'inscription
-            \Log::error('Erreur envoi email inscription: ' . $e->getMessage());
+            \Log::error('Erreur envoi email inscription: '.$e->getMessage());
         }
 
         return response()->json([
@@ -117,9 +116,9 @@ class InscriptionEvenementController extends Controller
             ->where('code_evenement', $code_evenement)
             ->first();
 
-        if (!$inscription) {
+        if (! $inscription) {
             return response()->json([
-                'message' => 'Inscription non trouvée.'
+                'message' => 'Inscription non trouvée.',
             ], 404);
         }
 
@@ -127,7 +126,7 @@ class InscriptionEvenementController extends Controller
         $evenement = Evenements::where('code_evenement', $code_evenement)->first();
         if ($evenement && $evenement->date_debut <= now()) {
             return response()->json([
-                'message' => 'Impossible d\'annuler une inscription pour un événement déjà commencé.'
+                'message' => 'Impossible d\'annuler une inscription pour un événement déjà commencé.',
             ], 422);
         }
 
@@ -142,7 +141,7 @@ class InscriptionEvenementController extends Controller
             try {
                 Mail::to($membre->email)->send(new InscriptionAnnulation($inscription, $evenement, $membre));
             } catch (\Exception $e) {
-                \Log::error('Erreur envoi email annulation: ' . $e->getMessage());
+                \Log::error('Erreur envoi email annulation: '.$e->getMessage());
             }
 
             return response()->json([
@@ -156,13 +155,13 @@ class InscriptionEvenementController extends Controller
         try {
             Mail::to($membre->email)->send(new InscriptionAnnulation($inscription, $evenement, $membre));
         } catch (\Exception $e) {
-            \Log::error('Erreur envoi email annulation: ' . $e->getMessage());
+            \Log::error('Erreur envoi email annulation: '.$e->getMessage());
         }
 
         $inscription->delete();
 
         return response()->json([
-            'message' => 'Inscription annulée avec succès.'
+            'message' => 'Inscription annulée avec succès.',
         ]);
     }
 
@@ -202,10 +201,10 @@ class InscriptionEvenementController extends Controller
             ->with('evenement')
             ->first();
 
-        if (!$inscription) {
+        if (! $inscription) {
             return response()->json([
                 'inscrit' => false,
-                'message' => 'Non inscrit à cet événement.'
+                'message' => 'Non inscrit à cet événement.',
             ]);
         }
 
@@ -222,9 +221,9 @@ class InscriptionEvenementController extends Controller
     {
         $evenement = Evenements::where('code_evenement', $code_evenement)->first();
 
-        if (!$evenement) {
+        if (! $evenement) {
             return response()->json([
-                'message' => 'Événement non trouvé.'
+                'message' => 'Événement non trouvé.',
             ], 404);
         }
 
@@ -236,7 +235,7 @@ class InscriptionEvenementController extends Controller
         $stats = [
             'total_inscrits' => $inscriptions->count(),
             'places_disponibles' => $evenement->places_disponibles,
-            'places_restantes' => $evenement->places_disponibles 
+            'places_restantes' => $evenement->places_disponibles
                 ? max(0, $evenement->places_disponibles - $inscriptions->whereIn('statut_participation', ['inscrit', 'present'])->count())
                 : null,
             'paiements_en_attente' => $inscriptions->where('statut_paiement', 'en_attente')->count(),
@@ -265,27 +264,27 @@ class InscriptionEvenementController extends Controller
 
         $inscription = Inscription_events::find($id);
 
-        if (!$inscription) {
+        if (! $inscription) {
             return response()->json([
-                'message' => 'Inscription non trouvée.'
+                'message' => 'Inscription non trouvée.',
             ], 404);
         }
 
         // Charger l'événement pour vérifier les règles de paiement
         $evenement = Evenements::where('code_evenement', $inscription->code_evenement)->first();
 
-        if (!$evenement) {
+        if (! $evenement) {
             return response()->json([
-                'message' => 'Événement non trouvé.'
+                'message' => 'Événement non trouvé.',
             ], 404);
         }
 
         // VALIDATION : Vérifier le paiement si nécessaire
         // Seulement si on marque "présent" ET que le paiement est obligatoire
-        if ($request->statut_participation === 'present' && 
-            $evenement->paiement_obligatoire && 
+        if ($request->statut_participation === 'present' &&
+            $evenement->paiement_obligatoire &&
             $evenement->frais_inscription > 0) {
-            
+
             if ($inscription->statut_paiement !== 'paye') {
                 // Logger la tentative de marquage sans paiement
                 \Log::warning('Tentative de marquage présence sans paiement confirmé', [
@@ -342,7 +341,7 @@ class InscriptionEvenementController extends Controller
             ->where('code_evenement', $code_evenement)
             ->first();
 
-        if (!$inscription) {
+        if (! $inscription) {
             return response()->json(['message' => 'Inscription non trouvée.'], 404);
         }
 
@@ -361,16 +360,16 @@ class InscriptionEvenementController extends Controller
         try {
             $data = json_decode($request->qr_data, true);
 
-            if (!$data || !isset($data['inscription_id'], $data['hash'])) {
+            if (! $data || ! isset($data['inscription_id'], $data['hash'])) {
                 return response()->json([
                     'valide' => false,
-                    'message' => 'QR code invalide ou corrompu.'
+                    'message' => 'QR code invalide ou corrompu.',
                 ], 400);
             }
 
             // Vérifier le hash pour s'assurer que le QR code n'a pas été falsifié
-            $expectedHash = hash('sha256', $data['inscription_id'] . $data['code_membre'] . config('app.key'));
-            
+            $expectedHash = hash('sha256', $data['inscription_id'].$data['code_membre'].config('app.key'));
+
             if ($data['hash'] !== $expectedHash) {
                 \Log::warning('Tentative de scan avec QR code falsifié', [
                     'admin_code' => $request->user()->code_membre,
@@ -379,7 +378,7 @@ class InscriptionEvenementController extends Controller
 
                 return response()->json([
                     'valide' => false,
-                    'message' => 'QR code falsifié ou invalide.'
+                    'message' => 'QR code falsifié ou invalide.',
                 ], 400);
             }
 
@@ -387,19 +386,19 @@ class InscriptionEvenementController extends Controller
             $inscription = Inscription_events::with(['evenement', 'membre'])
                 ->find($data['inscription_id']);
 
-            if (!$inscription) {
+            if (! $inscription) {
                 return response()->json([
                     'valide' => false,
-                    'message' => 'Inscription non trouvée.'
+                    'message' => 'Inscription non trouvée.',
                 ], 404);
             }
 
             // Vérifier que l'inscription correspond bien aux données du QR code
-            if ($inscription->code_membre !== $data['code_membre'] || 
+            if ($inscription->code_membre !== $data['code_membre'] ||
                 $inscription->code_evenement !== $data['code_evenement']) {
                 return response()->json([
                     'valide' => false,
-                    'message' => 'Les données du QR code ne correspondent pas à l\'inscription.'
+                    'message' => 'Les données du QR code ne correspondent pas à l\'inscription.',
                 ], 400);
             }
 
@@ -425,7 +424,7 @@ class InscriptionEvenementController extends Controller
 
             return response()->json([
                 'valide' => false,
-                'message' => 'Erreur lors de la vérification du QR code.'
+                'message' => 'Erreur lors de la vérification du QR code.',
             ], 500);
         }
     }

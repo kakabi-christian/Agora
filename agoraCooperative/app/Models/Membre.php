@@ -13,8 +13,11 @@ class Membre extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'membres';
+
     protected $primaryKey = 'code_membre';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
@@ -86,6 +89,7 @@ class Membre extends Authenticatable
     {
         return $this->hasMany(Paiement::class, 'code_membre', 'code_membre');
     }
+
     /**
      * Override pour indiquer à Laravel quel champ utiliser comme mot de passe
      */

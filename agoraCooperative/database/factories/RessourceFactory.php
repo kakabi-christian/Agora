@@ -16,7 +16,7 @@ class RessourceFactory extends Factory
             'description' => $this->faker->paragraph(2),
             'type_ressource' => $this->faker->randomElement(['pdf', 'word', 'excel', 'powerpoint', 'video', 'image']),
             'categorie' => $this->faker->randomElement(['documentation', 'template', 'guide', 'rapport', 'formation']),
-            'chemin_fichier' => 'ressources/' . $this->faker->word() . '.' . $this->faker->fileExtension(),
+            'chemin_fichier' => 'ressources/'.$this->faker->word().'.'.$this->faker->fileExtension(),
             'taille_fichier' => $this->faker->numberBetween(1024, 10485760), // 1KB to 10MB
             'nombre_telechargements' => $this->faker->numberBetween(0, 500),
             'statut' => $this->faker->randomElement(['publie', 'brouillon']),
@@ -41,7 +41,7 @@ class RessourceFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type_ressource' => 'pdf',
-            'chemin_fichier' => 'ressources/' . $this->faker->word() . '.pdf',
+            'chemin_fichier' => 'ressources/'.$this->faker->word().'.pdf',
         ]);
     }
 
@@ -49,7 +49,7 @@ class RessourceFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type_ressource' => 'word',
-            'chemin_fichier' => 'ressources/' . $this->faker->word() . '.docx',
+            'chemin_fichier' => 'ressources/'.$this->faker->word().'.docx',
         ]);
     }
 
@@ -57,7 +57,7 @@ class RessourceFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type_ressource' => 'excel',
-            'chemin_fichier' => 'ressources/' . $this->faker->word() . '.xlsx',
+            'chemin_fichier' => 'ressources/'.$this->faker->word().'.xlsx',
         ]);
     }
 
@@ -65,7 +65,7 @@ class RessourceFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type_ressource' => 'powerpoint',
-            'chemin_fichier' => 'ressources/' . $this->faker->word() . '.pptx',
+            'chemin_fichier' => 'ressources/'.$this->faker->word().'.pptx',
         ]);
     }
 
@@ -73,7 +73,7 @@ class RessourceFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type_ressource' => 'video',
-            'chemin_fichier' => 'ressources/' . $this->faker->word() . '.mp4',
+            'chemin_fichier' => 'ressources/'.$this->faker->word().'.mp4',
         ]);
     }
 

@@ -19,7 +19,7 @@ class PasswordResetOtp extends Model
     protected $fillable = [
         'email',
         'otp',
-        'created_at'
+        'created_at',
     ];
 
     // On définit created_at comme une date pour faciliter les calculs d'expiration

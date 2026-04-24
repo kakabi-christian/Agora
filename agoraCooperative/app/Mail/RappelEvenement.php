@@ -14,7 +14,9 @@ class RappelEvenement extends Mailable
     use Queueable, SerializesModels;
 
     public $inscription;
+
     public $evenement;
+
     public $membre;
 
     /**
@@ -37,8 +39,8 @@ class RappelEvenement extends Mailable
     public function build()
     {
         $heuresRestantes = now()->diffInHours($this->evenement->date_debut);
-        
-        return $this->subject('Rappel : ' . $this->evenement->titre . ' - Demain')
+
+        return $this->subject('Rappel : '.$this->evenement->titre.' - Demain')
             ->markdown('emails.rappel-evenement')
             ->with([
                 'inscription' => $this->inscription,

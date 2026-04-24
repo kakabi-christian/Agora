@@ -3,22 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\ContactMessage;
+use App\Models\DemandeAdhesion;
+use App\Models\Don;
+use App\Models\Evenements;
+// Modèles
+use App\Models\Inscription_events;
+use App\Models\Membre;
+use App\Models\Partenaire;
+use App\Models\Participation_projets;
+use App\Models\Projets;
+use App\Models\Ressource;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
-
-// Modèles
-use App\Models\Membre;
-use App\Models\Evenements;
-use App\Models\Inscription_events;
-use App\Models\Don;
-use App\Models\Projets;
-use App\Models\Participation_projets;
-use App\Models\Ressource;
-use App\Models\Partenaire;
-use App\Models\DemandeAdhesion;
-use App\Models\ContactMessage;
 
 class StatsController extends Controller
 {
@@ -26,9 +25,9 @@ class StatsController extends Controller
     {
         $startTime = microtime(true);
         $userId = auth()->id() ?? 'Admin-Session';
-        
+
         // Récupération du filtre de période
-        $period = $request->get('period', '1year'); 
+        $period = $request->get('period', '1year');
         $startDate = $this->getStartDate($period);
 
         Log::info("📊 [STATS_GEN] Début - User: $userId - Période: $period");
@@ -38,7 +37,7 @@ class StatsController extends Controller
             $totalMembres = Membre::count();
 
             // --- 1. ANALYSE DES MEMBRES ---
-            Log::info("🔍 [STATS_MEMBRES] Calcul des ratios...");
+            Log::info('🔍 [STATS_MEMBRES] Calcul des ratios...');
             $villes = Membre::select('ville', DB::raw('count(*) as total'))
                 ->whereNotNull('ville')
                 ->groupBy('ville')
@@ -46,6 +45,7 @@ class StatsController extends Controller
                 ->get()
                 ->map(function ($v) use ($totalMembres) {
                     $v->pourcentage = $totalMembres > 0 ? round(($v->total / $totalMembres) * 100, 1) : 0;
+
                     return $v;
                 });
 
@@ -54,11 +54,11 @@ class StatsController extends Controller
                 'actifs' => Membre::where('est_actif', true)->count(),
                 'taux_activite' => $totalMembres > 0 ? round((Membre::where('est_actif', true)->count() / $totalMembres) * 100, 1) : 0,
                 'nouveaux_periode' => Membre::where('created_at', '>=', $startDate)->count(),
-                'villes_detaillees' => $villes
+                'villes_detaillees' => $villes,
             ];
 
             // --- 2. FINANCES ---
-            Log::info("💰 [STATS_FINANCE] Somme des revenus...");
+            Log::info('💰 [STATS_FINANCE] Somme des revenus...');
             $dons = (float) Don::where('statut_paiement', 'paye')->where('created_at', '>=', $startDate)->sum('montant');
             $inscriptions = (float) Inscription_events::where('statut_paiement', 'paye')->where('created_at', '>=', $startDate)->sum('montant_paye');
             $revenuTotal = $dons + $inscriptions;
@@ -86,15 +86,15 @@ class StatsController extends Controller
             ];
 
             // --- 4. ÉVÉNEMENTS ---
-            Log::info("📅 [STATS_EVENTS] Taux de conversion...");
+            Log::info('📅 [STATS_EVENTS] Taux de conversion...');
             $eventStats = [
                 'total' => Evenements::count(),
                 'a_venir' => Evenements::where('date_debut', '>', $now)->count(),
-                'taux_remplissage' => Inscription_events::count() > 0 ? round((Inscription_events::where('statut_paiement', 'paye')->count() / Inscription_events::count()) * 100, 1) : 0
+                'taux_remplissage' => Inscription_events::count() > 0 ? round((Inscription_events::where('statut_paiement', 'paye')->count() / Inscription_events::count()) * 100, 1) : 0,
             ];
 
             // --- 5. LOGISTIQUE & MESSAGES ---
-            Log::info("✉️ [STATS_CONTACT] Ratios de réponse...");
+            Log::info('✉️ [STATS_CONTACT] Ratios de réponse...');
             $contactStats = [
                 'non_lus' => ContactMessage::where('lu', false)->count(),
                 'taux_reponse' => ContactMessage::count() > 0 ? round((ContactMessage::where('lu', true)->count() / ContactMessage::count()) * 100, 1) : 0,
@@ -102,7 +102,7 @@ class StatsController extends Controller
             ];
 
             // --- 6. SYSTÈME & PARTENAIRES (Ajouté pour corriger l'erreur Angular) ---
-            Log::info("⚙️ [STATS_SYSTEM] Partenaires et ressources...");
+            Log::info('⚙️ [STATS_SYSTEM] Partenaires et ressources...');
             $systemStats = [
                 'partenaires' => Partenaire::count(),
                 'telechargements' => Ressource::count(),
@@ -124,7 +124,7 @@ class StatsController extends Controller
                 'meta' => [
                     'periode' => $period,
                     'generated_at' => $now->toDateTimeString(),
-                    'execution_time' => $execTime
+                    'execution_time' => $execTime,
                 ],
                 'membres' => $membreStats,
                 'finance' => $financeStats,
@@ -132,17 +132,19 @@ class StatsController extends Controller
                 'evenements' => $eventStats,
                 'contacts' => $contactStats,
                 'systeme' => $systemStats, // <--- IMPORTANT : Correction de l'erreur frontend
-                'evolution' => $evolution
+                'evolution' => $evolution,
             ]);
 
         } catch (\Exception $e) {
-            Log::error("❌ [STATS_ERROR] Erreur Critique", ['msg' => $e->getMessage()]);
+            Log::error('❌ [STATS_ERROR] Erreur Critique', ['msg' => $e->getMessage()]);
+
             return response()->json(['status' => 'error', 'message' => 'Erreur de calcul'], 500);
         }
     }
 
-    private function getStartDate($period) {
-        switch($period) {
+    private function getStartDate($period)
+    {
+        switch ($period) {
             case '30days':
                 return Carbon::now()->subDays(30);
             case '6months':

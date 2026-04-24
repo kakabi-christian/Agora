@@ -15,7 +15,9 @@ class InscriptionConfirmation extends Mailable
     use Queueable, SerializesModels;
 
     public $inscription;
+
     public $evenement;
+
     public $membre;
 
     public function __construct(Inscription_events $inscription, Evenements $evenement, Membre $membre)
@@ -30,7 +32,7 @@ class InscriptionConfirmation extends Mailable
         $pdfService = app(PdfService::class);
         $pdfPath = $pdfService->genererConfirmationInscription($this->inscription);
 
-        return $this->subject('Confirmation d\'inscription - ' . $this->evenement->titre)
+        return $this->subject('Confirmation d\'inscription - '.$this->evenement->titre)
             ->markdown('emails.inscription-confirmation')
             ->with([
                 'inscription' => $this->inscription,

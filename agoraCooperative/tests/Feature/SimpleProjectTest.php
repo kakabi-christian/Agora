@@ -2,10 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\Projets;
-use App\Models\Membre;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SimpleProjectTest extends TestCase
 {
@@ -101,7 +100,7 @@ class SimpleProjectTest extends TestCase
         $response = $this->deleteJson("/api/admin/projets/{$project->id}");
 
         $response->assertStatus(200);
-        
+
         $this->assertSoftDeleted('projets', ['id' => $project->id]);
     }
 }

@@ -43,7 +43,7 @@ return [
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
             'auth_mode' => null,
-            
+
             // ⚠️ Configuration SSL - À utiliser UNIQUEMENT en développement local
             // Pour la production, utilisez des certificats SSL valides
             'stream' => [

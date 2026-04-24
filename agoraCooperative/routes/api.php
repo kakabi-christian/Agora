@@ -1,28 +1,27 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\DemandeAdhesionController;
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\MembreController;
-use App\Http\Controllers\Api\HistoriqueParticipationController;
-use App\Http\Controllers\Api\RessourceController;
-use App\Http\Controllers\Api\EvenementController;
-use App\Http\Controllers\Api\PartenaireController;
-use App\Http\Controllers\Api\ProjetController;
-use App\Http\Controllers\Api\FaqController;
-use App\Http\Controllers\Api\InscriptionEvenementController;
 use App\Http\Controllers\Api\ContactMessageController;
-use App\Http\Controllers\Api\NotificationController;
-use App\Http\Controllers\Api\PaiementController;
-use App\Http\Controllers\Api\DonController;
-use App\Http\Controllers\Api\ParticipationProjetController;
 use App\Http\Controllers\Api\DashboardStatsController;
+use App\Http\Controllers\Api\DemandeAdhesionController;
+use App\Http\Controllers\Api\DonController;
+use App\Http\Controllers\Api\EvenementController;
 use App\Http\Controllers\Api\EvenementPaiementController;
-use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\ForgotPasswordController;
+use App\Http\Controllers\Api\HistoriqueParticipationController;
+use App\Http\Controllers\Api\InscriptionEvenementController;
+use App\Http\Controllers\Api\MembreController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\PartenaireController;
+use App\Http\Controllers\Api\ParticipationProjetController;
+use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\ProjetController;
+use App\Http\Controllers\Api\RessourceController;
 use App\Http\Controllers\Api\StatsController;
 use App\Http\Controllers\MetricsController;
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -35,8 +34,7 @@ Route::get('/metrics', [MetricsController::class, 'index']);
 // =======================
 // Routes WEBHOOK (sans auth)
 // =======================
-Route::get('/evenements', [EvenementController::class, 'index']); 
-
+Route::get('/evenements', [EvenementController::class, 'index']);
 
 // =======================
 // Routes PUBLIQUES
@@ -93,7 +91,7 @@ Route::middleware(['auth:sanctum', 'member.active', 'token.expiration'])->group(
     Route::get('/projets/{projet}', [ProjetController::class, 'show']);
 
     // ÉVÉNEMENTS (Suivi & Liste)
-    Route::get('/evenements/upcoming', [EvenementController::class, 'getUpcomingEventsWithAutoStatus']); 
+    Route::get('/evenements/upcoming', [EvenementController::class, 'getUpcomingEventsWithAutoStatus']);
     Route::get('/evenements/{code_evenement}', [EvenementController::class, 'show']);
 
     // Autres
@@ -125,7 +123,7 @@ Route::middleware([
     'auth:sanctum',
     'member.active',
     'token.expiration',
-    'admin.only'
+    'admin.only',
 ])->prefix('admin')->group(function () {
 
     // Gestion Adhésions
@@ -152,13 +150,12 @@ Route::middleware([
     Route::delete('/partenaires/{partenaire}', [PartenaireController::class, 'destroy']);
     Route::post('/ressources', [RessourceController::class, 'store']);
     Route::post('/faqs', [FaqController::class, 'store']);
-  ;
 
     // Inscriptions événements (admin)
     Route::get('/evenements/{code_evenement}/inscriptions', [InscriptionEvenementController::class, 'listeParEvenement']);
     Route::put('/inscriptions/{id}/statut', [InscriptionEvenementController::class, 'updateStatut']);
     Route::post('/inscriptions/verifier-qr', [InscriptionEvenementController::class, 'verifierQrCode']);
-    
+
     // Messagerie & Contacts
     Route::get('/contacts', [ContactMessageController::class, 'index']);
     Route::get('/contacts/unread-count', [ContactMessageController::class, 'unreadCount']);

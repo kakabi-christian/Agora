@@ -16,12 +16,12 @@ class Don extends Model
         'code_membre',
         'nom_donateur',
         'email_donateur',
-        'telephone',           
+        'telephone',
         'type',
         'montant', // Sera chiffré
-        'mode_paiement',       
-        'reference_paiement',  
-        'statut_paiement',     
+        'mode_paiement',
+        'reference_paiement',
+        'statut_paiement',
         'date_don',
         'deductible_impots',
         'numero_recu',
@@ -35,7 +35,7 @@ class Don extends Model
      */
     protected $casts = [
         'montant' => 'encrypted', // Chiffre en BD, déchiffre à la lecture
-        
+
         'date_don' => 'date',
         'deductible_impots' => 'boolean',
         'anonyme' => 'boolean',
@@ -43,7 +43,7 @@ class Don extends Model
     ];
 
     // --- Relations ---
-    
+
     public function membre()
     {
         return $this->belongsTo(Membre::class, 'code_membre', 'code_membre');

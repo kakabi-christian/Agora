@@ -11,8 +11,11 @@ class Partenaire extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'partenaires';
+
     protected $primaryKey = 'code_partenaire';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [

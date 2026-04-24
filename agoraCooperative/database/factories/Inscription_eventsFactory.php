@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Inscription_events;
 use App\Models\Evenements;
+use App\Models\Inscription_events;
 use App\Models\Membre;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +18,7 @@ class Inscription_eventsFactory extends Factory
             'membre_id' => Membre::factory(),
             'date_inscription' => now(),
             'statut' => $this->faker->randomElement(['en_attente', 'confirme', 'annule']),
-            'qr_code' => 'QR' . strtoupper($this->faker->unique()->lexify('????????')),
+            'qr_code' => 'QR'.strtoupper($this->faker->unique()->lexify('????????')),
             'date_rappel' => null,
             'rappel_envoye' => false,
         ];

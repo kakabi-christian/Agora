@@ -13,9 +13,10 @@ class PaiementConfirmation extends Mailable
     use Queueable, SerializesModels;
 
     public $paiement;
+
     public $membre;
 
-    public function __construct(Paiement $paiement, Membre $membre = null)
+    public function __construct(Paiement $paiement, ?Membre $membre = null)
     {
         $this->paiement = $paiement;
         $this->membre = $membre;
@@ -23,7 +24,7 @@ class PaiementConfirmation extends Mailable
 
     public function build()
     {
-        return $this->subject('Confirmation de paiement - ' . $this->paiement->reference)
+        return $this->subject('Confirmation de paiement - '.$this->paiement->reference)
             ->markdown('emails.paiement-confirmation')
             ->with([
                 'paiement' => $this->paiement,

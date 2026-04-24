@@ -2,8 +2,9 @@
 
 namespace Tests;
 
-use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use App\Models\Membre;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -12,7 +13,7 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Configuration pour les tests
         $this->artisan('config:clear');
     }
@@ -22,7 +23,7 @@ abstract class TestCase extends BaseTestCase
      */
     protected function createAdminUser()
     {
-        return \App\Models\Membre::factory()->create([
+        return Membre::factory()->create([
             'role' => 'administrateur',
             'est_actif' => true,
         ]);
@@ -30,7 +31,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function createMemberUser()
     {
-        return \App\Models\Membre::factory()->create([
+        return Membre::factory()->create([
             'role' => 'membre',
             'est_actif' => true,
         ]);
@@ -38,7 +39,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function createInactiveMemberUser()
     {
-        return \App\Models\Membre::factory()->create([
+        return Membre::factory()->create([
             'role' => 'membre',
             'est_actif' => false,
         ]);
@@ -50,7 +51,8 @@ abstract class TestCase extends BaseTestCase
     protected function authenticateUser($user)
     {
         $token = $user->createToken('test-token')->plainTextToken;
-        $this->withHeader('Authorization', 'Bearer ' . $token);
+        $this->withHeader('Authorization', 'Bearer '.$token);
+
         return $token;
     }
 

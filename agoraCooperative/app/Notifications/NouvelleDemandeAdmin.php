@@ -39,20 +39,20 @@ class NouvelleDemandeAdmin extends Notification implements ShouldQueue
      * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @return MailMessage
      */
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->subject('Nouvelle demande d\'adhésion - Agora Coopérative')
-                    ->greeting('Bonjour ' . $notifiable->prenom . ',')
-                    ->line('Une nouvelle demande d\'adhésion a été soumise.')
-                    ->line('**Demandeur:** ' . $this->demande->prenom . ' ' . $this->demande->nom)
-                    ->line('**Email:** ' . $this->demande->email)
-                    ->line('**Téléphone:** ' . $this->demande->telephone)
-                    ->line('**Date de demande:** ' . $this->demande->date_demande->format('d/m/Y à H:i'))
-                    ->action('Voir la demande', url('/api/admin/demandes-adhesion/' . $this->demande->id))
-                    ->line('Merci de traiter cette demande dans les meilleurs délais.');
+            ->subject('Nouvelle demande d\'adhésion - Agora Coopérative')
+            ->greeting('Bonjour '.$notifiable->prenom.',')
+            ->line('Une nouvelle demande d\'adhésion a été soumise.')
+            ->line('**Demandeur:** '.$this->demande->prenom.' '.$this->demande->nom)
+            ->line('**Email:** '.$this->demande->email)
+            ->line('**Téléphone:** '.$this->demande->telephone)
+            ->line('**Date de demande:** '.$this->demande->date_demande->format('d/m/Y à H:i'))
+            ->action('Voir la demande', url('/api/admin/demandes-adhesion/'.$this->demande->id))
+            ->line('Merci de traiter cette demande dans les meilleurs délais.');
     }
 
     /**
