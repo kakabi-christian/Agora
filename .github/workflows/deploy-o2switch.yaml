@@ -3,17 +3,22 @@ name: Deploy to O2Switch
 on:
   push:
     branches:
-      - main
       - master
+      - main
+      - feat/deploiment-auto
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches:
+      - master
+      - main
       - feat/deploiment-auto
 
 jobs:
-
-# =========================
-# BACKEND LARAVEL
-# =========================
   deploy-backend:
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
 
     steps:
       - name: Checkout code
@@ -23,9 +28,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, gd, json, bcmath
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, filter, gd, json, bcmath
 
-      - name: Prepare Laravel .env
+      - name: Copy .env for deployment
         run: |
           cd agoraCooperative
           cat > .env << EOF
@@ -35,54 +40,74 @@ jobs:
           APP_DEBUG=false
           APP_URL=${{ secrets.APP_URL }}
 
+          LOG_CHANNEL=stack
+          LOG_LEVEL=warning
+
           DB_CONNECTION=mysql
           DB_HOST=${{ secrets.DB_HOST }}
           DB_PORT=${{ secrets.DB_PORT }}
           DB_DATABASE=${{ secrets.DB_DATABASE }}
           DB_USERNAME=${{ secrets.DB_USERNAME }}
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+
+          CACHE_DRIVER=file
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=file
           EOF
 
       - name: Install dependencies
         run: |
           cd agoraCooperative
-          composer install --no-dev --optimize-autoloader --no-interaction
+          composer install --prefer-dist --no-progress --no-interaction --no-dev
 
-      - name: Optimize Laravel
+      - name: Generate key
+        run: |
+          cd agoraCooperative
+          php artisan key:generate
+
+      - name: Optimize application
         run: |
           cd agoraCooperative
           php artisan config:cache
           php artisan route:cache
           php artisan view:cache
 
-
-      - name: Prepare backend package
+      - name: Create backend deployment package
         run: |
-          mkdir -p deploy/backend
+          mkdir -p backend-deploy
+          tar -czf backend-deploy/agora-backend.tar.gz \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            --exclude='tests' \
+            --exclude='Test' \
+            --exclude='Tests' \
+            --exclude='.github' \
+            --exclude='docker-compose.override.yml' \
+            --exclude='Homestead.json' \
+            --exclude='Homestead.yaml' \
+            --exclude='.idea' \
+            --exclude='.vscode' \
+            --exclude='README.md' \
+            --exclude='phpunit.xml' \
+            --exclude='phpunit.xml.dist' \
+            --exclude='.phpunit.result.cache' \
+            --exclude='storage/logs/*' \
+            --exclude='storage/framework/cache/*' \
+            --exclude='storage/framework/sessions/*' \
+            --exclude='storage/framework/views/*' \
+            agoraCooperative/
 
-          rsync -av \
-            --exclude=".git" \
-            --exclude="node_modules" \
-            --exclude="tests" \
-            agoraCooperative/ deploy/backend/
-
-      - name: Upload backend via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
         with:
-          server: ${{ secrets.O2SWITCH_FTP_HOST }}
-          username: ${{ secrets.O2SWITCH_FTP_USER }}
-          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
-          protocol: ftp
-          port: 21
-          local-dir: ./deploy/backend/
-          server-dir: /public_html/groupe4/api/agoraCooperative/
-          log-level: standard
+          name: backend-artifact
+          path: backend-deploy/agora-backend.tar.gz
+          retention-days: 7
 
-# =========================
-# FRONTEND ANGULAR
-# =========================
   deploy-frontend:
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
 
     steps:
       - name: Checkout code
@@ -93,23 +118,157 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install Angular dependencies
+      - name: Install dependencies
         run: |
           cd AgoraFront/Frontend
           npm install --legacy-peer-deps
 
-      - name: Build Angular
+      - name: Build Angular application
         run: |
           cd AgoraFront/Frontend
           npm run build -- --configuration production
 
-      - name: Prepare frontend package
+      - name: Create frontend deployment package
         run: |
-          mkdir -p deploy/frontend
+          mkdir -p frontend-deploy
+          tar -czf frontend-deploy/agora-frontend.tar.gz \
+            -C AgoraFront/Frontend dist/
+          ls -lh frontend-deploy/agora-frontend.tar.gz
 
-          cp -r AgoraFront/Frontend/dist/*/browser/* deploy/frontend/
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-artifact
+          path: frontend-deploy/agora-frontend.tar.gz
+          retention-days: 7
 
-      - name: Upload frontend via FTP
+  deploy-to-o2switch:
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend]
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-artifact
+          path: artifacts/backend
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-artifact
+          path: artifacts/frontend
+
+      - name: Display artifacts
+        run: |
+          echo "Backend artifact:"
+          ls -lh artifacts/backend/
+          echo "Frontend artifact:"
+          ls -lh artifacts/frontend/
+
+      - name: Extract artifacts locally
+        run: |
+          mkdir -p deploy/backend deploy/frontend
+          
+          # Extract backend
+          cd deploy/backend
+          tar -xzf ../../artifacts/backend/agora-backend.tar.gz
+          
+          # Extract frontend  
+          cd ../frontend
+          tar -xzf ../../artifacts/frontend/agora-frontend.tar.gz
+          
+          cd ../..
+          
+          # Copy .htaccess files (use simple versions for better compatibility)
+          cp frontend-htaccess-simple/.htaccess deploy/frontend/.htaccess
+          cp backend-htaccess-simple/.htaccess deploy/backend/.htaccess
+          
+          # Alternative: use full versions if simple works
+          # cp frontend-htaccess/.htaccess deploy/frontend/.htaccess
+          # cp backend-htaccess/.htaccess deploy/backend/.htaccess
+          
+          echo "Extracted files and added .htaccess:"
+          ls -la deploy/
+          echo "Frontend .htaccess:"
+          ls -la deploy/frontend/.htaccess
+          echo "Backend .htaccess:"
+          ls -la deploy/backend/.htaccess
+
+      - name: Test FTP connectivity
+        run: |
+          echo "Testing FTP connectivity to ${{ secrets.O2SWITCH_FTP_HOST }}:21"
+          timeout 30 nc -zv ${{ secrets.O2SWITCH_FTP_HOST }} 21 || echo "FTP port 21 connection failed"
+          
+          # Test the known O2Switch domain
+          echo "Testing known O2Switch domain groupe4.cdwfs.net:21"
+          timeout 30 nc -zv groupe4.cdwfs.net 21 || echo "groupe4.cdwfs.net FTP not reachable"
+          
+          echo "FTP connectivity test completed"
+
+      - name: Deploy Backend via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.O2SWITCH_FTP_HOST }}
+          username: ${{ secrets.O2SWITCH_FTP_USER }}
+          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          local-dir: ./deploy/backend/
+          server-dir: ${{ secrets.O2SWITCH_BACKEND_PATH }}/
+          log-level: standard
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/vendor/**
+            **/tests/**
+            **/Test/**
+            **/Tests/**
+            **/.env.example
+        timeout-minutes: 10
+
+      - name: Create composer install script
+        run: |
+          cat > composer-install.sh << 'EOF'
+          #!/bin/bash
+          cd ${{ secrets.O2SWITCH_BACKEND_PATH }}
+          
+          echo "Installing Composer dependencies..."
+          composer install --no-dev --optimize-autoloader --no-interaction
+          
+          echo "Setting up Laravel..."
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          
+          echo "Setting permissions..."
+          chmod -R 755 .
+          chmod -R 777 storage bootstrap/cache
+          
+          echo "Backend setup completed!"
+          EOF
+
+      - name: Upload and execute composer install script
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.O2SWITCH_FTP_HOST }}
+          username: ${{ secrets.O2SWITCH_FTP_USER }}
+          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          local-dir: ./
+          server-dir: ${{ secrets.O2SWITCH_BACKEND_PATH }}/
+          log-level: minimal
+          exclude: |
+            **/*
+            !composer-install.sh
+
+      - name: Deploy Frontend via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.O2SWITCH_FTP_HOST }}
@@ -118,5 +277,22 @@ jobs:
           protocol: ftp
           port: 21
           local-dir: ./deploy/frontend/
-          server-dir: /public_html/groupe4/
+          server-dir: ${{ secrets.O2SWITCH_FRONTEND_PATH }}/
           log-level: standard
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+        timeout-minutes: 10
+
+      - name: Deployment notification
+        if: always()
+        run: |
+          echo "Deployment completed at $(date)"
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✓ Deployment successful!"
+            echo "Backend URL: ${{ secrets.BACKEND_URL }}"
+            echo "Frontend URL: ${{ secrets.FRONTEND_URL }}"
+          else
+            echo "✗ Deployment failed!"
+          fi
