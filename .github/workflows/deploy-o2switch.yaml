@@ -1,0 +1,248 @@
+name: Deploy to O2Switch
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - feat/deploiment-auto
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches:
+      - master
+      - main
+      - feat/deploiment-auto
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, filter, gd, json, bcmath
+
+      - name: Copy .env for deployment
+        run: |
+          cd agoraCooperative
+          cat > .env << EOF
+          APP_NAME="Agora Cooperative"
+          APP_ENV=production
+          APP_KEY=${{ secrets.LARAVEL_APP_KEY }}
+          APP_DEBUG=false
+          APP_URL=${{ secrets.APP_URL }}
+
+          LOG_CHANNEL=stack
+          LOG_LEVEL=warning
+
+          DB_CONNECTION=mysql
+          DB_HOST=${{ secrets.DB_HOST }}
+          DB_PORT=${{ secrets.DB_PORT }}
+          DB_DATABASE=${{ secrets.DB_DATABASE }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+
+          CACHE_DRIVER=file
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=file
+          EOF
+
+      - name: Install dependencies
+        run: |
+          cd agoraCooperative
+          composer install --prefer-dist --no-progress --no-interaction --no-dev
+
+      - name: Generate key
+        run: |
+          cd agoraCooperative
+          php artisan key:generate
+
+      - name: Optimize application
+        run: |
+          cd agoraCooperative
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+      - name: Create backend deployment package
+        run: |
+          mkdir -p backend-deploy
+          tar -czf backend-deploy/agora-backend.tar.gz \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='.github' \
+            --exclude='docker-compose.override.yml' \
+            --exclude='Homestead.json' \
+            --exclude='Homestead.yaml' \
+            --exclude='.idea' \
+            --exclude='.vscode' \
+            --exclude='README.md' \
+            agoraCooperative/
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-artifact
+          path: backend-deploy/agora-backend.tar.gz
+          retention-days: 7
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: |
+          cd AgoraFront/Frontend
+          npm install --legacy-peer-deps
+
+      - name: Build Angular application
+        run: |
+          cd AgoraFront/Frontend
+          npm run build -- --configuration production
+
+      - name: Create frontend deployment package
+        run: |
+          mkdir -p frontend-deploy
+          tar -czf frontend-deploy/agora-frontend.tar.gz \
+            -C AgoraFront/Frontend dist/
+          ls -lh frontend-deploy/agora-frontend.tar.gz
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-artifact
+          path: frontend-deploy/agora-frontend.tar.gz
+          retention-days: 7
+
+  deploy-to-o2switch:
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend]
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-artifact
+          path: artifacts/backend
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-artifact
+          path: artifacts/frontend
+
+      - name: Display artifacts
+        run: |
+          echo "Backend artifact:"
+          ls -lh artifacts/backend/
+          echo "Frontend artifact:"
+          ls -lh artifacts/frontend/
+
+      - name: Extract artifacts locally
+        run: |
+          mkdir -p deploy/backend deploy/frontend
+          
+          # Extract backend
+          cd deploy/backend
+          tar -xzf ../../artifacts/backend/agora-backend.tar.gz
+          
+          # Extract frontend  
+          cd ../frontend
+          tar -xzf ../../artifacts/frontend/agora-frontend.tar.gz
+          
+          cd ../..
+          echo "Extracted files:"
+          ls -la deploy/
+
+      - name: Deploy Backend via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.O2SWITCH_FTP_HOST }}
+          username: ${{ secrets.O2SWITCH_FTP_USER }}
+          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./deploy/backend/
+          server-dir: ${{ secrets.O2SWITCH_BACKEND_PATH }}/
+          log-level: verbose
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+            **/.env.example
+        continue-on-error: true
+        id: ftp-backend
+
+      - name: Deploy Backend via SFTP (fallback)
+        if: steps.ftp-backend.outcome == 'failure'
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.O2SWITCH_FTP_HOST }}
+          username: ${{ secrets.O2SWITCH_FTP_USER }}
+          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          port: 22
+          local_path: './deploy/backend/*'
+          remote_path: ${{ secrets.O2SWITCH_BACKEND_PATH }}/
+
+      - name: Deploy Frontend via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.O2SWITCH_FTP_HOST }}
+          username: ${{ secrets.O2SWITCH_FTP_USER }}
+          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          local-dir: ./deploy/frontend/
+          server-dir: ${{ secrets.O2SWITCH_FRONTEND_PATH }}/
+          log-level: verbose
+          exclude: |
+            **/.git*
+            **/.git*/**
+        continue-on-error: true
+        id: ftp-frontend
+
+      - name: Deploy Frontend via SFTP (fallback)
+        if: steps.ftp-frontend.outcome == 'failure'
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.O2SWITCH_FTP_HOST }}
+          username: ${{ secrets.O2SWITCH_FTP_USER }}
+          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          port: 22
+          local_path: './deploy/frontend/*'
+          remote_path: ${{ secrets.O2SWITCH_FRONTEND_PATH }}/
+
+      - name: Deployment notification
+        if: always()
+        run: |
+          echo "Deployment completed at $(date)"
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✓ Deployment successful!"
+            echo "Backend URL: ${{ secrets.BACKEND_URL }}"
+            echo "Frontend URL: ${{ secrets.FRONTEND_URL }}"
+          else
+            echo "✗ Deployment failed!"
+          fi
