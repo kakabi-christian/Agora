@@ -78,6 +78,7 @@ jobs:
           tar -czf backend-deploy/agora-backend.tar.gz \
             --exclude='.git' \
             --exclude='node_modules' \
+            --exclude='vendor' \
             --exclude='tests' \
             --exclude='Test' \
             --exclude='Tests' \
@@ -88,18 +89,13 @@ jobs:
             --exclude='.idea' \
             --exclude='.vscode' \
             --exclude='README.md' \
-            --exclude='vendor/*/test' \
-            --exclude='vendor/*/tests' \
-            --exclude='vendor/*/Test' \
-            --exclude='vendor/*/Tests' \
-            --exclude='vendor/*/*/test' \
-            --exclude='vendor/*/*/tests' \
-            --exclude='vendor/*/*/Test' \
-            --exclude='vendor/*/*/Tests' \
-            --exclude='*/__snapshots__' \
             --exclude='phpunit.xml' \
             --exclude='phpunit.xml.dist' \
             --exclude='.phpunit.result.cache' \
+            --exclude='storage/logs/*' \
+            --exclude='storage/framework/cache/*' \
+            --exclude='storage/framework/sessions/*' \
+            --exclude='storage/framework/views/*' \
             agoraCooperative/
 
       - name: Upload backend artifact
@@ -216,23 +212,48 @@ jobs:
             **/.git*
             **/.git*/**
             **/node_modules/**
+            **/vendor/**
             **/tests/**
             **/Test/**
             **/Tests/**
             **/.env.example
-            **/vendor/*/test/**
-            **/vendor/*/tests/**
-            **/vendor/*/Test/**
-            **/vendor/*/Tests/**
-            **/vendor/*/*/test/**
-            **/vendor/*/*/tests/**
-            **/vendor/*/*/Test/**
-            **/vendor/*/*/Tests/**
-            **/__snapshots__/**
-            **/phpunit.xml
-            **/phpunit.xml.dist
-            **/.phpunit.result.cache
-        timeout-minutes: 20
+        timeout-minutes: 10
+
+      - name: Create composer install script
+        run: |
+          cat > composer-install.sh << 'EOF'
+          #!/bin/bash
+          cd ${{ secrets.O2SWITCH_BACKEND_PATH }}
+          
+          echo "Installing Composer dependencies..."
+          composer install --no-dev --optimize-autoloader --no-interaction
+          
+          echo "Setting up Laravel..."
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          
+          echo "Setting permissions..."
+          chmod -R 755 .
+          chmod -R 777 storage bootstrap/cache
+          
+          echo "Backend setup completed!"
+          EOF
+
+      - name: Upload and execute composer install script
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.O2SWITCH_FTP_HOST }}
+          username: ${{ secrets.O2SWITCH_FTP_USER }}
+          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          local-dir: ./
+          server-dir: ${{ secrets.O2SWITCH_BACKEND_PATH }}/
+          log-level: minimal
+          exclude: |
+            **/*
+            !composer-install.sh
 
       - name: Deploy Frontend via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
