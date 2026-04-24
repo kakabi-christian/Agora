@@ -160,129 +160,48 @@ jobs:
           echo "Frontend artifact:"
           ls -lh artifacts/frontend/
 
-      - name: Deploy via SSH (O2Switch)
-        uses: appleboy/ssh-action@master
+      - name: Extract artifacts locally
+        run: |
+          mkdir -p deploy/backend deploy/frontend
+          
+          # Extract backend
+          cd deploy/backend
+          tar -xzf ../../artifacts/backend/agora-backend.tar.gz
+          
+          # Extract frontend  
+          cd ../frontend
+          tar -xzf ../../artifacts/frontend/agora-frontend.tar.gz
+          
+          cd ../..
+          echo "Extracted files:"
+          ls -la deploy/
+
+      - name: Deploy Backend via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ${{ secrets.O2SWITCH_HOST }}
-          username: ${{ secrets.O2SWITCH_USER }}
-          key: ${{ secrets.O2SWITCH_SSH_KEY }}
-          port: ${{ secrets.O2SWITCH_PORT }}
-          script: |
-            # Create deployment directory structure
-            mkdir -p ~/deployment
-            cd ~/deployment
+          server: ${{ secrets.O2SWITCH_FTP_HOST }}
+          username: ${{ secrets.O2SWITCH_FTP_USER }}
+          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          local-dir: ./deploy/backend/
+          server-dir: ${{ secrets.O2SWITCH_BACKEND_PATH }}/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/tests/**
+            **/.env.example
 
-            GROUPE_PATH="${{ secrets.GROUPE_PATH }}"
-
-            echo "=========================================="
-            echo "Starting O2Switch Deployment"
-            echo "=========================================="
-            echo "Deployment timestamp: $(date)"
-            echo "Target path: $GROUPE_PATH"
-
-            # Backup current version
-            if [ -d "$GROUPE_PATH/agora-backend" ]; then
-              echo "Creating backup of current backend..."
-              tar -czf backup-backend-$(date +%Y%m%d_%H%M%S).tar.gz "$GROUPE_PATH/agora-backend/" 2>/dev/null || true
-            fi
-
-            if [ -d "$GROUPE_PATH/agora-frontend" ]; then
-              echo "Creating backup of current frontend..."
-              tar -czf backup-frontend-$(date +%Y%m%d_%H%M%S).tar.gz "$GROUPE_PATH/agora-frontend/" 2>/dev/null || true
-            fi
-
-      - name: Upload artifacts via SCP
-        uses: appleboy/scp-action@master
+      - name: Deploy Frontend via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ${{ secrets.O2SWITCH_HOST }}
-          username: ${{ secrets.O2SWITCH_USER }}
-          key: ${{ secrets.O2SWITCH_SSH_KEY }}
-          port: ${{ secrets.O2SWITCH_PORT }}
-          source: "artifacts/*"
-          target: ${{ secrets.O2SWITCH_DEPLOY_PATH }}/
-          strip_components: 1
-
-      - name: Extract and configure on O2Switch
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.O2SWITCH_HOST }}
-          username: ${{ secrets.O2SWITCH_USER }}
-          key: ${{ secrets.O2SWITCH_SSH_KEY }}
-          port: ${{ secrets.O2SWITCH_PORT }}
-          script: |
-            set -e
-
-            DEPLOY_PATH="${{ secrets.O2SWITCH_DEPLOY_PATH }}"
-            GROUPE_PATH="${{ secrets.GROUPE_PATH }}"
-            BACKEND_PATH="$GROUPE_PATH/agora-backend"
-            FRONTEND_PATH="$GROUPE_PATH/agora-frontend"
-
-            echo "Deploying to $GROUPE_PATH"
-
-            # Deploy Backend
-            if [ -f "$DEPLOY_PATH/backend/agora-backend.tar.gz" ]; then
-              echo "Extracting backend..."
-              mkdir -p $BACKEND_PATH
-              tar -xzf "$DEPLOY_PATH/backend/agora-backend.tar.gz" -C $BACKEND_PATH --strip-components=1
-
-              # Set permissions
-              chmod -R 755 $BACKEND_PATH
-              chmod -R 777 $BACKEND_PATH/storage $BACKEND_PATH/bootstrap/cache
-
-              # Run migrations
-              cd $BACKEND_PATH
-              php artisan migrate --force --no-interaction
-              php artisan cache:clear
-
-              echo "Backend deployed successfully"
-            fi
-
-            # Deploy Frontend
-            if [ -f "$DEPLOY_PATH/frontend/agora-frontend.tar.gz" ]; then
-              echo "Extracting frontend..."
-              mkdir -p $FRONTEND_PATH
-              tar -xzf "$DEPLOY_PATH/frontend/agora-frontend.tar.gz" -C $FRONTEND_PATH --strip-components=1
-
-              # Set permissions
-              chmod -R 755 $FRONTEND_PATH
-
-              echo "Frontend deployed successfully"
-            fi
-
-            # Cleanup old backups (keep last 5)
-            cd ~/deployment
-            ls -1t backup-*.tar.gz 2>/dev/null | tail -n +6 | xargs -r rm
-
-            echo "=========================================="
-            echo "Deployment completed successfully!"
-            echo "=========================================="
-
-      - name: Verify deployment
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.O2SWITCH_HOST }}
-          username: ${{ secrets.O2SWITCH_USER }}
-          key: ${{ secrets.O2SWITCH_SSH_KEY }}
-          port: ${{ secrets.O2SWITCH_PORT }}
-          script: |
-            GROUPE_PATH="${{ secrets.GROUPE_PATH }}"
-
-            echo "Checking deployment status..."
-
-            if [ -d "$GROUPE_PATH/agora-backend" ]; then
-              echo "✓ Backend directory exists"
-              cd "$GROUPE_PATH/agora-backend"
-              if [ -f artisan ]; then
-                echo "✓ Laravel artisan found"
-              fi
-            fi
-
-            if [ -d "$GROUPE_PATH/agora-frontend" ]; then
-              echo "✓ Frontend directory exists"
-              if [ -f "$GROUPE_PATH/agora-frontend/index.html" ]; then
-                echo "✓ Frontend index.html found"
-              fi
-            fi
+          server: ${{ secrets.O2SWITCH_FTP_HOST }}
+          username: ${{ secrets.O2SWITCH_FTP_USER }}
+          password: ${{ secrets.O2SWITCH_FTP_PASSWORD }}
+          local-dir: ./deploy/frontend/
+          server-dir: ${{ secrets.O2SWITCH_FRONTEND_PATH }}/
+          exclude: |
+            **/.git*
+            **/.git*/**
 
       - name: Deployment notification
         if: always()
