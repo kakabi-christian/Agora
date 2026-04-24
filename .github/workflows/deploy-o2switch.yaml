@@ -111,7 +111,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd AgoraFront/Frontend
-          npm ci --legacy-peer-deps
+          npm install --legacy-peer-deps
 
       - name: Build Angular application
         run: |
