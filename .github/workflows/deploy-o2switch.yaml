@@ -32,6 +32,7 @@ jobs:
 
       - name: Copy .env for deployment
         run: |
+          cd agoraCooperative
           cat > .env << EOF
           APP_NAME="Agora Cooperative"
           APP_ENV=production
@@ -106,13 +107,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: AgoraFront/Frontend/package-lock.json
 
       - name: Install dependencies
         run: |
           cd AgoraFront/Frontend
-          npm ci
+          npm ci --legacy-peer-deps
 
       - name: Build Angular application
         run: |
