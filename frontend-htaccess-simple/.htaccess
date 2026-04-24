@@ -1,0 +1,13 @@
+RewriteEngine On
+
+# Simple Angular Router fallback
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/api
+RewriteRule ^(.*)$ /index.html [L]
+
+# Basic security
+<Files ".*">
+    Order Deny,Allow
+    Deny From All
+</Files>

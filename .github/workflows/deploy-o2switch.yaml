@@ -184,9 +184,13 @@ jobs:
           
           cd ../..
           
-          # Copy .htaccess files
+          # Copy .htaccess files (use simple versions for now)
           cp frontend-htaccess/.htaccess deploy/frontend/.htaccess
           cp backend-htaccess/.htaccess deploy/backend/.htaccess
+          
+          # Alternative: use simple versions if issues
+          # cp frontend-htaccess-simple/.htaccess deploy/frontend/.htaccess
+          # cp backend-htaccess-simple/.htaccess deploy/backend/.htaccess
           
           echo "Extracted files and added .htaccess:"
           ls -la deploy/

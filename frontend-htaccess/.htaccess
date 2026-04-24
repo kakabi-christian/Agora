@@ -4,14 +4,17 @@ RewriteEngine On
 # Redirect all requests to index.html for client-side routing
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !^/api/
-RewriteRule ^.*$ /index.html [L]
+RewriteCond %{REQUEST_URI} !^/api
+RewriteCond %{REQUEST_URI} !\.(?:css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ [NC]
+RewriteRule . /index.html [L]
 
 # Security headers
-Header always set X-Content-Type-Options nosniff
-Header always set X-Frame-Options DENY
-Header always set X-XSS-Protection "1; mode=block"
-Header always set Referrer-Policy "strict-origin-when-cross-origin"
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
 
 # Cache static assets
 <IfModule mod_expires.c>
@@ -29,6 +32,7 @@ Header always set Referrer-Policy "strict-origin-when-cross-origin"
     ExpiresByType image/gif "access plus 1 month"
     ExpiresByType image/svg+xml "access plus 1 month"
     ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 month"
     
     # Cache fonts for 1 year
     ExpiresByType font/woff "access plus 1 year"
