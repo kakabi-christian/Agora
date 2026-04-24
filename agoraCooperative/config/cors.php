@@ -9,6 +9,7 @@ return [
         'http://localhost:4200',
         'http://127.0.0.1:4200',
         'https://32db490e1a8e.ngrok-free.app',
+        'https://groupe4.cdwfs.net',
     ],
 
     'allowed_origins_patterns' => ['#^https://.*\.ngrok-free\.app$#'],
