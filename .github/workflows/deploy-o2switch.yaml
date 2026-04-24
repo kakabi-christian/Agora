@@ -1,0 +1,296 @@
+name: Deploy to O2Switch
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches:
+      - master
+      - main
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, filter, gd, json, bcmath
+
+      - name: Copy .env for deployment
+        run: |
+          cat > .env << EOF
+          APP_NAME="Agora Cooperative"
+          APP_ENV=production
+          APP_KEY=${{ secrets.LARAVEL_APP_KEY }}
+          APP_DEBUG=false
+          APP_URL=${{ secrets.APP_URL }}
+
+          LOG_CHANNEL=stack
+          LOG_LEVEL=warning
+
+          DB_CONNECTION=mysql
+          DB_HOST=${{ secrets.DB_HOST }}
+          DB_PORT=${{ secrets.DB_PORT }}
+          DB_DATABASE=${{ secrets.DB_DATABASE }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+
+          CACHE_DRIVER=file
+          QUEUE_CONNECTION=sync
+          SESSION_DRIVER=file
+          EOF
+
+      - name: Install dependencies
+        run: |
+          cd agoraCooperative
+          composer install --prefer-dist --no-progress --no-interaction --no-dev
+
+      - name: Generate key
+        run: |
+          cd agoraCooperative
+          php artisan key:generate
+
+      - name: Optimize application
+        run: |
+          cd agoraCooperative
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+
+      - name: Create backend deployment package
+        run: |
+          mkdir -p backend-deploy
+          tar -czf backend-deploy/agora-backend.tar.gz \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='.github' \
+            --exclude='docker-compose.override.yml' \
+            --exclude='Homestead.json' \
+            --exclude='Homestead.yaml' \
+            --exclude='.idea' \
+            --exclude='.vscode' \
+            --exclude='README.md' \
+            agoraCooperative/
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-artifact
+          path: backend-deploy/agora-backend.tar.gz
+          retention-days: 7
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: AgoraFront/Frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd AgoraFront/Frontend
+          npm ci
+
+      - name: Build Angular application
+        run: |
+          cd AgoraFront/Frontend
+          npm run build -- --configuration production
+
+      - name: Create frontend deployment package
+        run: |
+          mkdir -p frontend-deploy
+          tar -czf frontend-deploy/agora-frontend.tar.gz \
+            -C AgoraFront/Frontend dist/
+          ls -lh frontend-deploy/agora-frontend.tar.gz
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-artifact
+          path: frontend-deploy/agora-frontend.tar.gz
+          retention-days: 7
+
+  deploy-to-o2switch:
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend]
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-artifact
+          path: artifacts/backend
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-artifact
+          path: artifacts/frontend
+
+      - name: Display artifacts
+        run: |
+          echo "Backend artifact:"
+          ls -lh artifacts/backend/
+          echo "Frontend artifact:"
+          ls -lh artifacts/frontend/
+
+      - name: Deploy via SSH (O2Switch)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.O2SWITCH_HOST }}
+          username: ${{ secrets.O2SWITCH_USER }}
+          password: ${{ secrets.O2SWITCH_PASSWORD }}
+          port: ${{ secrets.O2SWITCH_PORT }}
+          script: |
+            # Create deployment directory structure
+            mkdir -p ~/deployment
+            cd ~/deployment
+
+            GROUPE_PATH="${{ secrets.GROUPE_PATH }}"
+
+            echo "=========================================="
+            echo "Starting O2Switch Deployment"
+            echo "=========================================="
+            echo "Deployment timestamp: $(date)"
+            echo "Target path: $GROUPE_PATH"
+
+            # Backup current version
+            if [ -d "$GROUPE_PATH/agora-backend" ]; then
+              echo "Creating backup of current backend..."
+              tar -czf backup-backend-$(date +%Y%m%d_%H%M%S).tar.gz "$GROUPE_PATH/agora-backend/" 2>/dev/null || true
+            fi
+
+            if [ -d "$GROUPE_PATH/agora-frontend" ]; then
+              echo "Creating backup of current frontend..."
+              tar -czf backup-frontend-$(date +%Y%m%d_%H%M%S).tar.gz "$GROUPE_PATH/agora-frontend/" 2>/dev/null || true
+            fi
+
+      - name: Upload artifacts via SFTP
+        uses: Burnett01/rsync-deployments@6.0.0
+        with:
+          switches: -avzr --delete --exclude='.git'
+          path: artifacts/
+          remote_path: ${{ secrets.O2SWITCH_DEPLOY_PATH }}/
+          remote_host: ${{ secrets.O2SWITCH_HOST }}
+          remote_user: ${{ secrets.O2SWITCH_USER }}
+          remote_key: ${{ secrets.O2SWITCH_SSH_KEY }}
+          remote_key_pass: ${{ secrets.O2SWITCH_SSH_KEY_PASS }}
+
+      - name: Extract and configure on O2Switch
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.O2SWITCH_HOST }}
+          username: ${{ secrets.O2SWITCH_USER }}
+          password: ${{ secrets.O2SWITCH_PASSWORD }}
+          port: ${{ secrets.O2SWITCH_PORT }}
+          script: |
+            set -e
+
+            DEPLOY_PATH="${{ secrets.O2SWITCH_DEPLOY_PATH }}"
+            GROUPE_PATH="${{ secrets.GROUPE_PATH }}"
+            BACKEND_PATH="$GROUPE_PATH/agora-backend"
+            FRONTEND_PATH="$GROUPE_PATH/agora-frontend"
+
+            echo "Deploying to $GROUPE_PATH"
+
+            # Deploy Backend
+            if [ -f "$DEPLOY_PATH/backend/agora-backend.tar.gz" ]; then
+              echo "Extracting backend..."
+              mkdir -p $BACKEND_PATH
+              tar -xzf "$DEPLOY_PATH/backend/agora-backend.tar.gz" -C $BACKEND_PATH --strip-components=1
+
+              # Set permissions
+              chmod -R 755 $BACKEND_PATH
+              chmod -R 777 $BACKEND_PATH/storage $BACKEND_PATH/bootstrap/cache
+
+              # Run migrations
+              cd $BACKEND_PATH
+              php artisan migrate --force --no-interaction
+              php artisan cache:clear
+
+              echo "Backend deployed successfully"
+            fi
+
+            # Deploy Frontend
+            if [ -f "$DEPLOY_PATH/frontend/agora-frontend.tar.gz" ]; then
+              echo "Extracting frontend..."
+              mkdir -p $FRONTEND_PATH
+              tar -xzf "$DEPLOY_PATH/frontend/agora-frontend.tar.gz" -C $FRONTEND_PATH --strip-components=1
+
+              # Set permissions
+              chmod -R 755 $FRONTEND_PATH
+
+              echo "Frontend deployed successfully"
+            fi
+
+            # Cleanup old backups (keep last 5)
+            cd ~/deployment
+            ls -1t backup-*.tar.gz 2>/dev/null | tail -n +6 | xargs -r rm
+
+            echo "=========================================="
+            echo "Deployment completed successfully!"
+            echo "=========================================="
+
+      - name: Verify deployment
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.O2SWITCH_HOST }}
+          username: ${{ secrets.O2SWITCH_USER }}
+          password: ${{ secrets.O2SWITCH_PASSWORD }}
+          port: ${{ secrets.O2SWITCH_PORT }}
+          script: |
+            GROUPE_PATH="${{ secrets.GROUPE_PATH }}"
+
+            echo "Checking deployment status..."
+
+            if [ -d "$GROUPE_PATH/agora-backend" ]; then
+              echo "✓ Backend directory exists"
+              cd "$GROUPE_PATH/agora-backend"
+              if [ -f artisan ]; then
+                echo "✓ Laravel artisan found"
+              fi
+            fi
+
+            if [ -d "$GROUPE_PATH/agora-frontend" ]; then
+              echo "✓ Frontend directory exists"
+              if [ -f "$GROUPE_PATH/agora-frontend/index.html" ]; then
+                echo "✓ Frontend index.html found"
+              fi
+            fi
+
+      - name: Deployment notification
+        if: always()
+        run: |
+          echo "Deployment completed at $(date)"
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✓ Deployment successful!"
+            echo "Backend URL: ${{ secrets.BACKEND_URL }}"
+            echo "Frontend URL: ${{ secrets.FRONTEND_URL }}"
+          else
+            echo "✗ Deployment failed!"
+          fi
