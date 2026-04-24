@@ -13,7 +13,7 @@ class EvenementsFactory extends Factory
     public function definition()
     {
         return [
-            'code_evenement' => 'EVT' . strtoupper(Str::random(8)),
+            'code_evenement' => 'EVT'.strtoupper(Str::random(8)),
             'titre' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph(3),
             'date_debut' => $this->faker->dateTimeBetween('+1 week', '+3 months'),

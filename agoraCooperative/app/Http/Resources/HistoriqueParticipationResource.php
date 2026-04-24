@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class HistoriqueParticipationResource extends JsonResource
@@ -9,8 +11,8 @@ class HistoriqueParticipationResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array|Arrayable|\JsonSerializable
      */
     public function toArray($request)
     {
@@ -19,7 +21,7 @@ class HistoriqueParticipationResource extends JsonResource
             'type_participation' => $this->type_participation,
             'titre' => $this->titre,
             'description' => $this->description,
-            'date_participation' => $this->date_participation? $this->date_participation->format('Y-m-d'): null,
+            'date_participation' => $this->date_participation ? $this->date_participation->format('Y-m-d') : null,
             'details' => $this->details,
             'montant_implique' => $this->montant_implique ? number_format($this->montant_implique, 2) : null,
             'heures_contribuees' => $this->heures_contribuees,

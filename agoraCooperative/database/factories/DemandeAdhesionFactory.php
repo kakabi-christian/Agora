@@ -15,7 +15,7 @@ class DemandeAdhesionFactory extends Factory
         return [
             'nom' => $this->faker->name(),
             'email' => $this->faker->unique()->safeEmail(),
-            'telephone' => '+336' . $this->faker->numberBetween(10000000, 99999999),
+            'telephone' => '+336'.$this->faker->numberBetween(10000000, 99999999),
             'date_naissance' => $this->faker->date('Y-m-d', '2000-01-01'),
             'lieu_naissance' => $this->faker->city(),
             'adresse' => $this->faker->address(),
@@ -23,7 +23,7 @@ class DemandeAdhesionFactory extends Factory
             'competences' => $this->faker->words(5, true),
             'disponibilite' => $this->faker->randomElement(['Weekends', 'Soirs', 'Flexible']),
             'statut' => 'en_attente',
-            'reference_demande' => 'REQ' . strtoupper(Str::random(8)),
+            'reference_demande' => 'REQ'.strtoupper(Str::random(8)),
             'motif_rejet' => null,
         ];
     }

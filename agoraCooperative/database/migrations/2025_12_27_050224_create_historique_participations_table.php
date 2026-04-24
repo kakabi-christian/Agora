@@ -26,7 +26,7 @@ class CreateHistoriqueParticipationsTable extends Migration
             $table->integer('heures_contribuees')->nullable();
             $table->string('role')->nullable();
             $table->timestamps();
-            $table->index(['code_membre', 'type_participation', 'date_participation'],'idx_hist_participations');
+            $table->index(['code_membre', 'type_participation', 'date_participation'], 'idx_hist_participations');
         });
     }
 

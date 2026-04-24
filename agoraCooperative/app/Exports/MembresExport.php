@@ -4,10 +4,10 @@ namespace App\Exports;
 
 use App\Models\Membre;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class MembresExport
 {
@@ -20,7 +20,7 @@ class MembresExport
             ->orderBy('date_inscription', 'desc')
             ->get();
 
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
 
         // Titre du document
@@ -28,9 +28,9 @@ class MembresExport
         $sheet->mergeCells('A1:J1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        
+
         // Date de génération
-        $sheet->setCellValue('A2', 'Généré le : ' . now()->format('d/m/Y à H:i'));
+        $sheet->setCellValue('A2', 'Généré le : '.now()->format('d/m/Y à H:i'));
         $sheet->mergeCells('A2:J2');
         $sheet->getStyle('A2')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
@@ -45,7 +45,7 @@ class MembresExport
             'G4' => 'Rôle',
             'H4' => 'Statut',
             'I4' => 'Date Inscription',
-            'J4' => 'Compétences'
+            'J4' => 'Compétences',
         ];
 
         foreach ($headers as $cell => $value) {
@@ -57,58 +57,58 @@ class MembresExport
             'font' => [
                 'bold' => true,
                 'color' => ['rgb' => 'FFFFFF'],
-                'size' => 12
+                'size' => 12,
             ],
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
-                'startColor' => ['rgb' => '4472C4']
+                'startColor' => ['rgb' => '4472C4'],
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical' => Alignment::VERTICAL_CENTER
+                'vertical' => Alignment::VERTICAL_CENTER,
             ],
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['rgb' => '000000']
-                ]
-            ]
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
         ]);
 
         // Données des membres
         $row = 5;
         foreach ($membres as $membre) {
-            $sheet->setCellValue('A' . $row, $membre->code_membre);
-            $sheet->setCellValue('B' . $row, $membre->nom);
-            $sheet->setCellValue('C' . $row, $membre->prenom);
-            $sheet->setCellValue('D' . $row, $membre->email);
-            $sheet->setCellValue('E' . $row, $membre->telephone ?? 'N/A');
-            $sheet->setCellValue('F' . $row, $membre->ville ?? 'N/A');
-            $sheet->setCellValue('G' . $row, ucfirst($membre->role));
-            $sheet->setCellValue('H' . $row, $membre->est_actif ? 'Actif' : 'Inactif');
-            $sheet->setCellValue('I' . $row, $membre->date_inscription ? $membre->date_inscription->format('d/m/Y') : 'N/A');
-            $sheet->setCellValue('J' . $row, $membre->profil ? $membre->profil->competences : 'N/A');
+            $sheet->setCellValue('A'.$row, $membre->code_membre);
+            $sheet->setCellValue('B'.$row, $membre->nom);
+            $sheet->setCellValue('C'.$row, $membre->prenom);
+            $sheet->setCellValue('D'.$row, $membre->email);
+            $sheet->setCellValue('E'.$row, $membre->telephone ?? 'N/A');
+            $sheet->setCellValue('F'.$row, $membre->ville ?? 'N/A');
+            $sheet->setCellValue('G'.$row, ucfirst($membre->role));
+            $sheet->setCellValue('H'.$row, $membre->est_actif ? 'Actif' : 'Inactif');
+            $sheet->setCellValue('I'.$row, $membre->date_inscription ? $membre->date_inscription->format('d/m/Y') : 'N/A');
+            $sheet->setCellValue('J'.$row, $membre->profil ? $membre->profil->competences : 'N/A');
 
             // Style des lignes de données
-            $sheet->getStyle('A' . $row . ':J' . $row)->applyFromArray([
+            $sheet->getStyle('A'.$row.':J'.$row)->applyFromArray([
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['rgb' => 'CCCCCC']
-                    ]
+                        'color' => ['rgb' => 'CCCCCC'],
+                    ],
                 ],
                 'alignment' => [
-                    'vertical' => Alignment::VERTICAL_CENTER
-                ]
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
             ]);
 
             // Couleur alternée pour les lignes
             if ($row % 2 == 0) {
-                $sheet->getStyle('A' . $row . ':J' . $row)->applyFromArray([
+                $sheet->getStyle('A'.$row.':J'.$row)->applyFromArray([
                     'fill' => [
                         'fillType' => Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => 'F2F2F2']
-                    ]
+                        'startColor' => ['rgb' => 'F2F2F2'],
+                    ],
                 ]);
             }
 
@@ -129,25 +129,25 @@ class MembresExport
 
         // Statistiques en bas
         $statsRow = $row + 2;
-        $sheet->setCellValue('A' . $statsRow, 'STATISTIQUES');
-        $sheet->mergeCells('A' . $statsRow . ':B' . $statsRow);
-        $sheet->getStyle('A' . $statsRow)->getFont()->setBold(true);
+        $sheet->setCellValue('A'.$statsRow, 'STATISTIQUES');
+        $sheet->mergeCells('A'.$statsRow.':B'.$statsRow);
+        $sheet->getStyle('A'.$statsRow)->getFont()->setBold(true);
 
         $statsRow++;
-        $sheet->setCellValue('A' . $statsRow, 'Total membres :');
-        $sheet->setCellValue('B' . $statsRow, $membres->count());
-        
+        $sheet->setCellValue('A'.$statsRow, 'Total membres :');
+        $sheet->setCellValue('B'.$statsRow, $membres->count());
+
         $statsRow++;
-        $sheet->setCellValue('A' . $statsRow, 'Membres actifs :');
-        $sheet->setCellValue('B' . $statsRow, $membres->where('est_actif', true)->count());
-        
+        $sheet->setCellValue('A'.$statsRow, 'Membres actifs :');
+        $sheet->setCellValue('B'.$statsRow, $membres->where('est_actif', true)->count());
+
         $statsRow++;
-        $sheet->setCellValue('A' . $statsRow, 'Membres inactifs :');
-        $sheet->setCellValue('B' . $statsRow, $membres->where('est_actif', false)->count());
-        
+        $sheet->setCellValue('A'.$statsRow, 'Membres inactifs :');
+        $sheet->setCellValue('B'.$statsRow, $membres->where('est_actif', false)->count());
+
         $statsRow++;
-        $sheet->setCellValue('A' . $statsRow, 'Administrateurs :');
-        $sheet->setCellValue('B' . $statsRow, $membres->where('role', 'administrateur')->count());
+        $sheet->setCellValue('A'.$statsRow, 'Administrateurs :');
+        $sheet->setCellValue('B'.$statsRow, $membres->where('role', 'administrateur')->count());
 
         return $spreadsheet;
     }
@@ -158,13 +158,13 @@ class MembresExport
     public function download()
     {
         $spreadsheet = $this->export();
-        
+
         $writer = new Xlsx($spreadsheet);
-        $filename = 'liste-membres-' . now()->format('Y-m-d-His') . '.xlsx';
+        $filename = 'liste-membres-'.now()->format('Y-m-d-His').'.xlsx';
         $tempFile = tempnam(sys_get_temp_dir(), $filename);
-        
+
         $writer->save($tempFile);
-        
+
         return response()->download($tempFile, $filename)->deleteFileAfterSend(true);
     }
 }

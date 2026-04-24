@@ -2,9 +2,12 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\Membre;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\NewAccessToken;
+use Tests\TestCase;
 
 class MembreTest extends TestCase
 {
@@ -25,7 +28,7 @@ class MembreTest extends TestCase
 
     public function test_membre_fillable_attributes()
     {
-        $membre = new Membre();
+        $membre = new Membre;
 
         $fillable = $membre->getFillable();
 
@@ -42,7 +45,7 @@ class MembreTest extends TestCase
             'ville',
             'code_postal',
             'biographie',
-            'photo_url'
+            'photo_url',
         ];
 
         foreach ($expectedFillable as $attribute) {
@@ -52,13 +55,13 @@ class MembreTest extends TestCase
 
     public function test_membre_hidden_attributes()
     {
-        $membre = new Membre();
+        $membre = new Membre;
 
         $hidden = $membre->getHidden();
 
         $expectedHidden = [
             'mot_de_passe',
-            'remember_token'
+            'remember_token',
         ];
 
         foreach ($expectedHidden as $attribute) {
@@ -113,18 +116,18 @@ class MembreTest extends TestCase
     public function test_membre_code_membre_is_unique()
     {
         $membre1 = Membre::factory()->create();
-        
-        $this->expectException(\Illuminate\Database\QueryException::class);
-        
+
+        $this->expectException(QueryException::class);
+
         Membre::factory()->create(['code_membre' => $membre1->code_membre]);
     }
 
     public function test_membre_email_is_unique()
     {
         $membre1 = Membre::factory()->create(['email' => 'test@example.com']);
-        
-        $this->expectException(\Illuminate\Database\QueryException::class);
-        
+
+        $this->expectException(QueryException::class);
+
         Membre::factory()->create(['email' => 'test@example.com']);
     }
 
@@ -133,7 +136,7 @@ class MembreTest extends TestCase
         $membre = Membre::factory()->create();
         $token = $membre->createToken('test-token');
 
-        $this->assertInstanceOf(\Laravel\Sanctum\NewAccessToken::class, $token);
+        $this->assertInstanceOf(NewAccessToken::class, $token);
         $this->assertNotNull($token->accessToken);
         $this->assertEquals($membre->code_membre, $token->accessToken->tokenable_id);
     }
@@ -143,16 +146,16 @@ class MembreTest extends TestCase
         $membre = Membre::factory()->create();
         $token = $membre->createToken('test-token');
 
-        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\MorphMany::class, $membre->tokens());
+        $this->assertInstanceOf(MorphMany::class, $membre->tokens());
         $this->assertCount(1, $membre->tokens);
     }
 
     public function test_membre_soft_delete()
     {
         $membre = Membre::factory()->create();
-        
+
         $membre->delete();
-        
+
         $this->assertSoftDeleted('membres', ['code_membre' => $membre->code_membre]);
         $this->assertNotNull($membre->deleted_at);
     }

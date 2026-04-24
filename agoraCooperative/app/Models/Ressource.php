@@ -49,7 +49,7 @@ class Ressource extends Model
         // Utilisation de code_membre comme clé étrangère et clé locale
         return $this->belongsTo(Membre::class, 'code_membre', 'code_membre');
     }
-    
+
     /**
      * Alias pour la relation uploader.
      */

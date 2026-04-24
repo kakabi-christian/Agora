@@ -2,16 +2,18 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class DemandeAdhesionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array|Arrayable|\JsonSerializable
      */
     public function toArray($request)
     {
@@ -21,7 +23,7 @@ class DemandeAdhesionResource extends JsonResource
             'prenom' => $this->prenom,
             'email' => $this->email,
             'telephone' => $this->telephone,
-            
+
             // --- CHAMPS AJOUTÉS POUR L'AFFICHAGE SUR LES CARTES ---
             'profession' => $this->profession,
             'date_naissance' => $this->date_naissance,
@@ -33,11 +35,11 @@ class DemandeAdhesionResource extends JsonResource
             'motivation' => $this->motivation,
             'competences' => $this->competences,
             'statut' => $this->statut,
-            
+
             // Formatage sécurisé des dates
             'date_demande' => $this->formatDate($this->date_demande),
             'date_traitement' => $this->formatDate($this->date_traitement),
-            
+
             'admin_traitant' => new MembreResource($this->whenLoaded('adminTraitant')),
             'commentaire_admin' => $this->commentaire_admin,
             'membre_cree' => new MembreResource($this->whenLoaded('membreCree')),
@@ -49,7 +51,10 @@ class DemandeAdhesionResource extends JsonResource
      */
     private function formatDate($date)
     {
-        if (!$date) return null;
+        if (! $date) {
+            return null;
+        }
+
         return $date instanceof Carbon ? $date->format('Y-m-d H:i:s') : Carbon::parse($date)->format('Y-m-d H:i:s');
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Membre;
 use App\Models\Participation_projets;
 use App\Models\Projets;
-use App\Models\Membre;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class Participation_projetsFactory extends Factory

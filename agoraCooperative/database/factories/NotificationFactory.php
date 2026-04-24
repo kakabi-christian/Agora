@@ -110,7 +110,7 @@ class NotificationFactory extends Factory
     public function urgent()
     {
         return $this->state(fn (array $attributes) => [
-            'titre' => 'URGENT: ' . $this->faker->sentence(3),
+            'titre' => 'URGENT: '.$this->faker->sentence(3),
             'type' => 'system',
         ]);
     }

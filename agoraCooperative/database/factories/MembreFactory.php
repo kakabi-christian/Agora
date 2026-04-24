@@ -13,7 +13,7 @@ class MembreFactory extends Factory
     public function definition()
     {
         return [
-            'code_membre' => 'MBR' . strtoupper(Str::random(8)),
+            'code_membre' => 'MBR'.strtoupper(Str::random(8)),
             'nom' => $this->faker->lastName(),
             'prenom' => $this->faker->firstName(),
             'email' => $this->faker->unique()->safeEmail(),
@@ -21,7 +21,7 @@ class MembreFactory extends Factory
             'date_inscription' => $this->faker->date(),
             'role' => 'membre',
             'est_actif' => true,
-            'telephone' => '+336' . $this->faker->numberBetween(10000000, 99999999),
+            'telephone' => '+336'.$this->faker->numberBetween(10000000, 99999999),
             'adresse' => $this->faker->address(),
             'ville' => $this->faker->city(),
             'code_postal' => $this->faker->postcode(),

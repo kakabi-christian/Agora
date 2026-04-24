@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\EvenementRequest;
 use App\Models\Evenements;
 use Illuminate\Http\Request;
-use App\Http\Requests\EvenementRequest;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EvenementController extends Controller
 {
@@ -21,7 +21,7 @@ class EvenementController extends Controller
 
         return response()->json([
             'message' => 'Liste des événements',
-            'evenements' => $evenements
+            'evenements' => $evenements,
         ], 200);
     }
 
@@ -30,52 +30,53 @@ class EvenementController extends Controller
      */
     public function store(EvenementRequest $request)
     {
-        Log::info("=== DÉBUT CRÉATION ÉVÉNEMENT ===");
+        Log::info('=== DÉBUT CRÉATION ÉVÉNEMENT ===');
         $data = $request->validated();
-        Log::info("Données validées :", $data);
+        Log::info('Données validées :', $data);
 
         try {
             $data['code_evenement'] = $this->generateUniqueCode();
 
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
+                $filename = Str::uuid().'.'.$image->getClientOriginalExtension();
                 $image->storeAs('public/evenements', $filename);
-                $data['image_url'] = 'storage/evenements/' . $filename;
-                Log::info("Image enregistrée : " . $data['image_url']);
+                $data['image_url'] = 'storage/evenements/'.$filename;
+                Log::info('Image enregistrée : '.$data['image_url']);
             }
 
             $data['paiement_obligatoire'] = $request->boolean('paiement_obligatoire');
 
             $evenement = Evenements::create($data);
-            Log::info("Succès ! Événement créé : " . $evenement->code_evenement);
+            Log::info('Succès ! Événement créé : '.$evenement->code_evenement);
 
             return response()->json([
                 'message' => 'Événement créé avec succès',
-                'evenement' => $evenement
+                'evenement' => $evenement,
             ], 201);
         } catch (\Exception $e) {
-            Log::error("Erreur Store : " . $e->getMessage());
+            Log::error('Erreur Store : '.$e->getMessage());
+
             return response()->json(['error' => 'Erreur lors de la création'], 500);
         }
     }
 
     /**
      * MISE À JOUR (Update)
-     * Note: Laravel gère mal le FormData avec la méthode PUT, 
+     * Note: Laravel gère mal le FormData avec la méthode PUT,
      * utilise POST avec le champ _method=PUT ou reste en POST pour les uploads.
      */
     public function update(Request $request, string $code_evenement)
     {
         Log::info("=== DÉBUT MISE À JOUR ÉVÉNEMENT : $code_evenement ===");
-        
+
         $evenement = Evenements::where('code_evenement', $code_evenement)->first();
 
-        if (!$evenement) {
+        if (! $evenement) {
             return response()->json(['message' => 'Événement non trouvé'], 404);
         }
 
-        // Pour l'update, on valide manuellement ou on utilise une Request différente 
+        // Pour l'update, on valide manuellement ou on utilise une Request différente
         // car le code_evenement doit ignorer l'ID actuel pour l'unique
         $data = $request->all();
 
@@ -87,9 +88,9 @@ class EvenementController extends Controller
                 }
 
                 $image = $request->file('image');
-                $filename = Str::uuid() . '.' . $image->getClientOriginalExtension();
+                $filename = Str::uuid().'.'.$image->getClientOriginalExtension();
                 $image->storeAs('public/evenements', $filename);
-                $data['image_url'] = 'storage/evenements/' . $filename;
+                $data['image_url'] = 'storage/evenements/'.$filename;
             }
 
             if (isset($data['paiement_obligatoire'])) {
@@ -97,14 +98,15 @@ class EvenementController extends Controller
             }
 
             $evenement->update($data);
-            Log::info("Mise à jour réussie pour : " . $evenement->code_evenement);
+            Log::info('Mise à jour réussie pour : '.$evenement->code_evenement);
 
             return response()->json([
                 'message' => 'Événement mis à jour avec succès',
-                'evenement' => $evenement
+                'evenement' => $evenement,
             ], 200);
         } catch (\Exception $e) {
-            Log::error("Erreur Update : " . $e->getMessage());
+            Log::error('Erreur Update : '.$e->getMessage());
+
             return response()->json(['error' => 'Erreur lors de la mise à jour'], 500);
         }
     }
@@ -115,11 +117,12 @@ class EvenementController extends Controller
     public function destroy(string $code_evenement)
     {
         Log::info("=== TENTATIVE SUPPRESSION : $code_evenement ===");
-        
+
         $evenement = Evenements::where('code_evenement', $code_evenement)->first();
 
-        if (!$evenement) {
+        if (! $evenement) {
             Log::warning("Échec suppression : Événement $code_evenement introuvable");
+
             return response()->json(['message' => 'Événement non trouvé'], 404);
         }
 
@@ -134,7 +137,8 @@ class EvenementController extends Controller
 
             return response()->json(['message' => 'Événement supprimé avec succès'], 200);
         } catch (\Exception $e) {
-            Log::error("Erreur Destroy : " . $e->getMessage());
+            Log::error('Erreur Destroy : '.$e->getMessage());
+
             return response()->json(['error' => 'Erreur lors de la suppression'], 500);
         }
     }
@@ -145,7 +149,8 @@ class EvenementController extends Controller
     public function show(string $code_evenement)
     {
         $evenement = Evenements::where('code_evenement', $code_evenement)->first();
-        return $evenement 
+
+        return $evenement
             ? response()->json(['evenement' => $evenement], 200)
             : response()->json(['message' => 'Non trouvé'], 404);
     }
@@ -169,7 +174,8 @@ class EvenementController extends Controller
 
             return response()->json(['evenements' => $evenements], 200);
         } catch (\Exception $e) {
-            Log::error("Erreur Upcoming : " . $e->getMessage());
+            Log::error('Erreur Upcoming : '.$e->getMessage());
+
             return response()->json(['error' => 'Erreur serveur'], 500);
         }
     }
@@ -180,8 +186,9 @@ class EvenementController extends Controller
     private function generateUniqueCode()
     {
         do {
-            $code = 'EVT-' . strtoupper(Str::random(8));
+            $code = 'EVT-'.strtoupper(Str::random(8));
         } while (Evenements::where('code_evenement', $code)->exists());
+
         return $code;
     }
 }

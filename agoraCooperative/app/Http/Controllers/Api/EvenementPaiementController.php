@@ -29,36 +29,36 @@ class EvenementPaiementController extends Controller
     {
         $membre = $request->user();
 
-        // Vérification de l'inscription 
+        // Vérification de l'inscription
         $inscription = Inscription_events::where('code_membre', $membre->code_membre)
             ->where('code_evenement', $code_evenement)
             ->first();
 
-        if (!$inscription) {
+        if (! $inscription) {
             return response()->json([
-                'message' => 'Vous devez d\'abord vous inscrire à cet événement.'
+                'message' => 'Vous devez d\'abord vous inscrire à cet événement.',
             ], 404);
         }
 
         if ($inscription->statut_paiement === 'paye') {
             return response()->json([
-                'message' => 'Cette inscription est déjà payée.'
+                'message' => 'Cette inscription est déjà payée.',
             ], 422);
         }
 
         // Récupérer l'événement
         $evenement = Evenements::where('code_evenement', $code_evenement)->first();
 
-        if (!$evenement || $evenement->frais_inscription <= 0) {
+        if (! $evenement || $evenement->frais_inscription <= 0) {
             return response()->json([
-                'message' => 'Cet événement est gratuit, aucun paiement requis.'
+                'message' => 'Cet événement est gratuit, aucun paiement requis.',
             ], 422);
         }
 
         // Vérifier que le membre a un numéro de téléphone
-        if (!$membre->telephone) {
+        if (! $membre->telephone) {
             return response()->json([
-                'message' => 'Veuillez ajouter un numéro de téléphone à votre profil pour effectuer le paiement.'
+                'message' => 'Veuillez ajouter un numéro de téléphone à votre profil pour effectuer le paiement.',
             ], 422);
         }
 
@@ -66,8 +66,8 @@ class EvenementPaiementController extends Controller
         $reference = $this->campay->generateReference('EVT');
 
         // Créer l'enregistrement paiement
-        $codePaiement = 'PAY-' . date('Ymd') . '-' . strtoupper(Str::random(6));
-        
+        $codePaiement = 'PAY-'.date('Ymd').'-'.strtoupper(Str::random(6));
+
         $paiement = Paiement::create([
             'code_paiement' => $codePaiement,
             'code_membre' => $membre->code_membre,
@@ -91,9 +91,9 @@ class EvenementPaiementController extends Controller
             'phone' => $membre->telephone,
         ]);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             $paiement->update(['statut' => 'erreur']);
-            
+
             return response()->json([
                 'message' => $result['message'],
                 'errors' => $result['errors'] ?? [],
@@ -132,9 +132,9 @@ class EvenementPaiementController extends Controller
     {
         $paiement = Paiement::where('reference', $reference)->first();
 
-        if (!$paiement) {
+        if (! $paiement) {
             return response()->json([
-                'message' => 'Paiement non trouvé.'
+                'message' => 'Paiement non trouvé.',
             ], 404);
         }
 
@@ -153,7 +153,7 @@ class EvenementPaiementController extends Controller
 
         if ($result['success']) {
             $nouveauStatut = $this->campay->mapStatus($result['status']);
-            
+
             if ($nouveauStatut !== $paiement->statut) {
                 $this->updatePaiementStatus($paiement, $nouveauStatut, $result['transaction']);
             }
@@ -193,7 +193,7 @@ class EvenementPaiementController extends Controller
                     ->first();
 
                 if ($inscription) {
-                    $statutPaiement = $statut === 'paye' ? 'paye' : 
+                    $statutPaiement = $statut === 'paye' ? 'paye' :
                         ($statut === 'annule' ? 'annule' : 'en_attente');
 
                     $inscription->update([

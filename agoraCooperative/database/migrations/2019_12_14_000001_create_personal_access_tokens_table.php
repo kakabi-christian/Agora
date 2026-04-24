@@ -20,8 +20,8 @@ class CreatePersonalAccessTokensTable extends Migration
             // $table->morphs('tokenable');
 
             // ✅ version STRING compatible avec ADMIN001
-            $table->string('tokenable_type',150);
-            $table->string('tokenable_id',100);
+            $table->string('tokenable_type', 150);
+            $table->string('tokenable_id', 100);
 
             $table->string('name');
             $table->string('token', 64)->unique();

@@ -2,17 +2,18 @@
 
 namespace Database\Factories;
 
+use App\Models\Membres;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 
 class MembresFactory extends Factory
 {
-    protected $model = \App\Models\Membres::class;
+    protected $model = Membres::class;
 
     public function definition()
     {
         $password = 'tkkc2006'; // mot de passe par défaut
+
         return [
             'code_membre' => strtoupper($this->faker->unique()->bothify('MBR###')),
             'nom' => $this->faker->lastName(),

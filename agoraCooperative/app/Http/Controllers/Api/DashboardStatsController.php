@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Membre;
-use App\Models\Evenements;
-use App\Models\Projets;
-use App\Models\Partenaire;
 use App\Models\Don;
+use App\Models\Evenements;
+use App\Models\Membre;
+use App\Models\Partenaire;
+use App\Models\Projets;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class DashboardStatsController extends Controller
@@ -31,14 +30,15 @@ class DashboardStatsController extends Controller
 
             return response()->json([
                 'message' => 'Statistiques récupérées avec succès',
-                'stats' => $stats
+                'stats' => $stats,
             ], 200);
 
         } catch (\Exception $e) {
-            Log::error('Erreur récupération stats dashboard: ' . $e->getMessage());
+            Log::error('Erreur récupération stats dashboard: '.$e->getMessage());
+
             return response()->json([
                 'message' => 'Erreur lors de la récupération des statistiques',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -81,7 +81,7 @@ class DashboardStatsController extends Controller
 
         return [
             'total' => Projets::whereIn('statut', ['termine'])->count(),
-            //'en_cours' => Projets::where('statut', 'en_cours')->count(),
+            // 'en_cours' => Projets::where('statut', 'en_cours')->count(),
             'recents' => $projetsRecents,
         ];
     }
@@ -92,7 +92,7 @@ class DashboardStatsController extends Controller
     private function getEvenementsStats(): array
     {
         $now = now();
-        
+
         // Auto-mise à jour des événements terminés
         Evenements::where('date_fin', '<', $now)
             ->whereNotIn('statut', ['termine', 'annule'])
@@ -165,7 +165,7 @@ class DashboardStatsController extends Controller
     {
         try {
             $now = now();
-            
+
             $partenaires = Partenaire::where('est_actif', true)
                 ->where(function ($query) use ($now) {
                     $query->whereNull('date_fin')
@@ -188,14 +188,15 @@ class DashboardStatsController extends Controller
 
             return response()->json([
                 'message' => 'Partenaires actifs récupérés',
-                'partenaires' => $partenaires
+                'partenaires' => $partenaires,
             ], 200);
 
         } catch (\Exception $e) {
-            Log::error('Erreur récupération partenaires: ' . $e->getMessage());
+            Log::error('Erreur récupération partenaires: '.$e->getMessage());
+
             return response()->json([
                 'message' => 'Erreur lors de la récupération des partenaires',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

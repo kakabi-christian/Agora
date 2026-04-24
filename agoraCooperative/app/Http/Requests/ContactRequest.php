@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class ContactRequest extends FormRequest
@@ -13,7 +13,7 @@ class ContactRequest extends FormRequest
      */
     public function authorize()
     {
-        return true; 
+        return true;
     }
 
     /**
@@ -22,13 +22,13 @@ class ContactRequest extends FormRequest
     public function rules()
     {
         return [
-            'nom_expediteur'   => 'required|string|max:255',
-            'email_expediteur'  => 'required|email|max:255',
-            'sujet'            => 'required|string|max:255',
-            'message'          => 'required|string',
-            'type_demande'     => 'required|in:information,support,partenariat,autre',
-            'telephone'        => 'nullable|string|max:20',
-            'code_membre'      => 'nullable|exists:membres,code_membre',
+            'nom_expediteur' => 'required|string|max:255',
+            'email_expediteur' => 'required|email|max:255',
+            'sujet' => 'required|string|max:255',
+            'message' => 'required|string',
+            'type_demande' => 'required|in:information,support,partenariat,autre',
+            'telephone' => 'nullable|string|max:20',
+            'code_membre' => 'nullable|exists:membres,code_membre',
         ];
     }
 
@@ -50,7 +50,7 @@ class ContactRequest extends FormRequest
     {
         throw new HttpResponseException(response()->json([
             'success' => false,
-            'errors'  => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 }

@@ -2,10 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\Evenements;
-use App\Models\Membre;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SimpleEventTest extends TestCase
 {
@@ -96,7 +95,7 @@ class SimpleEventTest extends TestCase
         $response = $this->deleteJson("/api/admin/evenements/{$event->code_evenement}");
 
         $response->assertStatus(200);
-        
+
         $this->assertSoftDeleted('evenements', ['code_evenement' => $event->code_evenement]);
     }
 }

@@ -11,7 +11,7 @@ class PasswordResetOtpRequest extends FormRequest
      */
     public function authorize()
     {
-        return true; 
+        return true;
     }
 
     /**
@@ -31,8 +31,8 @@ class PasswordResetOtpRequest extends FormRequest
     {
         return [
             'email.required' => 'L\'adresse email est obligatoire.',
-            'email.email'    => 'Veuillez entrer une adresse email valide.',
-            'email.exists'   => 'Aucun compte n\'est associé à cet email.',
+            'email.email' => 'Veuillez entrer une adresse email valide.',
+            'email.exists' => 'Aucun compte n\'est associé à cet email.',
         ];
     }
 }

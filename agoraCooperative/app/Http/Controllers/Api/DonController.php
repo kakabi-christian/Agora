@@ -69,7 +69,7 @@ class DonController extends Controller
     {
         $don = Don::with('membre')->find($id);
 
-        if (!$don) {
+        if (! $don) {
             return response()->json(['message' => 'Don non trouvé.'], 404);
         }
 
@@ -85,87 +85,87 @@ class DonController extends Controller
     {
         $don = Don::find($id);
 
-        if (!$don) {
+        if (! $don) {
             return response()->json(['message' => 'Don non trouvé.'], 404);
         }
 
-        if ($don->statut_paiement !== 'paye' || !$don->numero_recu) {
+        if ($don->statut_paiement !== 'paye' || ! $don->numero_recu) {
             return response()->json(['message' => 'Reçu non disponible. Le don doit être payé.'], 422);
         }
 
         return $this->pdfService->telechargerRecuDon($don);
     }
 
-/**
- * Retourne le montant total de TOUS les dons cumulés.
- * Gère le déchiffrement automatique via Eloquent Casts.
- */
-public function getTotalDons(): JsonResponse
-{
-    $startTime = microtime(true);
-    $userId = auth()->id() ?? 'Invité/Admin';
+    /**
+     * Retourne le montant total de TOUS les dons cumulés.
+     * Gère le déchiffrement automatique via Eloquent Casts.
+     */
+    public function getTotalDons(): JsonResponse
+    {
+        $startTime = microtime(true);
+        $userId = auth()->id() ?? 'Invité/Admin';
 
-    Log::info("💰 [DON_TOTAL] Début du calcul du revenu global.", [
-        'user_id' => $userId,
-        'ip' => request()->ip()
-    ]);
+        Log::info('💰 [DON_TOTAL] Début du calcul du revenu global.', [
+            'user_id' => $userId,
+            'ip' => request()->ip(),
+        ]);
 
-    try {
-        // On récupère uniquement les colonnes nécessaires pour économiser la mémoire
-        // Le cast 'encrypted' déchiffre automatiquement le montant à l'accès
-        $dons = Don::select('id', 'montant', 'statut_paiement')->get();
-        
-        $count = $dons->count();
-        $totalGlobal = 0;
-        $erreursDechiffrement = 0;
+        try {
+            // On récupère uniquement les colonnes nécessaires pour économiser la mémoire
+            // Le cast 'encrypted' déchiffre automatiquement le montant à l'accès
+            $dons = Don::select('id', 'montant', 'statut_paiement')->get();
 
-        Log::debug("🔍 [DON_TOTAL] Analyse de {$count} enregistrements en base de données.");
+            $count = $dons->count();
+            $totalGlobal = 0;
+            $erreursDechiffrement = 0;
 
-        foreach ($dons as $don) {
-            try {
-                // L'accès à $don->montant déclenche le déchiffrement
-                $totalGlobal += (float) ($don->montant ?? 0);
-            } catch (\Exception $decryptEx) {
-                $erreursDechiffrement++;
-                Log::error("⚠️ [DON_TOTAL] Erreur de déchiffrement sur le Don ID: {$don->id}", [
-                    'message' => $decryptEx->getMessage()
-                ]);
+            Log::debug("🔍 [DON_TOTAL] Analyse de {$count} enregistrements en base de données.");
+
+            foreach ($dons as $don) {
+                try {
+                    // L'accès à $don->montant déclenche le déchiffrement
+                    $totalGlobal += (float) ($don->montant ?? 0);
+                } catch (\Exception $decryptEx) {
+                    $erreursDechiffrement++;
+                    Log::error("⚠️ [DON_TOTAL] Erreur de déchiffrement sur le Don ID: {$don->id}", [
+                        'message' => $decryptEx->getMessage(),
+                    ]);
+                }
             }
+
+            $execTime = round(microtime(true) - $startTime, 3);
+
+            // Log de succès avec résumé
+            Log::notice('✅ [DON_TOTAL] Calcul terminé avec succès.', [
+                'montant_total' => $totalGlobal,
+                'nombre_dons' => $count,
+                'erreurs_dechiffrement' => $erreursDechiffrement,
+                'temps_execution' => "{$execTime}s",
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'total_general' => (float) $totalGlobal,
+                'devise' => 'FCFA',
+                'meta' => [
+                    'count' => $count,
+                    'errors' => $erreursDechiffrement,
+                    'execution_time' => $execTime,
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            Log::critical('❌ [DON_TOTAL] Erreur fatale lors du calcul !', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Une erreur technique est survenue lors de l\'agrégation des dons.',
+            ], 500);
         }
-
-        $execTime = round(microtime(true) - $startTime, 3);
-
-        // Log de succès avec résumé
-        Log::notice("✅ [DON_TOTAL] Calcul terminé avec succès.", [
-            'montant_total' => $totalGlobal,
-            'nombre_dons' => $count,
-            'erreurs_dechiffrement' => $erreursDechiffrement,
-            'temps_execution' => "{$execTime}s"
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'total_general' => (float) $totalGlobal,
-            'devise' => 'FCFA',
-            'meta' => [
-                'count' => $count,
-                'errors' => $erreursDechiffrement,
-                'execution_time' => $execTime
-            ]
-        ]);
-
-    } catch (\Exception $e) {
-        Log::critical("❌ [DON_TOTAL] Erreur fatale lors du calcul !", [
-            'error' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Une erreur technique est survenue lors de l\'agrégation des dons.'
-        ], 500);
     }
-}
 }

@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\ContactMessage;
 use App\Http\Requests\ContactRequest;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
 use App\Mail\ContactReplyMail;
-use Illuminate\Support\Facades\Mail; // <--- AJOUTE ÇA
-use Illuminate\Support\Facades\Log; // Import indispensable pour les logs
+use App\Models\ContactMessage;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log; // <--- AJOUTE ÇA
+use Illuminate\Support\Facades\Mail; // Import indispensable pour les logs
 
 class ContactMessageController extends Controller
 {
@@ -20,7 +20,7 @@ class ContactMessageController extends Controller
     {
         // On récupère 15 messages par page, triés du plus récent au plus ancien
         $messages = ContactMessage::orderBy('created_at', 'desc')->paginate(15);
-        
+
         return response()->json($messages);
     }
 
@@ -33,7 +33,7 @@ class ContactMessageController extends Controller
 
         return response()->json([
             'message' => 'Message envoyé avec succès',
-            'data' => $contact
+            'data' => $contact,
         ], 201);
     }
 
@@ -42,10 +42,10 @@ class ContactMessageController extends Controller
      */
     public function show(ContactMessage $contactMessage)
     {
-        if (!$contactMessage->lu) {
+        if (! $contactMessage->lu) {
             $contactMessage->update([
                 'lu' => true,
-                'date_lu' => Carbon::now()
+                'date_lu' => Carbon::now(),
             ]);
         }
 
@@ -58,6 +58,7 @@ class ContactMessageController extends Controller
     public function unreadCount()
     {
         $count = ContactMessage::where('lu', false)->count();
+
         return response()->json(['unread_count' => $count]);
     }
 
@@ -68,7 +69,7 @@ class ContactMessageController extends Controller
     {
         ContactMessage::where('lu', false)->update([
             'lu' => true,
-            'date_lu' => Carbon::now()
+            'date_lu' => Carbon::now(),
         ]);
 
         return response()->json(['message' => 'Tous les messages ont été marqués comme lus.']);
@@ -77,57 +78,57 @@ class ContactMessageController extends Controller
     /**
      * Mettre à jour (ex: pour la réponse de l'admin)
      */
-  public function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
         Log::info("--- DÉBUT PROCESSUS RÉPONSE CONTACT ID: $id ---");
 
         try {
             // 1. Recherche du message
-            Log::info("Recherche du message en base de données...");
+            Log::info('Recherche du message en base de données...');
             $contactMessage = ContactMessage::findOrFail($id);
-            Log::info("Message trouvé. Email destinataire: " . $contactMessage->email_expediteur);
+            Log::info('Message trouvé. Email destinataire: '.$contactMessage->email_expediteur);
 
             // 2. Validation
-            Log::info("Validation des données entrantes...");
+            Log::info('Validation des données entrantes...');
             $request->validate([
                 'reponse' => 'required|string',
             ]);
-            Log::info("Validation réussie.");
+            Log::info('Validation réussie.');
 
             // 3. Mise à jour DB
-            Log::info("Tentative de mise à jour de la table contact_messages...");
+            Log::info('Tentative de mise à jour de la table contact_messages...');
             $contactMessage->update([
                 'reponse' => $request->reponse,
                 'date_reponse' => Carbon::now(),
                 'statut' => 'traité',
                 'lu' => true,
-                'code_admin_assignee' => auth()->user()->code_membre ?? null 
+                'code_admin_assignee' => auth()->user()->code_membre ?? null,
             ]);
-            Log::info("Mise à jour DB réussie.");
+            Log::info('Mise à jour DB réussie.');
 
             // 4. Instanciation du Mailable (C'est souvent ici que ça plante)
-            Log::info("Instanciation de la classe ContactReplyMail...");
+            Log::info('Instanciation de la classe ContactReplyMail...');
             $mailable = new ContactReplyMail($contactMessage, $request->reponse);
-            Log::info("Objet Mailable créé avec succès.");
+            Log::info('Objet Mailable créé avec succès.');
 
             // 5. Envoi de l'email
             Log::info("Tentative d'envoi de l'email via Mail::to()...");
             Mail::to($contactMessage->email_expediteur)->send($mailable);
-            Log::info("Email envoyé sans erreur apparente.");
+            Log::info('Email envoyé sans erreur apparente.');
 
             return response()->json([
                 'success' => true,
                 'message' => 'Réponse enregistrée et email envoyé avec succès !',
-                'data' => $contactMessage
+                'data' => $contactMessage,
             ]);
 
         } catch (\Throwable $e) {
             // Log de l'erreur complète pour le développeur
-            Log::error("ERREUR CRITIQUE DANS UPDATE CONTACT:");
-            Log::error("Message: " . $e->getMessage());
-            Log::error("Fichier: " . $e->getFile());
-            Log::error("Ligne: " . $e->getLine());
-            Log::error("Trace: " . $e->getTraceAsString());
+            Log::error('ERREUR CRITIQUE DANS UPDATE CONTACT:');
+            Log::error('Message: '.$e->getMessage());
+            Log::error('Fichier: '.$e->getFile());
+            Log::error('Ligne: '.$e->getLine());
+            Log::error('Trace: '.$e->getTraceAsString());
 
             // Retour JSON détaillé pour Angular (visible dans l'onglet Network)
             return response()->json([
@@ -135,7 +136,7 @@ class ContactMessageController extends Controller
                 'message' => 'Erreur lors du traitement de la réponse.',
                 'debug_error' => $e->getMessage(),
                 'debug_file' => $e->getFile(),
-                'debug_line' => $e->getLine()
+                'debug_line' => $e->getLine(),
             ], 500);
         }
     }
@@ -146,7 +147,7 @@ class ContactMessageController extends Controller
     public function destroy(ContactMessage $contactMessage)
     {
         $contactMessage->delete();
+
         return response()->json(['message' => 'Message supprimé']);
     }
 }
-

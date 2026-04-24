@@ -11,6 +11,7 @@ class ContactReplyMail extends Mailable
     use Queueable, SerializesModels;
 
     public $contact;
+
     public $reponse;
 
     /**
@@ -28,7 +29,7 @@ class ContactReplyMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Réponse à votre message : ' . $this->contact->sujet)
-                    ->view('emails.contact-reply'); 
+        return $this->subject('Réponse à votre message : '.$this->contact->sujet)
+            ->view('emails.contact-reply');
     }
 }

@@ -12,20 +12,20 @@ class ChangeModePaiementToStringInDonsTable extends Migration
      * @return void
      */
     public function up()
-{
-    Schema::table('dons', function (Blueprint $table) {
-        // On transforme l'ENUM en STRING pour accepter 'Campay'
-        $table->string('mode_paiement')->default('Campay')->change();
-        
-        // Profitions-en pour faire pareil avec statut_paiement si besoin
-        $table->string('statut_paiement')->default('en_attente')->change();
-    });
-}
+    {
+        Schema::table('dons', function (Blueprint $table) {
+            // On transforme l'ENUM en STRING pour accepter 'Campay'
+            $table->string('mode_paiement')->default('Campay')->change();
 
-public function down()
-{
-    Schema::table('dons', function (Blueprint $table) {
-        // Optionnel : revenir à l'enum si nécessaire
-    });
-}
+            // Profitions-en pour faire pareil avec statut_paiement si besoin
+            $table->string('statut_paiement')->default('en_attente')->change();
+        });
+    }
+
+    public function down()
+    {
+        Schema::table('dons', function (Blueprint $table) {
+            // Optionnel : revenir à l'enum si nécessaire
+        });
+    }
 }
