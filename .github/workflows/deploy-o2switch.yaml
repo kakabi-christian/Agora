@@ -179,14 +179,15 @@ jobs:
       - name: Test SFTP connectivity
         run: |
           echo "Testing SFTP connectivity to ${{ secrets.O2SWITCH_FTP_HOST }}:22"
-          timeout 30 nc -zv ${{ secrets.O2SWITCH_FTP_HOST }} 22 || echo "Connection failed - checking alternatives"
+          timeout 30 nc -zv ${{ secrets.O2SWITCH_FTP_HOST }} 22 || echo "Primary host connection failed"
           
-          # Test common O2Switch hosts
-          echo "Testing ssh.o2switch.net:22"
-          timeout 30 nc -zv ssh.o2switch.net 22 || echo "ssh.o2switch.net not reachable"
+          # Test the known O2Switch domain
+          echo "Testing known O2Switch domain cdiu8226.odns.fr:22"
+          timeout 30 nc -zv cdiu8226.odns.fr 22 || echo "cdiu8226.odns.fr not reachable"
           
-          echo "Testing ftp.o2switch.net:22"
-          timeout 30 nc -zv ftp.o2switch.net 22 || echo "ftp.o2switch.net not reachable"
+          # Test SSH connectivity with verbose output
+          echo "Testing SSH handshake..."
+          timeout 10 ssh -o ConnectTimeout=10 -o BatchMode=yes -o StrictHostKeyChecking=no ${{ secrets.O2SWITCH_FTP_USER }}@${{ secrets.O2SWITCH_FTP_HOST }} exit 2>&1 || echo "SSH test completed"
 
       - name: Deploy Backend via SFTP
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4

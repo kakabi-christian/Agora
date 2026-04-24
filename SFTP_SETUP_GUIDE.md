@@ -8,17 +8,20 @@ Ajoute ces secrets :
 
 ### 1. O2SWITCH_FTP_HOST
 - **Nom** : `O2SWITCH_FTP_HOST`
-- **Valeur** : L'adresse de ton serveur O2Switch (SANS le protocole)
-- **Exemples courants** :
-  - `ssh.o2switch.net` (le plus courant)
-  - `ftp.o2switch.net`
+- **Valeur** : L'adresse RÉELLE de ton serveur O2Switch (SANS le protocole)
+- **⚠️ IMPORTANT** : `ssh.o2switch.net` et `ftp.o2switch.net` N'EXISTENT PAS
+- **Exemples réels** :
+  - `cluster1.o2switch.net`
+  - `cluster2.o2switch.net`
+  - `srv001.o2switch.fr`
+  - `srv002.o2switch.fr`
   - `ton-domaine.com` (si tu as un domaine personnalisé)
-- **PAS** : `sftp://` (juste l'adresse)
 
-**Comment trouver la bonne adresse :**
-1. Regarde ton email de bienvenue O2Switch
-2. Connecte-toi à ton cPanel → section "Accès SSH"
-3. Teste avec `ssh.o2switch.net` en premier
+**🔍 Comment trouver la bonne adresse :**
+1. **Regarde ton email de bienvenue O2Switch** (le plus fiable)
+2. **Connecte-toi à ton cPanel → section "SSH Access"**
+3. **Ou va dans ton espace client O2Switch → Mes services**
+4. **Voir le guide complet** : `TROUVER_ADRESSE_O2SWITCH.md`
 
 ### 2. O2SWITCH_FTP_USER
 - **Nom** : `O2SWITCH_FTP_USER`
