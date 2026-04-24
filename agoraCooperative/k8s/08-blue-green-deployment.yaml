@@ -19,11 +19,20 @@ spec:
         app: agora-app
         version: blue
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       imagePullSecrets:
       - name: docker-registry-secret
       containers:
       - name: app
         image: YOUR_DOCKERHUB_USERNAME/agora-cooperative:v1.0.0
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
         ports:
         - containerPort: 9000
         envFrom:
@@ -43,7 +52,13 @@ spec:
             memory: "512Mi"
             cpu: "500m"
       - name: nginx
-        image: nginx:alpine
+        image: nginx:1.25-alpine
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 101
+          capabilities:
+            drop:
+            - ALL
         ports:
         - containerPort: 80
         volumeMounts:
@@ -53,6 +68,7 @@ spec:
       - name: nginx-config
         configMap:
           name: nginx-config
+
 ---
 # Green Deployment (Nouvelle version à déployer)
 apiVersion: apps/v1
@@ -64,7 +80,7 @@ metadata:
     app: agora-app
     version: green
 spec:
-  replicas: 0  # Démarrer à 0, augmenter lors du déploiement
+  replicas: 0
   selector:
     matchLabels:
       app: agora-app
@@ -75,11 +91,20 @@ spec:
         app: agora-app
         version: green
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
       imagePullSecrets:
       - name: docker-registry-secret
       containers:
       - name: app
         image: YOUR_DOCKERHUB_USERNAME/agora-cooperative:v2.0.0
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
         ports:
         - containerPort: 9000
         envFrom:
@@ -99,7 +124,13 @@ spec:
             memory: "512Mi"
             cpu: "500m"
       - name: nginx
-        image: nginx:alpine
+        image: nginx:1.25-alpine
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsUser: 101
+          capabilities:
+            drop:
+            - ALL
         ports:
         - containerPort: 80
         volumeMounts:
@@ -109,6 +140,7 @@ spec:
       - name: nginx-config
         configMap:
           name: nginx-config
+
 ---
 # Service qui pointe vers Blue ou Green
 apiVersion: v1

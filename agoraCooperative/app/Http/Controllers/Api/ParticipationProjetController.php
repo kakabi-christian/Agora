@@ -22,16 +22,16 @@ class ParticipationProjetController extends Controller
         // Vérifier que le projet existe
         $projet = Projets::find($projet_id);
 
-        if (!$projet) {
+        if (! $projet) {
             return response()->json([
-                'message' => 'Projet non trouvé.'
+                'message' => 'Projet non trouvé.',
             ], 404);
         }
 
         // Vérifier que le projet accepte des participants
-        if (!in_array($projet->statut, ['approuve', 'en_cours'])) {
+        if (! in_array($projet->statut, ['approuve', 'en_cours'])) {
             return response()->json([
-                'message' => 'Ce projet n\'accepte plus de participants.'
+                'message' => 'Ce projet n\'accepte plus de participants.',
             ], 422);
         }
 
@@ -42,7 +42,7 @@ class ParticipationProjetController extends Controller
 
         if ($dejaParticipant) {
             return response()->json([
-                'message' => 'Vous participez déjà à ce projet.'
+                'message' => 'Vous participez déjà à ce projet.',
             ], 409);
         }
 
@@ -68,7 +68,6 @@ class ParticipationProjetController extends Controller
         ], 201);
     }
 
-
     /**
      * Quitter un projet (membre connecté)
      */
@@ -80,9 +79,9 @@ class ParticipationProjetController extends Controller
             ->where('projet_id', $projet_id)
             ->first();
 
-        if (!$participation) {
+        if (! $participation) {
             return response()->json([
-                'message' => 'Vous ne participez pas à ce projet.'
+                'message' => 'Vous ne participez pas à ce projet.',
             ], 404);
         }
 
@@ -146,9 +145,9 @@ class ParticipationProjetController extends Controller
             ->where('statut', 'actif')
             ->first();
 
-        if (!$participation) {
+        if (! $participation) {
             return response()->json([
-                'message' => 'Participation active non trouvée.'
+                'message' => 'Participation active non trouvée.',
             ], 404);
         }
 
@@ -168,9 +167,9 @@ class ParticipationProjetController extends Controller
     {
         $projet = Projets::find($projet_id);
 
-        if (!$projet) {
+        if (! $projet) {
             return response()->json([
-                'message' => 'Projet non trouvé.'
+                'message' => 'Projet non trouvé.',
             ], 404);
         }
 
@@ -209,9 +208,9 @@ class ParticipationProjetController extends Controller
 
         $participation = Participation_projets::find($id);
 
-        if (!$participation) {
+        if (! $participation) {
             return response()->json([
-                'message' => 'Participation non trouvée.'
+                'message' => 'Participation non trouvée.',
             ], 404);
         }
 
@@ -235,9 +234,9 @@ class ParticipationProjetController extends Controller
 
         $projet = Projets::find($projet_id);
 
-        if (!$projet) {
+        if (! $projet) {
             return response()->json([
-                'message' => 'Projet non trouvé.'
+                'message' => 'Projet non trouvé.',
             ], 404);
         }
 
@@ -248,7 +247,7 @@ class ParticipationProjetController extends Controller
 
         if ($existe) {
             return response()->json([
-                'message' => 'Ce membre participe déjà au projet.'
+                'message' => 'Ce membre participe déjà au projet.',
             ], 409);
         }
 
@@ -274,16 +273,16 @@ class ParticipationProjetController extends Controller
     {
         $participation = Participation_projets::find($id);
 
-        if (!$participation) {
+        if (! $participation) {
             return response()->json([
-                'message' => 'Participation non trouvée.'
+                'message' => 'Participation non trouvée.',
             ], 404);
         }
 
         $participation->delete();
 
         return response()->json([
-            'message' => 'Participant retiré du projet.'
+            'message' => 'Participant retiré du projet.',
         ]);
     }
 }

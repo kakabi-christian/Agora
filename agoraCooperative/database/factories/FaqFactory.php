@@ -12,7 +12,7 @@ class FaqFactory extends Factory
     public function definition()
     {
         return [
-            'question' => $this->faker->sentence(6) . '?',
+            'question' => $this->faker->sentence(6).'?',
             'reponse' => $this->faker->paragraph(2),
             'categorie' => $this->faker->randomElement(['general', 'adhesion', 'evenements', 'projets', 'dons']),
             'ordre' => $this->faker->numberBetween(1, 100),

@@ -32,6 +32,6 @@ class DemandeAdhesionConfirmee extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject('Confirmation de votre demande d\'adhésion - Agora Coopérative')
-                    ->markdown('emails.demande-adhesion-confirmee');
+            ->markdown('emails.demande-adhesion-confirmee');
     }
 }

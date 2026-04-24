@@ -18,7 +18,7 @@ class PartenaireFactory extends Factory
             'logo_url' => null,
             'site_web' => $this->faker->url(),
             'contact_email' => $this->faker->companyEmail(),
-            'contact_telephone' => '+336' . $this->faker->numberBetween(10000000, 99999999),
+            'contact_telephone' => '+336'.$this->faker->numberBetween(10000000, 99999999),
             'adresse' => $this->faker->address(),
             'statut' => 'actif',
         ];

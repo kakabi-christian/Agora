@@ -3,12 +3,13 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class CampayService
 {
     protected $baseUrl;
+
     protected $token;
 
     public function __construct()
@@ -30,7 +31,7 @@ class CampayService
         $externalReference = $data['reference'] ?? $this->generateReference();
         $phoneNumber = $data['phone'] ?? null;
 
-        if (!$phoneNumber) {
+        if (! $phoneNumber) {
             return [
                 'success' => false,
                 'message' => 'Le numéro de téléphone est requis pour Campay',
@@ -64,7 +65,7 @@ class CampayService
 
             if ($response->successful() && isset($result['reference'])) {
                 Log::info('[CAMPAY] Paiement initié avec succès', ['reference' => $result['reference']]);
-                
+
                 return [
                     'success' => true,
                     'reference' => $externalReference,
@@ -153,7 +154,7 @@ class CampayService
      */
     public function generateReference(string $prefix = 'PAY'): string
     {
-        return $prefix . '-' . date('Ymd') . '-' . strtoupper(Str::random(8));
+        return $prefix.'-'.date('Ymd').'-'.strtoupper(Str::random(8));
     }
 
     /**
@@ -217,7 +218,7 @@ class CampayService
             Log::critical('[CAMPAY-COLLECT] Exception', [
                 'message' => $e->getMessage(),
             ]);
-            
+
             return ['error' => true, 'message' => $e->getMessage()];
         }
     }
@@ -225,64 +226,65 @@ class CampayService
     /**
      * Retrait / Transfert (Payout)
      */
-   /**
- * Retrait / Transfert (Payout)
- */
-public function withdraw($amount, $description = "Transfert vers Admin")
-{
-    $adminPhone = config('services.campay.admin_phone');
-    $externalReference = (string) Str::uuid();
-    $url = "{$this->baseUrl}/withdraw/";
+    /**
+     * Retrait / Transfert (Payout)
+     */
+    public function withdraw($amount, $description = 'Transfert vers Admin')
+    {
+        $adminPhone = config('services.campay.admin_phone');
+        $externalReference = (string) Str::uuid();
+        $url = "{$this->baseUrl}/withdraw/";
 
-    Log::info('[CAMPAY-WITHDRAW] Tentative de retrait', [
-        'amount' => $amount,
-        'to' => $adminPhone,
-    ]);
+        Log::info('[CAMPAY-WITHDRAW] Tentative de retrait', [
+            'amount' => $amount,
+            'to' => $adminPhone,
+        ]);
 
-    try {
-        // Suppression de connectTimeout() qui cause l'erreur
-        $response = Http::withoutVerifying()
-            ->timeout(60) 
-            ->withHeaders([
-                'Authorization' => "Token {$this->token}",
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-            ])
-            ->post($url, [
-                'amount' => (string) $amount,
-                'to' => (string) $adminPhone,
-                'currency' => 'XAF',
-                'description' => $description,
-                'external_reference' => $externalReference,
+        try {
+            // Suppression de connectTimeout() qui cause l'erreur
+            $response = Http::withoutVerifying()
+                ->timeout(60)
+                ->withHeaders([
+                    'Authorization' => "Token {$this->token}",
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                ])
+                ->post($url, [
+                    'amount' => (string) $amount,
+                    'to' => (string) $adminPhone,
+                    'currency' => 'XAF',
+                    'description' => $description,
+                    'external_reference' => $externalReference,
+                ]);
+
+            $data = $response->json();
+
+            if ($response->successful()) {
+                Log::info('[CAMPAY-WITHDRAW] Succès', [
+                    'reference' => $data['reference'] ?? 'N/A',
+                ]);
+
+                return $data;
+            }
+
+            Log::error('[CAMPAY-WITHDRAW] Échec', [
+                'status' => $response->status(),
+                'response' => $data,
             ]);
 
-        $data = $response->json();
-
-        if ($response->successful()) {
-            Log::info('[CAMPAY-WITHDRAW] Succès', [
-                'reference' => $data['reference'] ?? 'N/A',
-            ]);
             return $data;
-        }
+        } catch (\Exception $e) {
+            Log::critical('[CAMPAY-WITHDRAW] Exception', [
+                'message' => $e->getMessage(),
+            ]);
 
-        Log::error('[CAMPAY-WITHDRAW] Échec', [
-            'status' => $response->status(),
-            'response' => $data,
-        ]);
-        
-        return $data;
-    } catch (\Exception $e) {
-        Log::critical('[CAMPAY-WITHDRAW] Exception', [
-            'message' => $e->getMessage(),
-        ]);
-        
-        return [
-            'success' => false,
-            'message' => "Erreur de connexion au serveur Campay",
-            'error_detail' => $e->getMessage(),
-        ];
+            return [
+                'success' => false,
+                'message' => 'Erreur de connexion au serveur Campay',
+                'error_detail' => $e->getMessage(),
+            ];
+        }
     }
-}
 
     /**
      * Vérifier le statut d'une transaction
@@ -290,7 +292,7 @@ public function withdraw($amount, $description = "Transfert vers Admin")
     public function checkStatus($reference)
     {
         $url = "{$this->baseUrl}/transaction/{$reference}/";
-        
+
         Log::info('[CAMPAY-STATUS] Vérification', ['reference' => $reference]);
 
         try {
@@ -301,15 +303,15 @@ public function withdraw($amount, $description = "Transfert vers Admin")
                 ->get($url);
 
             $result = $response->json();
-            
+
             Log::info('[CAMPAY-STATUS] Réponse', $result);
-            
+
             return $result;
         } catch (\Exception $e) {
             Log::error('[CAMPAY-STATUS] Exception', [
                 'message' => $e->getMessage(),
             ]);
-            
+
             return ['error' => true, 'message' => $e->getMessage()];
         }
     }

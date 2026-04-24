@@ -16,8 +16,11 @@ class PaiementEvenementConfirme extends Mailable
     use Queueable, SerializesModels;
 
     public $inscription;
+
     public $evenement;
+
     public $membre;
+
     public $paiement;
 
     /**
@@ -44,7 +47,7 @@ class PaiementEvenementConfirme extends Mailable
         $pdfService = app(PdfService::class);
         $pdfPath = $pdfService->genererConfirmationInscription($this->inscription);
 
-        return $this->subject('Paiement confirmé - ' . $this->evenement->titre)
+        return $this->subject('Paiement confirmé - '.$this->evenement->titre)
             ->markdown('emails.paiement-evenement-confirme')
             ->with([
                 'inscription' => $this->inscription,

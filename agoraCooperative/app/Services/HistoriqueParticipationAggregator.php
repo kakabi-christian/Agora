@@ -2,41 +2,38 @@
 
 namespace App\Services;
 
-use App\Models\Membre;
 use App\Models\HistoriqueParticipation;
+use App\Models\Membre;
 
 class HistoriqueParticipationAggregator
 {
     /**
      * Agréger toutes les participations d'un membre
-     * 
-     * @param string $codeMembre
-     * @return void
      */
     public function aggregate(string $codeMembre): void
     {
         $membre = Membre::where('code_membre', $codeMembre)->first();
-        
-        if (!$membre) {
+
+        if (! $membre) {
             return;
         }
-        
+
         // Supprimer l'historique existant pour recréer
         HistoriqueParticipation::where('code_membre', $codeMembre)->delete();
-        
+
         // Agréger les inscriptions aux événements
         $this->aggregateInscriptionEvents($membre);
-        
+
         // Agréger les participations aux projets
         $this->aggregateParticipationProjets($membre);
-        
+
         // Agréger les dons
         $this->aggregateDons($membre);
-        
+
         // Mettre à jour le nombre de participations dans le profil
         $this->updateProfilParticipationCount($membre);
     }
-    
+
     /**
      * Agréger les inscriptions aux événements
      */
@@ -45,7 +42,7 @@ class HistoriqueParticipationAggregator
         $inscriptions = $membre->inscriptionEvents()
             ->with('evenement')
             ->get();
-        
+
         foreach ($inscriptions as $inscription) {
             if ($inscription->evenement) {
                 HistoriqueParticipation::create([
@@ -65,7 +62,7 @@ class HistoriqueParticipationAggregator
             }
         }
     }
-    
+
     /**
      * Agréger les participations aux projets
      */
@@ -74,7 +71,7 @@ class HistoriqueParticipationAggregator
         $participations = $membre->participationProjets()
             ->with('projet')
             ->get();
-        
+
         foreach ($participations as $participation) {
             if ($participation->projet) {
                 HistoriqueParticipation::create([
@@ -95,19 +92,19 @@ class HistoriqueParticipationAggregator
             }
         }
     }
-    
+
     /**
      * Agréger les dons
      */
     protected function aggregateDons(Membre $membre): void
     {
         $dons = $membre->dons()->get();
-        
+
         foreach ($dons as $don) {
             HistoriqueParticipation::create([
                 'code_membre' => $membre->code_membre,
                 'type_participation' => 'don',
-                'titre' => 'Don ' . ($don->type_don ?? 'financier'),
+                'titre' => 'Don '.($don->type_don ?? 'financier'),
                 'description' => $don->description ?? 'Contribution financière à la coopérative',
                 'date_participation' => $don->date_don,
                 'details' => [
@@ -120,14 +117,14 @@ class HistoriqueParticipationAggregator
             ]);
         }
     }
-    
+
     /**
      * Mettre à jour le nombre de participations dans le profil
      */
     protected function updateProfilParticipationCount(Membre $membre): void
     {
         $count = HistoriqueParticipation::where('code_membre', $membre->code_membre)->count();
-        
+
         if ($membre->profil) {
             $membre->profil->update([
                 'nombre_participations' => $count,

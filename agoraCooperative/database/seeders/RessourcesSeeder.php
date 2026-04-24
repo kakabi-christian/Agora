@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Ressources;
 use App\Models\Membre;
+use App\Models\Ressources;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class RessourcesSeeder extends Seeder
 {
@@ -18,9 +19,10 @@ class RessourcesSeeder extends Seeder
     {
         // Récupérer un admin pour l'uploader
         $admin = Membre::where('role', 'administrateur')->first();
-        
-        if (!$admin) {
+
+        if (! $admin) {
             $this->command->error('Aucun admin trouvé. Veuillez créer un admin d\'abord.');
+
             return;
         }
 
@@ -56,7 +58,7 @@ class RessourcesSeeder extends Seeder
                 'est_public' => true,
                 'necessite_authentification' => false,
             ],
-            
+
             // Documents comptables
             [
                 'titre' => 'Rapport financier annuel 2025',
@@ -74,7 +76,7 @@ class RessourcesSeeder extends Seeder
                 'est_public' => false,
                 'necessite_authentification' => true,
             ],
-            
+
             // Documents techniques
             [
                 'titre' => 'Guide d\'utilisation de la plateforme',
@@ -92,7 +94,7 @@ class RessourcesSeeder extends Seeder
                 'est_public' => false,
                 'necessite_authentification' => true,
             ],
-            
+
             // Documents pédagogiques
             [
                 'titre' => 'Introduction au coopérativisme',
@@ -118,7 +120,7 @@ class RessourcesSeeder extends Seeder
                 'est_public' => true,
                 'necessite_authentification' => false,
             ],
-            
+
             // Autres documents
             [
                 'titre' => 'Procès-verbal de l\'assemblée générale 2025',
@@ -140,21 +142,21 @@ class RessourcesSeeder extends Seeder
 
         foreach ($ressources as $ressourceData) {
             // Créer un fichier PDF factice
-            $filename = \Illuminate\Support\Str::slug($ressourceData['titre']) . '_' . time() . '.pdf';
-            $cheminFichier = $ressourceData['categorie'] . '/' . $filename;
-            
+            $filename = Str::slug($ressourceData['titre']).'_'.time().'.pdf';
+            $cheminFichier = $ressourceData['categorie'].'/'.$filename;
+
             // Contenu PDF factice (header PDF minimal)
-            $pdfContent = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /MediaBox [0 0 612 792] /Contents 4 0 R >>\nendobj\n4 0 obj\n<< /Length 44 >>\nstream\nBT\n/F1 12 Tf\n100 700 Td\n(" . $ressourceData['titre'] . ") Tj\nET\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f\n0000000009 00000 n\n0000000058 00000 n\n0000000115 00000 n\n0000000317 00000 n\ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n408\n%%EOF";
-            
+            $pdfContent = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /MediaBox [0 0 612 792] /Contents 4 0 R >>\nendobj\n4 0 obj\n<< /Length 44 >>\nstream\nBT\n/F1 12 Tf\n100 700 Td\n(".$ressourceData['titre'].") Tj\nET\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f\n0000000009 00000 n\n0000000058 00000 n\n0000000115 00000 n\n0000000317 00000 n\ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n408\n%%EOF";
+
             Storage::disk('ressources')->put($cheminFichier, $pdfContent);
-            
+
             // Créer l'enregistrement en base
             Ressources::create([
                 'titre' => $ressourceData['titre'],
                 'type' => $ressourceData['type'],
                 'categorie' => $ressourceData['categorie'],
                 'chemin_fichier' => $cheminFichier,
-                'nom_fichier' => $ressourceData['titre'] . '.pdf',
+                'nom_fichier' => $ressourceData['titre'].'.pdf',
                 'extension_fichier' => 'pdf',
                 'description' => $ressourceData['description'],
                 'date_publication' => now(),
@@ -166,6 +168,6 @@ class RessourcesSeeder extends Seeder
             ]);
         }
 
-        $this->command->info('✅ ' . count($ressources) . ' ressources créées avec succès !');
+        $this->command->info('✅ '.count($ressources).' ressources créées avec succès !');
     }
 }

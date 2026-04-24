@@ -2,17 +2,19 @@
 
 namespace App\Mail;
 
+use App\Models\DemandeAdhesion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use App\Models\DemandeAdhesion;
 
 class DemandeAdhesionApprouvee extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $demande;
+
     public $codeMembre;
+
     public $motDePasse;
 
     /**
@@ -31,12 +33,12 @@ class DemandeAdhesionApprouvee extends Mailable
     public function build()
     {
         return $this->subject('Votre demande d\'adhésion a été approuvée !')
-                    ->markdown('emails.demande-adhesion-approuvee')
-                    ->with([
-                        'demande' => $this->demande,
-                        'codeMembre' => $this->codeMembre,
-                        'motDePasse' => $this->motDePasse,
-                    ]);
+            ->markdown('emails.demande-adhesion-approuvee')
+            ->with([
+                'demande' => $this->demande,
+                'codeMembre' => $this->codeMembre,
+                'motDePasse' => $this->motDePasse,
+            ]);
     }
 }
 // Mail/DemandeAdhesionApprouvee.php

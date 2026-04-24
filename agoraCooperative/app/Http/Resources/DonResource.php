@@ -11,7 +11,7 @@ class DonResource extends JsonResource
         return [
             'id' => $this->id,
             'nom_donateur' => $this->anonyme ? 'Anonyme' : $this->nom_donateur,
-            'email_donateur' => $this->when(!$this->anonyme, $this->email_donateur),
+            'email_donateur' => $this->when(! $this->anonyme, $this->email_donateur),
             'type' => $this->type,
             'montant' => $this->montant,
             'mode_paiement' => $this->mode_paiement,

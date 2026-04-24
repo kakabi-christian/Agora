@@ -15,12 +15,12 @@ class DonFactory extends Factory
         return [
             'nom_complet' => $this->faker->name(),
             'email' => $this->faker->safeEmail(),
-            'telephone' => '+336' . $this->faker->numberBetween(10000000, 99999999),
+            'telephone' => '+336'.$this->faker->numberBetween(10000000, 99999999),
             'montant' => $this->faker->randomFloat(2, 1000, 100000),
             'mode_paiement' => $this->faker->randomElement(['mobile_money', 'carte_bancaire', 'virement']),
             'message' => $this->faker->sentence(8),
             'statut' => $this->faker->randomElement(['en_attente', 'complet']),
-            'reference_paiement' => 'PAY' . strtoupper(Str::random(10)),
+            'reference_paiement' => 'PAY'.strtoupper(Str::random(10)),
         ];
     }
 

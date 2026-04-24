@@ -32,6 +32,6 @@ class DemandeAdhesionRejetee extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject('Réponse à votre demande d\'adhésion - Agora Coopérative')
-                    ->markdown('emails.demande-adhesion-rejetee');
+            ->markdown('emails.demande-adhesion-rejetee');
     }
 }

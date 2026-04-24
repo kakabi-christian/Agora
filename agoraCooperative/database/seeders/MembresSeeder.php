@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Membre;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class MembresSeeder extends Seeder
 {
@@ -18,7 +19,7 @@ class MembresSeeder extends Seeder
             'nom' => 'kakabi',
             'prenom' => 'christian',
             'email' => 'kakabichristian58@gmail.com',
-            'mot_de_passe' => \Illuminate\Support\Facades\Hash::make('tkkc2006'), // mot de passe connu
+            'mot_de_passe' => Hash::make('tkkc2006'), // mot de passe connu
             'date_inscription' => now(),
             'role' => 'administrateur',
             'est_actif' => true,

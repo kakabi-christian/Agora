@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\Membre;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SimpleAuthTest extends TestCase
 {
@@ -54,12 +54,12 @@ class SimpleAuthTest extends TestCase
         $response = $this->getJson('/api/auth/me');
 
         $response->assertStatus(200)
-                ->assertJson([
-                    'data' => [
-                        'code_membre' => $user->code_membre,
-                        'email' => $user->email,
-                    ]
-                ]);
+            ->assertJson([
+                'data' => [
+                    'code_membre' => $user->code_membre,
+                    'email' => $user->email,
+                ],
+            ]);
     }
 
     public function test_unauthenticated_user_cannot_access_protected_routes()

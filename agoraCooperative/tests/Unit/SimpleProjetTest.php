@@ -2,9 +2,9 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\Projets;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SimpleProjetTest extends TestCase
 {
@@ -24,7 +24,7 @@ class SimpleProjetTest extends TestCase
 
     public function test_projet_fillable_attributes()
     {
-        $projet = new Projets();
+        $projet = new Projets;
 
         $fillable = $projet->getFillable();
 
@@ -43,7 +43,7 @@ class SimpleProjetTest extends TestCase
             'resultats',
             'image_url',
             'notes',
-            'est_public'
+            'est_public',
         ];
 
         foreach ($expectedFillable as $attribute) {
@@ -77,9 +77,9 @@ class SimpleProjetTest extends TestCase
     public function test_projet_soft_delete()
     {
         $projet = Projets::factory()->create();
-        
+
         $projet->delete();
-        
+
         $this->assertSoftDeleted('projets', ['id' => $projet->id]);
         $this->assertNotNull($projet->deleted_at);
     }

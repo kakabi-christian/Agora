@@ -13,14 +13,26 @@ spec:
       labels:
         app: prometheus
     spec:
+      # Sécurité au niveau du Pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534  # Utilisateur "nobody" standard dans l'image Prometheus
+        fsGroup: 65534
       containers:
       - name: prometheus
         image: prom/prometheus:v2.45.0
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true # Sécurité renforcée : empêche d'écrire hors des volumes
+          capabilities:
+            drop:
+            - ALL
         ports:
         - containerPort: 9090
         volumeMounts:
         - name: prometheus-config
           mountPath: /etc/prometheus
+          readOnly: true
         - name: prometheus-storage
           mountPath: /prometheus
         resources:

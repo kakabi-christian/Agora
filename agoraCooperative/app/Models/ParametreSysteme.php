@@ -23,6 +23,7 @@ class ParametreSysteme extends Model
     public static function get($cle, $default = null)
     {
         $parametre = self::where('cle', $cle)->first();
+
         return $parametre ? $parametre->valeur : $default;
     }
 

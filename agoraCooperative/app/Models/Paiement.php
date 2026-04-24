@@ -10,8 +10,11 @@ class Paiement extends Model
     use HasFactory;
 
     protected $table = 'paiements';
+
     protected $primaryKey = 'code_paiement';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [

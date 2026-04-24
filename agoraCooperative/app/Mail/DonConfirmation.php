@@ -21,7 +21,7 @@ class DonConfirmation extends Mailable
 
     public function build()
     {
-        $mail = $this->subject('Merci pour votre don - Reçu ' . ($this->don->numero_recu ?? 'en cours'))
+        $mail = $this->subject('Merci pour votre don - Reçu '.($this->don->numero_recu ?? 'en cours'))
             ->markdown('emails.don-confirmation')
             ->with(['don' => $this->don]);
 
@@ -29,7 +29,7 @@ class DonConfirmation extends Mailable
         if ($this->don->numero_recu && $this->don->statut_paiement === 'paye') {
             $pdfService = app(PdfService::class);
             $pdfPath = $pdfService->genererRecuDon($this->don);
-            
+
             $mail->attachFromStorage($pdfPath, "recu-don-{$this->don->numero_recu}.pdf", [
                 'mime' => 'application/pdf',
             ]);

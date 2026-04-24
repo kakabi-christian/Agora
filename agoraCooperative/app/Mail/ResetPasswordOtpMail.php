@@ -27,6 +27,6 @@ class ResetPasswordOtpMail extends Mailable
     public function build()
     {
         return $this->subject('Code de réinitialisation - AgoCooperative')
-                    ->view('emails.otp'); // Assure-toi que le fichier resources/views/emails/otp.blade.php existe
+            ->view('emails.otp'); // Assure-toi que le fichier resources/views/emails/otp.blade.php existe
     }
 }

@@ -2,9 +2,10 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\Evenements;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SimpleEvenementTest extends TestCase
 {
@@ -25,7 +26,7 @@ class SimpleEvenementTest extends TestCase
 
     public function test_evenement_fillable_attributes()
     {
-        $evenement = new Evenements();
+        $evenement = new Evenements;
 
         $fillable = $evenement->getFillable();
 
@@ -43,7 +44,7 @@ class SimpleEvenementTest extends TestCase
             'statut',
             'image_url',
             'instructions',
-            'paiement_obligatoire'
+            'paiement_obligatoire',
         ];
 
         foreach ($expectedFillable as $attribute) {
@@ -54,9 +55,9 @@ class SimpleEvenementTest extends TestCase
     public function test_evenement_code_evenement_is_unique()
     {
         $evenement1 = Evenements::factory()->create();
-        
-        $this->expectException(\Illuminate\Database\QueryException::class);
-        
+
+        $this->expectException(QueryException::class);
+
         Evenements::factory()->create(['code_evenement' => $evenement1->code_evenement]);
     }
 
@@ -86,9 +87,9 @@ class SimpleEvenementTest extends TestCase
     public function test_evenement_soft_delete()
     {
         $evenement = Evenements::factory()->create();
-        
+
         $evenement->delete();
-        
+
         $this->assertSoftDeleted('evenements', ['code_evenement' => $evenement->code_evenement]);
         $this->assertNotNull($evenement->deleted_at);
     }
@@ -115,11 +116,11 @@ class SimpleEvenementTest extends TestCase
     {
         Evenements::factory()->count(3)->create([
             'date_debut' => now()->addDays(7),
-            'statut' => 'planifie'
+            'statut' => 'planifie',
         ]);
         Evenements::factory()->count(2)->create([
             'date_debut' => now()->subDays(7),
-            'statut' => 'termine'
+            'statut' => 'termine',
         ]);
 
         $upcomingEvents = Evenements::where('date_debut', '>', now())->get();

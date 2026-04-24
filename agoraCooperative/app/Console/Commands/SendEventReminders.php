@@ -47,14 +47,15 @@ class SendEventReminders extends Command
         // Récupérer les événements dans les prochaines 24h (entre 23h et 25h pour avoir une marge)
         $evenements = Evenements::whereBetween('date_debut', [
             now()->addHours(23),
-            now()->addHours(25)
+            now()->addHours(25),
         ])
-        ->whereIn('statut', ['planifie', 'en_cours'])
-        ->get();
+            ->whereIn('statut', ['planifie', 'en_cours'])
+            ->get();
 
         if ($evenements->isEmpty()) {
             $this->info('✅ Aucun événement dans les prochaines 24h.');
             Log::info('Rappels événements: Aucun événement trouvé');
+
             return 0;
         }
 
@@ -76,11 +77,12 @@ class SendEventReminders extends Command
             // Filtrer selon le paiement obligatoire
             if ($evenement->paiement_obligatoire && $evenement->frais_inscription > 0) {
                 $inscriptions = $inscriptions->where('statut_paiement', 'paye');
-                $this->line("   💰 Événement payant obligatoire - Filtrage sur paiement confirmé");
+                $this->line('   💰 Événement payant obligatoire - Filtrage sur paiement confirmé');
             }
 
             if ($inscriptions->isEmpty()) {
-                $this->line("   ℹ️  Aucune inscription éligible pour cet événement");
+                $this->line('   ℹ️  Aucune inscription éligible pour cet événement');
+
                 continue;
             }
 
@@ -124,7 +126,7 @@ class SendEventReminders extends Command
         }
 
         $this->newLine();
-        $this->info("📊 Résumé:");
+        $this->info('📊 Résumé:');
         $this->info("   ✅ Emails envoyés: {$totalEmailsEnvoyes}");
         if ($totalErreurs > 0) {
             $this->error("   ❌ Erreurs: {$totalErreurs}");

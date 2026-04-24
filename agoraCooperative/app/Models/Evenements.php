@@ -11,8 +11,11 @@ class Evenements extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'evenements';
+
     protected $primaryKey = 'code_evenement';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [

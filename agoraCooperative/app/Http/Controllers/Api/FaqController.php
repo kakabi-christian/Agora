@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FaqRequest;
 use App\Models\Faq;
 use Illuminate\Http\Request;
-use App\Http\Requests\FaqRequest;
 
 class FaqController extends Controller
 {
@@ -18,8 +18,8 @@ class FaqController extends Controller
         $perPage = $request->query('per_page', 10);
 
         $faqs = Faq::where('est_actif', true)
-                    ->orderBy('ordre_affichage')
-                    ->paginate($perPage);
+            ->orderBy('ordre_affichage')
+            ->paginate($perPage);
 
         return response()->json($faqs);
     }
@@ -33,7 +33,7 @@ class FaqController extends Controller
 
         return response()->json([
             'message' => 'FAQ créée avec succès.',
-            'faq' => $faq
+            'faq' => $faq,
         ], 201);
     }
 
@@ -57,7 +57,7 @@ class FaqController extends Controller
 
         return response()->json([
             'message' => 'FAQ mise à jour avec succès.',
-            'faq' => $faq
+            'faq' => $faq,
         ]);
     }
 
@@ -69,7 +69,7 @@ class FaqController extends Controller
         $faq->delete();
 
         return response()->json([
-            'message' => 'FAQ supprimée avec succès.'
+            'message' => 'FAQ supprimée avec succès.',
         ]);
     }
 
@@ -79,7 +79,7 @@ class FaqController extends Controller
     public function vote(Request $request, Faq $faq)
     {
         $request->validate([
-            'vote' => 'required|in:utile,inutile'
+            'vote' => 'required|in:utile,inutile',
         ]);
 
         if ($request->vote === 'utile') {
@@ -90,7 +90,7 @@ class FaqController extends Controller
 
         return response()->json([
             'message' => 'Vote enregistré.',
-            'faq' => $faq
+            'faq' => $faq,
         ]);
     }
 }
